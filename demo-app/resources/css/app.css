@@ -1,0 +1,113 @@
+div[style] {
+    position: absolute!important;
+    top: -10000px;
+    left: -10000px;
+}
+
+code[class*=language-],pre,pre[class*=language-] {
+    font-family: Dank Mono,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace
+}
+
+code[class*=language-],pre[class*=language-] {
+    text-align: left;
+    line-height: 1.5;
+    display: block;
+    color: #8c93c1;
+    direction: ltr;
+    white-space: pre;
+    word-spacing: normal;
+    word-break: normal;
+    tab-size: 4;
+    hyphens: none
+}
+
+pre[class*=language-] {
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,.1),0 10px 10px -5px rgba(0,0,0,.04);
+    border-radius: .5rem;
+    padding: 2rem;
+    overflow: auto
+}
+
+:not(pre)>code[class*=language-],pre[class*=language-] {
+    --bg-opacity: 1;
+    background-color: #292c3f;
+    background-color: rgba(41,44,63,var(--bg-opacity))
+}
+
+:not(pre)>code[class*=language-] {
+    padding: .1em;
+    border-radius: .3em
+}
+
+.token.operator,.token.punctuation {
+    color: #84daf5
+}
+
+.token.namespace {
+    opacity: .7
+}
+
+.token.keyword,.token.property,.token.tag {
+    color: #c48ee8;
+    font-style: italic
+}
+
+.token.class-name,.token.scope {
+    color: #f9c862
+}
+
+.token.package {
+    color: #c2d3df
+}
+
+.token.package>.punctuation {
+    color: #8c93c1
+}
+
+.token.function {
+    color: #80a8ff
+}
+
+.token.single-quoted-string,.token.string {
+    color: #c3e88d
+}
+
+.token.constant,.token.number,.token.variable {
+    color: #f78c6c
+}
+
+pre[class*=language-].line-numbers {
+    position: relative;
+    padding-left: 3.5em;
+    counter-reset: linenumber
+}
+
+pre[class*=language-].line-numbers>code {
+    position: relative;
+    white-space: inherit
+}
+
+.line-numbers .line-numbers-rows {
+    position: absolute;
+    pointer-events: none;
+    top: 0;
+    font-size: 100%;
+    left: -2.5em;
+    width: 2em;
+    letter-spacing: -1px;
+    user-select: none
+}
+
+.line-numbers-rows>span {
+    pointer-events: none;
+    display: block;
+    counter-increment: linenumber
+}
+
+.line-numbers-rows>span:before {
+    content: counter(linenumber);
+    color: rgba(123,129,169,.67);
+    display: block;
+    padding-right: .8em;
+    text-align: right
+}

@@ -3,7 +3,7 @@
 This library currently implements small part of [Facebook BigPipe][blog] so far, but the advantage is to efficiently insert/replace content and work with the DOM. It is also possible to easily call JavaScript modules from PHP.
 
 ## Demo App
-Try the app with [live demo](http://bigpipe.xf.cz).
+Try the app with [live demo](http://bigpipe.xf.cz) or check how to [install](demo-app/README.md).
 
 ## Requirements
 * PHP 7.1 or higher
@@ -178,7 +178,7 @@ The purpose of this library is to rapidly reduce the continuously repetitive cod
 
 ## License
 
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+The MIT License (MIT). Please see [License File](LICENSE) for more information.
 
 [link-author]: https://github.com/richardDobron
 [blog]: https://www.facebook.com/notes/facebook-engineering/bigpipe-pipelining-web-pages-for-high-performance/389414033919

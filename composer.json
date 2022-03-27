@@ -20,6 +20,9 @@
             "name": "Richard Dobroň"
         }
     ],
+    "archive": {
+        "exclude": ["/demo-app"]
+    },
     "minimum-stability": "dev",
     "autoload": {
         "files": [
