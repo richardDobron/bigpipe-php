@@ -1,0 +1,47 @@
+{
+    "name": "richarddobron/bigpipe",
+    "description": "This library currently implements small part of Facebook BigPipe so far, but the advantage is to efficiently insert/replace content and work with the DOM. It is also possible to easily call JavaScript modules from PHP.",
+    "type": "library",
+    "keywords": [
+        "bigpipe",
+        "xhr",
+        "html",
+        "dom",
+        "async",
+        "javascript"
+    ],
+    "require": {
+        "php": ">=7.1",
+        "ext-json": "*"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Richard Dobroň"
+        }
+    ],
+    "minimum-stability": "dev",
+    "autoload": {
+        "files": [
+            "src/helpers.php"
+        ],
+        "psr-4": {
+            "dobron\\BigPipe\\": "src"
+        }
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": ">=v3.0.0",
+        "phpunit/phpunit": ">=7.5.0"
+    },
+    "scripts": {
+        "post-merge": "composer install",
+        "check-style": "php-cs-fixer fix --using-cache=no --diff --dry-run --ansi",
+        "fix-style": "php-cs-fixer fix --using-cache=no --ansi",
+        "test": "vendor/bin/phpunit --colors=always"
+    },
+    "scripts-descriptions": {
+        "check-style": "Run style checks (only dry run - no fixing!).",
+        "fix-style": "Run style checks and fix violations.",
+        "test": "Run all tests."
+    }
+}
