@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BasicExampleController;
+use App\Http\Controllers\DialogController;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\RedirectController;
 use App\Http\Controllers\TransportController;
@@ -32,6 +33,19 @@ Route::group(['prefix' => 'tutorial'], function () {
         Route::post('/reload-delay', [RedirectController::class, 'reloadDelay'])->name('reload-delay');
         Route::post('/redirect', [RedirectController::class, 'redirect'])->name('redirect');
         Route::post('/redirect-delay', [RedirectController::class, 'redirectDelay'])->name('redirect-delay');
+    });
+
+    Route::group(['prefix' => 'dialogs', 'as' => 'dialog.'], function () {
+        Route::get('/', function () {
+            return view('tutorial.dialogs');
+        });
+
+        Route::post('/model-dialog', [DialogController::class, 'modelDialog'])->name('model-dialog');
+        Route::post('/html-dialog', [DialogController::class, 'htmlDialog'])->name('html-dialog');
+        Route::post('/common-dialog', [DialogController::class, 'commonDialog'])->name('common-dialog');
+        Route::post('/delete-dialog', [DialogController::class, 'deleteDialog'])->name('delete-dialog');
+        Route::post('/confirm-dialog', [DialogController::class, 'confirmDialog'])->name('confirm-dialog');
+        Route::post('/close-dialogs', [DialogController::class, 'closeDialogs'])->name('close-dialogs');
     });
 
     Route::group(['prefix' => 'basic-example', 'as' => 'basic-example.'], function () {

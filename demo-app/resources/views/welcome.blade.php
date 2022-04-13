@@ -41,15 +41,7 @@
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
                             </svg>
-                            <div class="ml-4 text-lg leading-7 font-semibold flex">
-                                <span class="text-gray-900 dark:text-white">Modals</span>
-                                <div class="inline-flex items-center ml-3 px-3 py-0.5 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">
-                                    <svg class="-ml-1 mr-1.5 h-2 w-2 text-indigo-400" fill="currentColor" viewBox="0 0 8 8">
-                                        <circle cx="4" cy="4" r="3"></circle>
-                                    </svg>
-                                    Upcoming feature
-                                </div>
-                            </div>
+                            <div class="ml-4 text-lg leading-7 font-semibold"><a href="/tutorial/dialogs" class="underline text-gray-900 dark:text-white">Dialogs</a></div>
                         </div>
 
                         <div class="ml-12">

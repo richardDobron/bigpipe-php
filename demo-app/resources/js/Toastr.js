@@ -16,4 +16,20 @@ export default class Toastr {
             })
             .show();
     }
+
+    success(message) {
+        toast()
+            .default('Success!', message)
+            .with({
+                shape: 'square',
+                duration: 4000,
+                speed: 1000,
+                positionX: 'center',
+                positionY: 'bottom',
+                color: 'bg-green-800',
+                fontColor: 'gray',
+                fontTone: 200
+            })
+            .show();
+    }
 }
