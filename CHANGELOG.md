@@ -8,3 +8,8 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 
 ### Added
 - Part of BigPipe implementation for Webpack.
+
+## v0.1.2 - 2022-04-14
+
+### Added
+- Dialogs support.

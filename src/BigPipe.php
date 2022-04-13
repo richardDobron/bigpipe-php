@@ -19,7 +19,7 @@ class BigPipe
      *
      * @return bool
      */
-    private static function isValidRequireCall(string $fragment): bool
+    public static function isValidRequireCall(string $fragment): bool
     {
         return !!preg_match(self::JAVASCRIPT_REQUIRE_REGEX, $fragment);
     }
