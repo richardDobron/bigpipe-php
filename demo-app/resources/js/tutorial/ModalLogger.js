@@ -1,6 +1,6 @@
 export default class ModalLogger
 {
-    construct(dialog) {
+    constructor(dialog) {
         console.log('dialog data:', dialog);
 
         dialog.on('show', (event) => {
