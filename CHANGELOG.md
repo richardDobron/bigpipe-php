@@ -13,3 +13,9 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 
 ### Added
 - Dialogs support.
+
+## v0.1.3 - 2022-04-27
+
+### Added
+- Method to close only current dialog
+- Support of __toString in require arguments.
