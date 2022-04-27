@@ -60,6 +60,13 @@ class DialogResponse extends AsyncResponse
         return $this;
     }
 
+    public function closeDialog()
+    {
+        $this->bigPipe()->require("require('bigpipe-util/src/core/Dialog').closeCurrent()");
+
+        return $this;
+    }
+
     public function dialog(array $options = [])
     {
         if ($this->content) {
