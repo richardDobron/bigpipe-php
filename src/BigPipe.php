@@ -66,10 +66,14 @@ class BigPipe
         ];
 
         if (!empty($args)) {
-            $require[] = $args;
-        }
+            static::$jsmods[__FUNCTION__][] = [];
+            $lastIndex = count(static::$jsmods[__FUNCTION__]) - 1;
 
-        static::$jsmods[__FUNCTION__][] = array_trim($require);
+            $require[] = self::transformObjectString($args);
+            static::$jsmods[__FUNCTION__][$lastIndex] = array_trim($require);
+        } else {
+            static::$jsmods[__FUNCTION__][] = array_trim($require);
+        }
 
         return $this;
     }
@@ -77,5 +81,30 @@ class BigPipe
     public static function jsmods(): array
     {
         return static::$jsmods;
+    }
+
+    private static function transformObjectString($data)
+    {
+        if (is_object($data) && method_exists($data, '__toString')) {
+            return (string)$data;
+        }
+
+        if (!is_array($data)) {
+            return $data;
+        }
+
+        $result = [];
+        foreach ($data as $index => $item) {
+            if (is_array($item)) {
+                $result[$index] = [];
+                foreach ($item as $key => $value) {
+                    $result[$index][$key] = self::transformObjectString($value);
+                }
+            } else {
+                $result[$index] = self::transformObjectString($item);
+            }
+        }
+
+        return $result;
     }
 }

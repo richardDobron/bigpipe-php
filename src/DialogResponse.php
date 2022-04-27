@@ -19,14 +19,22 @@ class DialogResponse extends AsyncResponse
         return $this;
     }
 
-    public function setBody(?string $body): self
+    /**
+     * @param null|string|object $body
+     * @return $this
+     */
+    public function setBody($body): self
     {
         $this->body = $body;
 
         return $this;
     }
 
-    public function setDialog(?string $content): self
+    /**
+     * @param null|string|object $content
+     * @return $this
+     */
+    public function setDialog($content): self
     {
         $this->content = $content;
 
