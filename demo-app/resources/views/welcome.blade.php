@@ -33,7 +33,7 @@
                     </a>
                 </li>
             </ul>
-            <div class="mt-8 bg-white dark:bg-gray-800 overflow-hidden shadow sm:rounded-lg">
+            <div class="mt-8 bg-gray-800 overflow-hidden shadow sm:rounded-lg">
                 <div class="grid grid-cols-1 md:grid-cols-2">
 
                     <div class="p-6">
@@ -41,87 +41,87 @@
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
                             </svg>
-                            <div class="ml-4 text-lg leading-7 font-semibold"><a href="/tutorial/dialogs" class="underline text-gray-900 dark:text-white">Dialogs</a></div>
+                            <div class="ml-4 text-lg leading-7 font-semibold"><a href="/tutorial/dialogs" class="underline text-white">Dialogs</a></div>
                         </div>
 
                         <div class="ml-12">
-                            <div class="mt-2 text-gray-600 dark:text-gray-400 text-sm">
+                            <div class="mt-2 text-gray-400 text-sm">
                                 This example illustrates dynamic opening of a dialog but also working with multiple dialogs at once.
                             </div>
                         </div>
                     </div>
 
-                    <div class="p-6 border-t border-gray-200 dark:border-gray-700 md:border-t-0 md:border-l">
+                    <div class="p-6 border-t border-gray-700 md:border-t-0 md:border-l">
                         <div class="flex items-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z" />
                             </svg>
-                            <div class="ml-4 text-lg leading-7 font-semibold"><a href="/tutorial/transport-markers" class="underline text-gray-900 dark:text-white">Transport Markers</a></div>
+                            <div class="ml-4 text-lg leading-7 font-semibold"><a href="/tutorial/transport-markers" class="underline text-white">Transport Markers</a></div>
                         </div>
 
                         <div class="ml-12">
-                            <div class="mt-2 text-gray-600 dark:text-gray-400 text-sm">
+                            <div class="mt-2 text-gray-400 text-sm">
                                 Through transport markers you can send HTML content but also transform the content into JavaScript objects (such as Map, Set or Element).
                             </div>
                         </div>
                     </div>
 
 
-                    <div class="p-6 border-t border-gray-200 dark:border-gray-700">
+                    <div class="p-6 border-t border-gray-700">
                         <div class="flex items-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
                             </svg>
-                            <div class="ml-4 text-lg leading-7 font-semibold"><a href="/tutorial/basic-example" class="underline text-gray-900 dark:text-white">Basic Usages</a></div>
+                            <div class="ml-4 text-lg leading-7 font-semibold"><a href="/tutorial/basic-example" class="underline text-white">Basic Usages</a></div>
                         </div>
 
                         <div class="ml-12">
-                            <div class="mt-2 text-gray-600 dark:text-gray-400 text-sm">
+                            <div class="mt-2 text-gray-400 text-sm">
                                 Examples of common use cases you can use in your application and a list of DOM operations APIs.
                             </div>
                         </div>
                     </div>
 
-                    <div class="p-6 border-t border-gray-200 dark:border-gray-700 md:border-l">
+                    <div class="p-6 border-t border-gray-700 md:border-l">
                         <div class="flex items-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                             </svg>
-                            <div class="ml-4 text-lg leading-7 font-semibold"><a href="/tutorial/redirecting" class="underline text-gray-900 dark:text-white">Refresh & Redirecting</a></div>
+                            <div class="ml-4 text-lg leading-7 font-semibold"><a href="/tutorial/redirecting" class="underline text-white">Refresh & Redirecting</a></div>
                         </div>
 
                         <div class="ml-12">
-                            <div class="mt-2 text-gray-600 dark:text-gray-400 text-sm">
+                            <div class="mt-2 text-gray-400 text-sm">
                                 You can set a delay (in milliseconds) to refresh current page or redirect to another.
                             </div>
                         </div>
                     </div>
 
-                    <div class="p-6 border-t border-gray-200 dark:border-gray-700">
+                    <div class="p-6 border-t border-gray-700">
                         <div class="flex items-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                             </svg>
-                            <div class="ml-4 text-lg leading-7 font-semibold"><a href="/tutorial/forms" class="underline text-gray-900 dark:text-white">Forms</a></div>
+                            <div class="ml-4 text-lg leading-7 font-semibold"><a href="/tutorial/forms" class="underline text-white">Forms</a></div>
                         </div>
 
                         <div class="ml-12">
-                            <div class="mt-2 text-gray-600 dark:text-gray-400 text-sm">
+                            <div class="mt-2 text-gray-400 text-sm">
                                 This example illustrates an asynchronous form that is processed in the background instead of refreshing the entire page.
                             </div>
                         </div>
                     </div>
 
-                    <div class="p-6 border-t border-gray-200 dark:border-gray-700 md:border-l">
+                    <div class="p-6 border-t border-gray-700 md:border-l">
                         <div class="flex items-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                             </svg>
-                            <div class="ml-4 text-lg leading-7 font-semibold"><a href="/tutorial/payload" class="underline text-gray-900 dark:text-white">Payload</a></div>
+                            <div class="ml-4 text-lg leading-7 font-semibold"><a href="/tutorial/payload" class="underline text-white">Payload</a></div>
                         </div>
 
                         <div class="ml-12">
-                            <div class="mt-2 text-gray-600 dark:text-gray-400 text-sm">
+                            <div class="mt-2 text-gray-400 text-sm">
                                 The payload can contain any data you want to send to the frontend for possible further processing in JavaScript.
                             </div>
                         </div>

@@ -44,6 +44,12 @@
         </li>
         <li class="relative flex flex-col">
             <div class="mt-8 text-left">
+                <h3 class="pointer-events-none mt-2 block truncate font-bold">closeDialog</h3>
+                <p class="pointer-events-none mt-1 block text-color-800">Close only current dialog.</p>
+            </div>
+        </li>
+        <li class="relative flex flex-col">
+            <div class="mt-8 text-left">
                 <h3 class="pointer-events-none mt-2 block truncate font-bold">dialog</h3>
                 <p class="pointer-events-none mt-1 block text-color-800">Render defined dialog.</p>
             </div>
