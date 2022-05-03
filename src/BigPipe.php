@@ -15,30 +15,37 @@ class BigPipe
     /**
      * Check if require call is valid
      *
-     * @param string $fragment
+     * @param string|array $fragment
      *
      * @return bool
      */
-    public static function isValidRequireCall(string $fragment): bool
+    public static function isValidRequireCall($fragment): bool
     {
+        if (is_array($fragment)) {
+            $fragments = count($fragment);
+            return $fragments === 1 || $fragments === 2;
+        }
+
         return !!preg_match(self::JAVASCRIPT_REQUIRE_REGEX, $fragment);
     }
 
     /**
-     * Parse JavaScript fragment
+     * Parse JavaScript fragment or array like [module, method]
      *
-     * @param string $fragment
-     * @param bool $multiple
+     * @param string|array $fragment
      *
      * @return array|null
      */
-    public static function parseRequireCall(string $fragment, bool $multiple = false): ?array
+    public static function parseRequireCall($fragment): ?array
     {
-        preg_match(self::JAVASCRIPT_REQUIRE_REGEX, $fragment, $match);
-
-        if ($multiple) {
-            return preg_split("/',\s+'/", $match['module']);
+        if (is_array($fragment)) {
+            return [
+                "module" => $fragment[0],
+                "method" => $fragment[1] ?? null,
+            ];
         }
+
+        preg_match(self::JAVASCRIPT_REQUIRE_REGEX, $fragment, $match);
 
         return [
             "module" => $match['module'] ?? null,
@@ -47,12 +54,12 @@ class BigPipe
     }
 
     /**
-     * @param string $fragment
+     * @param string|array $fragment
      * @param array $args
      * @return $this
      * @throws BigPipeInvalidArgumentException
      */
-    public function require(string $fragment, array $args = []): self
+    public function require($fragment, array $args = []): self
     {
         if (!self::isValidRequireCall($fragment)) {
             throw new BigPipeInvalidArgumentException("Invalid call.");
