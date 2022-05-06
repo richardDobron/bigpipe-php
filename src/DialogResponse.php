@@ -7,6 +7,7 @@ use dobron\BigPipe\Exceptions\BigPipeInvalidArgumentException;
 class DialogResponse extends AsyncResponse
 {
     protected $controller = null;
+    protected $controllerArgs = [];
     protected $title = null;
     protected $body = null;
     protected $content = null;
@@ -48,7 +49,7 @@ class DialogResponse extends AsyncResponse
         return $this;
     }
 
-    public function setController($fragment): self
+    public function setController($fragment, array $args = []): self
     {
         if (!BigPipe::isValidRequireCall($fragment)) {
             throw new BigPipeInvalidArgumentException("Invalid fragment.");
@@ -57,6 +58,7 @@ class DialogResponse extends AsyncResponse
         $require = BigPipe::parseRequireCall($fragment);
 
         $this->controller = $require['module'];
+        $this->controllerArgs = $args;
 
         return $this;
     }
@@ -84,7 +86,8 @@ class DialogResponse extends AsyncResponse
                     array_merge($options, [
                         'content' => $this->content,
                         'controller' => $this->controller,
-                    ])
+                    ]),
+                    $this->controllerArgs,
                 ]
             );
         } else {
@@ -99,6 +102,7 @@ class DialogResponse extends AsyncResponse
                 "require('bigpipe-util/src/core/Dialog').showFromModel()",
                 [
                     $options,
+                    $this->controllerArgs,
                 ]
             );
         }
