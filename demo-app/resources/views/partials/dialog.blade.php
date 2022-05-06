@@ -16,9 +16,11 @@
                 @yield('body')
             </div>
 
-            <div class="modal-footer">
-                @yield('footer')
-            </div>
+            @hasSection('footer')
+                <div class="modal-footer">
+                    @yield('footer')
+                </div>
+            @endif
         @endif
     </div>
 </div>
