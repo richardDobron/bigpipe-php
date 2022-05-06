@@ -26,7 +26,7 @@ function generate_unique_node_id(): string
 
     return implode('_', [
         'u',
-        $_REQUEST['__req'] ?? 0,
+        intval($_REQUEST['__req'] ?? 0),
         $unique++,
     ]);
 }
