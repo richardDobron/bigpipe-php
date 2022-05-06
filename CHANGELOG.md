@@ -17,5 +17,13 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 ## v0.1.3 - 2022-04-27
 
 ### Added
-- Method to close only current dialog
+- Method to close only current dialog.
 - Support of __toString in require arguments.
+
+## v0.1.4 - 2022-05-06
+
+### Added
+- Method `generate_unique_node_id` to generate unique node ID.
+- Support for array in require().
+- Support arguments for dialog controller.
+
