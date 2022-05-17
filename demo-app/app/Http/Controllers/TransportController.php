@@ -31,6 +31,6 @@ class TransportController extends Controller
             ]),
         ]);
 
-        return response()->json($this->response->getResponse());
+        return $this->response->send();
     }
 }

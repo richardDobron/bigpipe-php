@@ -23,12 +23,12 @@ class FormController extends Controller
                 $error,
             ]);
 
-            return response()->json($this->response->getResponse());
+            return $this->response->send();
         }
 
         ...
 
-        return response()->json($this->response->getResponse());
+        return $this->response->send();
     }
 }
 CODE

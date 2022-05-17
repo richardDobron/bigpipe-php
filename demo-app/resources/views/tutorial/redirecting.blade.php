@@ -24,7 +24,7 @@ class UsersController extends Controller
 
         $this->response->redirect('/', 500);
 
-        return response()->json($this->response->getResponse());
+        return $this->response->send();
     }
 }
 CODE

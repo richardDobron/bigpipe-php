@@ -26,7 +26,7 @@ class DialogController extends Controller
 HTML)
             ->dialog();
 
-        return response()->json($this->response->getResponse());
+        return $this->response->send();
     }
 
     public function htmlDialog()
@@ -36,7 +36,7 @@ HTML)
             ->setDialog(view('tutorial.html-dialog')->render())
             ->dialog();
 
-        return response()->json($this->response->getResponse());
+        return $this->response->send();
     }
 
     public function commonDialog()
@@ -46,7 +46,7 @@ HTML)
             ->setDialog(view('tutorial.form-dialog')->render())
             ->dialog();
 
-        return response()->json($this->response->getResponse());
+        return $this->response->send();
     }
 
     public function deleteDialog()
@@ -56,7 +56,7 @@ HTML)
             ->setDialog(view('tutorial.delete-dialog')->render())
             ->dialog();
 
-        return response()->json($this->response->getResponse());
+        return $this->response->send();
     }
 
     public function confirmDialog()
@@ -67,7 +67,7 @@ HTML)
             ->setDialog(view('tutorial.confirm-dialog')->render())
             ->dialog();
 
-        return response()->json($this->response->getResponse());
+        return $this->response->send();
     }
 
     public function closeDialogs()
@@ -79,6 +79,6 @@ HTML)
         ]);
 
 
-        return response()->json($this->response->getResponse());
+        return $this->response->send();
     }
 }

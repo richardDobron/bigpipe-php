@@ -21,7 +21,7 @@ class BasicExampleController extends Controller
             view('partials.stats')
         );
 
-        return response()->json($this->response->getResponse());
+        return $this->response->send();
     }
 
     public function showPhoneNumber(Request $request)
@@ -36,7 +36,7 @@ class BasicExampleController extends Controller
             $phoneNumbers[$request->get('id')]
         );
 
-        return response()->json($this->response->getResponse());
+        return $this->response->send();
     }
 
     public function loadImage()
@@ -48,6 +48,6 @@ class BasicExampleController extends Controller
             ]
         );
 
-        return response()->json($this->response->getResponse());
+        return $this->response->send();
     }
 }

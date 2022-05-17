@@ -27,11 +27,11 @@ class FormController extends Controller
                 $e->validator->errors()->first(),
             ]);
 
-            return response()->json($this->response->getResponse());
+            return $this->response->send();
         }
 
         $this->response->replace('form', view('partials.form-success'));
 
-        return response()->json($this->response->getResponse());
+        return $this->response->send();
     }
 }

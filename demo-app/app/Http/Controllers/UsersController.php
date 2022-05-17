@@ -36,6 +36,6 @@ class UsersController extends Controller
 
         usleep(500000);
 
-        return response()->json($this->response->getResponse());
+        return $this->response->send();
     }
 }

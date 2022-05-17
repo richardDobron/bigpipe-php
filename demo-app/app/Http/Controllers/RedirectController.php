@@ -17,27 +17,27 @@ class RedirectController extends Controller
     {
         $this->response->reload();
 
-        return response()->json($this->response->getResponse());
+        return $this->response->send();
     }
 
     public function reloadDelay()
     {
         $this->response->reload(250);
 
-        return response()->json($this->response->getResponse());
+        return $this->response->send();
     }
 
     public function redirect()
     {
         $this->response->redirect('/');
 
-        return response()->json($this->response->getResponse());
+        return $this->response->send();
     }
 
     public function redirectDelay()
     {
         $this->response->redirect('/', 500);
 
-        return response()->json($this->response->getResponse());
+        return $this->response->send();
     }
 }

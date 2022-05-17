@@ -25,7 +25,7 @@ class UsersController extends Controller
 
         $this->response->appendContent('#users > tbody', view('app.users.partials.table-body', compact('users')));
 
-        return response()->json($this->response->getResponse());
+        return $this->response->send();
     }
 }
 CODE
