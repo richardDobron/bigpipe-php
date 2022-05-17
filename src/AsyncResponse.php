@@ -42,6 +42,23 @@ class AsyncResponse
     }
 
     /**
+     * Add a shield to prevent "JSON Hijacking" attacks where an attacker
+     * requests a JSON response using a normal <script /> tag and then uses
+     * Object.prototype.__defineSetter__() or similar to read response data.
+     * This header causes the browser to loop infinitely instead of handing over
+     * sensitive data.
+     *
+     * @param string $jsonResponse
+     * @return string
+     */
+    private function addJSONShield(string $jsonResponse): string
+    {
+        $shield = "for (;;);";
+
+        return $shield . $jsonResponse;
+    }
+
+    /**
      * Define DOM operation
      *
      * @param string $selector
@@ -276,6 +293,18 @@ class AsyncResponse
     }
 
     /**
+     * Get response as string
+     *
+     * @return string
+     */
+    public function buildResponseString(): string
+    {
+        $jsonResponse = json_encode($this->getResponse());
+
+        return $this->addJSONShield($jsonResponse);
+    }
+
+    /**
      * Send response
      *
      * @return void
@@ -284,7 +313,7 @@ class AsyncResponse
     {
         header("content-type: text/javascript");
 
-        echo json_encode($this->getResponse());
+        echo $this->buildResponseString();
 
         exit();
     }
