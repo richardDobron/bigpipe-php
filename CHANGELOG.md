@@ -27,3 +27,7 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 - Support for array in require().
 - Support arguments for dialog controller.
 
+## v0.2.0 - 2022-05-17
+
+### Added
+- Shield to prevent "JSON Hijacking"
