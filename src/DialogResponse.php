@@ -13,7 +13,7 @@ class DialogResponse extends AsyncResponse
     protected $content = null;
     protected $footer = null;
 
-    public function setTitle(?string $title): self
+    public function setTitle(?string $title): static
     {
         $this->title = $title;
 
@@ -22,9 +22,9 @@ class DialogResponse extends AsyncResponse
 
     /**
      * @param null|string|object $body
-     * @return $this
+     * @return static
      */
-    public function setBody($body): self
+    public function setBody($body): static
     {
         $this->body = $body;
 
@@ -33,23 +33,23 @@ class DialogResponse extends AsyncResponse
 
     /**
      * @param null|string|object $content
-     * @return $this
+     * @return static
      */
-    public function setDialog($content): self
+    public function setDialog($content): static
     {
         $this->content = $content;
 
         return $this;
     }
 
-    public function setFooter(?string $footer): self
+    public function setFooter(?string $footer): static
     {
         $this->footer = $footer;
 
         return $this;
     }
 
-    public function setController($fragment, array $args = []): self
+    public function setController($fragment, array $args = []): static
     {
         if (!BigPipe::isValidRequireCall($fragment)) {
             throw new BigPipeInvalidArgumentException("Invalid fragment.");

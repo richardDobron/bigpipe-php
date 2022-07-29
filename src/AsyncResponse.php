@@ -65,9 +65,9 @@ class AsyncResponse
      * @param string|null $html
      * @param string $method
      *
-     * @return self
+     * @return static
      */
-    private function defineDomOp(string $selector, ?string $html, string $method): self
+    private function defineDomOp(string $selector, ?string $html, string $method): static
     {
         $transport = null;
 
@@ -101,9 +101,9 @@ class AsyncResponse
      * Set payload
      *
      * @param mixed $data
-     * @return self
+     * @return static
      */
-    public function setPayload($data): self
+    public function setPayload($data): static
     {
         $this->payload = $data;
 
@@ -116,9 +116,9 @@ class AsyncResponse
      * @param string $context
      * @param string $code
      *
-     * @return self
+     * @return static
      */
-    public function eval(string $context, string $code): self
+    public function eval(string $context, string $code): static
     {
         return $this->defineDomOp($context, $code, self::DOM_EVAL);
     }
@@ -128,9 +128,9 @@ class AsyncResponse
      *
      * @param string $selector
      *
-     * @return self
+     * @return static
      */
-    public function hide(string $selector): self
+    public function hide(string $selector): static
     {
         return $this->defineDomOp($selector, null, self::DOM_HIDE);
     }
@@ -140,9 +140,9 @@ class AsyncResponse
      *
      * @param string $selector
      *
-     * @return self
+     * @return static
      */
-    public function show(string $selector): self
+    public function show(string $selector): static
     {
         return $this->defineDomOp($selector, null, self::DOM_SHOW);
     }
@@ -153,9 +153,9 @@ class AsyncResponse
      * @param string      $selector
      * @param string|null $html
      *
-     * @return self
+     * @return static
      */
-    public function setContent(string $selector, ?string $html): self
+    public function setContent(string $selector, ?string $html): static
     {
         return $this->defineDomOp($selector, $html, self::DOM_SET_CONTENT);
     }
@@ -166,9 +166,9 @@ class AsyncResponse
      * @param string      $selector
      * @param string|null $html
      *
-     * @return self
+     * @return static
      */
-    public function appendContent(string $selector, ?string $html): self
+    public function appendContent(string $selector, ?string $html): static
     {
         return $this->defineDomOp($selector, $html, self::DOM_APPEND_CONTENT);
     }
@@ -179,9 +179,9 @@ class AsyncResponse
      * @param string      $selector
      * @param string|null $html
      *
-     * @return self
+     * @return static
      */
-    public function prependContent(string $selector, ?string $html): self
+    public function prependContent(string $selector, ?string $html): static
     {
         return $this->defineDomOp($selector, $html, self::DOM_PREPEND_CONTENT);
     }
@@ -192,9 +192,9 @@ class AsyncResponse
      * @param string      $selector
      * @param string|null $html
      *
-     * @return self
+     * @return static
      */
-    public function insertAfter(string $selector, ?string $html): self
+    public function insertAfter(string $selector, ?string $html): static
     {
         return $this->defineDomOp($selector, $html, self::DOM_INSERT_AFTER);
     }
@@ -205,9 +205,9 @@ class AsyncResponse
      * @param string      $selector
      * @param string|null $html
      *
-     * @return self
+     * @return static
      */
-    public function insertBefore(string $selector, ?string $html): self
+    public function insertBefore(string $selector, ?string $html): static
     {
         return $this->defineDomOp($selector, $html, self::DOM_INSERT_BEFORE);
     }
@@ -218,9 +218,9 @@ class AsyncResponse
      * @param string      $selector
      * @param string|null $html
      *
-     * @return self
+     * @return static
      */
-    public function replace(string $selector, ?string $html): self
+    public function replace(string $selector, ?string $html): static
     {
         return $this->defineDomOp($selector, $html, self::DOM_REPLACE);
     }
@@ -230,9 +230,9 @@ class AsyncResponse
      *
      * @param string $selector
      *
-     * @return self
+     * @return static
      */
-    public function remove(string $selector): self
+    public function remove(string $selector): static
     {
         return $this->defineDomOp($selector, null, self::DOM_REMOVE);
     }
@@ -242,10 +242,10 @@ class AsyncResponse
      *
      * @param int $delay
      *
-     * @return self
+     * @return static
      * @throws Exceptions\BigPipeInvalidArgumentException
      */
-    public function reload(int $delay = 0): self
+    public function reload(int $delay = 0): static
     {
         if ($delay > 0) {
             $this->bigPipe()->require("require('bigpipe-util/src/core/ReloadPage').delay()", [
@@ -264,10 +264,10 @@ class AsyncResponse
      * @param string $url
      * @param int $delay
      *
-     * @return self
+     * @return static
      * @throws Exceptions\BigPipeInvalidArgumentException
      */
-    public function redirect(string $url, int $delay = 0): self
+    public function redirect(string $url, int $delay = 0): static
     {
         $this->bigPipe()->require("require('bigpipe-util/src/core/ServerRedirect').redirectPageTo()", [
             $url,
