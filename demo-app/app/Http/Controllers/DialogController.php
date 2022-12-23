@@ -39,6 +39,23 @@ HTML)
         return $this->response->send();
     }
 
+    public function reactDialog()
+    {
+        $this->response
+            ->setController("require('tutorial/ModalRenderer')", [[
+                'component' => $this->response->transport()->transportModule('tutorial/ReactModal'),
+                'props' => [
+                    'full_name' => 'Margot Foster',
+                    'job_title' => 'Backend Developer',
+                    'email_address' => 'margotfoster@example.com',
+                    'expected_salary' => '$120,000',
+                ],
+            ]])
+            ->dialog();
+
+        return $this->response->send();
+    }
+
     public function commonDialog()
     {
         $this->response

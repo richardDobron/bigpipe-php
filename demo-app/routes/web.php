@@ -42,6 +42,7 @@ Route::group(['prefix' => 'tutorial'], function () {
 
         Route::post('/model-dialog', [DialogController::class, 'modelDialog'])->name('model-dialog');
         Route::post('/html-dialog', [DialogController::class, 'htmlDialog'])->name('html-dialog');
+        Route::post('/react-dialog', [DialogController::class, 'reactDialog'])->name('react-dialog');
         Route::post('/common-dialog', [DialogController::class, 'commonDialog'])->name('common-dialog');
         Route::post('/delete-dialog', [DialogController::class, 'deleteDialog'])->name('delete-dialog');
         Route::post('/confirm-dialog', [DialogController::class, 'confirmDialog'])->name('confirm-dialog');

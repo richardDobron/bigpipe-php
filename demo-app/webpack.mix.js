@@ -12,6 +12,13 @@ const path = require('path');
  |
  */
 
+mix.babelConfig({
+    presets: [
+        "@babel/preset-env",
+        "@babel/preset-react",
+    ]
+});
+
 mix.js('resources/js/app.js', 'public/js')
     .copy('resources/images', 'public/images')
     .postCss('resources/css/app.css', 'public/css', [
