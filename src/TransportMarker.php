@@ -53,6 +53,18 @@ class TransportMarker
     }
 
     /**
+     * Create module transport marker
+     *
+     * @param string $module
+     *
+     * @return array
+     */
+    public static function transportModule(string $module): array
+    {
+        return self::createTransportMarker($module, self::TRANSPORT_MODULE);
+    }
+
+    /**
      * Create Map object transport marker
      *
      * @param array $data

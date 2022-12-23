@@ -25,6 +25,7 @@ class TransportMarkersTest extends TestCase
                 ['x' => 30, 'y' => 50],
                 ['x' => 40, 'y' => 65],
             ]),
+            'dependency' => $response->transport()->transportModule('ChartRenderer'),
         ]);
 
         $this->assertEquals($response->getResponse(), [
@@ -43,6 +44,9 @@ class TransportMarkersTest extends TestCase
                                 ['x' => 30, 'y' => 50],
                                 ['x' => 40, 'y' => 65],
                             ]],
+                            'dependency' => [
+                                '__m' => 'ChartRenderer',
+                            ],
                         ]
                     ]
                 ],

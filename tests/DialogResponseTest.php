@@ -34,9 +34,10 @@ class DialogResponseTest extends TestCase
                                 'body' => 'html <strong>content</strong>',
                                 'footer' => '<button>close</button>',
                                 'controller' => 'ModalMonitor'
-                            ]
+                            ],
+                            [],
                         ]
-                    ]
+                    ],
                 ],
             ],
             '__ar' => 1,
