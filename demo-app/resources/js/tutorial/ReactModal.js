@@ -2,7 +2,7 @@ import React from "react";
 
 export default class ReactModal extends React.Component {
     render() {
-        return <div className="modal-content">
+        return <div className="modal-body">
             <div className="px-4 py-5 sm:px-6 flex justify-between items-center">
                 <div>
                     <h3 className="text-lg font-medium leading-6 text-gray-900">Applicant Information</h3>
