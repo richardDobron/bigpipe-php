@@ -7,7 +7,6 @@ Try the app with [live demo](http://bigpipe.xf.cz) or check how to [install](dem
 
 ## Requirements
 * PHP 7.1 or higher
-* Node 8, 10+.
 * Webpack
 
 ## Installation
@@ -173,6 +172,13 @@ There is a large number of PHP projects for which moving to modern frameworks li
 
 The purpose of this library is to rapidly reduce the continuously repetitive code to work with the DOM and improve the communication barrier between PHP and JavaScript.
 
+## Version Guidance
+
+| Version | Released   | Status     | Repo                   | PHP Version |
+|---------|------------|------------|------------------------|-------------|
+| 0.x     | 2022-03-27 | Maintained | [v0.x][bigpipe-0-repo] | >=7.1       |
+| 1.x     | 2022-07-29 | Latest     | [v1.x][bigpipe-1-repo] |  ^8.0       |
+
 ## Credits
 
 - [Richard Dobroň][link-author]
@@ -183,3 +189,5 @@ The MIT License (MIT). Please see [License File](LICENSE) for more information.
 
 [link-author]: https://github.com/richardDobron
 [blog]: https://www.facebook.com/notes/facebook-engineering/bigpipe-pipelining-web-pages-for-high-performance/389414033919
+[bigpipe-0-repo]: https://github.com/richarddobron/bigpipe-php/tree/0.x
+[bigpipe-1-repo]: https://github.com/richarddobron/bigpipe-php
