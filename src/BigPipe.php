@@ -58,6 +58,7 @@ class BigPipe
      * @param array $args
      * @return $this
      * @throws BigPipeInvalidArgumentException
+     * @throws \Throwable
      */
     public function require($fragment, array $args = []): self
     {
@@ -73,11 +74,18 @@ class BigPipe
         ];
 
         if (!empty($args)) {
-            static::$jsmods[__FUNCTION__][] = [];
-            $lastIndex = count(static::$jsmods[__FUNCTION__]) - 1;
+            try {
+                static::$jsmods[__FUNCTION__][] = [];
+                $lastIndex = count(static::$jsmods[__FUNCTION__]) - 1;
 
-            $require[] = self::transformObjectString($args);
-            static::$jsmods[__FUNCTION__][$lastIndex] = array_trim($require);
+                $require[] = self::transformObjectString($args);
+                static::$jsmods[__FUNCTION__][$lastIndex] = array_trim($require);
+            } catch (\Throwable $exception) {
+                unset(static::$jsmods[__FUNCTION__][$lastIndex]);
+                static::$jsmods[__FUNCTION__] = array_values(static::$jsmods[__FUNCTION__]);
+
+                throw $exception;
+            }
         } else {
             static::$jsmods[__FUNCTION__][] = array_trim($require);
         }
