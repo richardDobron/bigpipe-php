@@ -8,6 +8,14 @@ use dobron\BigPipe\AsyncResponse;
 use dobron\BigPipe\Exceptions\BigPipeInvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
+class AnonymousTestClass
+{
+    public function __toString()
+    {
+        return thisFunctionDoesNotExist();
+    }
+}
+
 /**
  * @runTestsInSeparateProcesses
  */
@@ -96,6 +104,31 @@ class AsyncResponseTest extends TestCase
             ],
             'jsmods' => [
                 'require' => [],
+            ],
+            '__ar' => 1,
+        ]);
+    }
+
+    public function testExceptionInRequire(): void
+    {
+        $response = new AsyncResponse();
+
+        try {
+            $response->bigPipe()->require("require('failedModule').init()", [
+                new AnonymousTestClass(),
+            ]);
+        } catch (\Throwable) {
+        }
+
+        $response->bigPipe()->require("require('successFunction')");
+
+        $this->assertEquals($response->getResponse(), [
+            'payload' => [],
+            'domops' => [],
+            'jsmods' => [
+                'require' => [
+                    ['successFunction'],
+                ]
             ],
             '__ar' => 1,
         ]);
