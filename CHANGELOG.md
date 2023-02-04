@@ -4,6 +4,16 @@ All notable changes to `bigpipe-util` will be documented in this file.
 
 Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
 
+## v1.0.2 - 2023-02-04
+
+### Fixed
+- Catch exception during string conversion
+
+## v1.0.1 - 2022-12-23
+
+### Added
+- Module transport method `transportModule()`
+
 ## v1.0.0 - 2022-07-27
 
 ### Changed
