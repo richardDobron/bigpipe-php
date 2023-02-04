@@ -4,21 +4,18 @@ All notable changes to `bigpipe-util` will be documented in this file.
 
 Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
 
-## v0.1.1 - 2022-03-27
+## v0.2.1 - 2023-02-05
 
 ### Added
-- Part of BigPipe implementation for Webpack.
+- Module transport method `transportModule()`
 
-## v0.1.2 - 2022-04-14
+### Fixed
+- Catch exception during string conversion
 
-### Added
-- Dialogs support.
-
-## v0.1.3 - 2022-04-27
+## v0.2.0 - 2022-05-17
 
 ### Added
-- Method to close only current dialog.
-- Support of __toString in require arguments.
+- Shield to prevent "JSON Hijacking"
 
 ## v0.1.4 - 2022-05-06
 
@@ -27,7 +24,18 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 - Support for array in require().
 - Support arguments for dialog controller.
 
-## v0.2.0 - 2022-05-17
+## v0.1.3 - 2022-04-27
 
 ### Added
-- Shield to prevent "JSON Hijacking"
+- Method to close only current dialog.
+- Support of __toString in require arguments.
+
+## v0.1.2 - 2022-04-14
+
+### Added
+- Dialogs support.
+
+## v0.1.1 - 2022-03-27
+
+### Added
+- Part of BigPipe implementation for Webpack.
