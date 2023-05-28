@@ -5,6 +5,9 @@ This library currently implements small part of [Facebook BigPipe][blog] so far,
 ## Demo App
 Try the app with [live demo](http://bigpipe.xf.cz) or check how to [install](demo-app/README.md).
 
+## Documentation
+[API Overview](https://richarddobron.github.io/bigpipe/) is available.
+
 ## Requirements
 * PHP 7.1 or higher
 * Webpack
