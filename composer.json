@@ -40,7 +40,7 @@
         "post-merge": "composer install",
         "check-style": "php-cs-fixer fix --using-cache=no --diff --dry-run --ansi",
         "fix-style": "php-cs-fixer fix --using-cache=no --ansi",
-        "test": "vendor/bin/phpunit --colors=always"
+        "test": "vendor/bin/phpunit --colors=always --testdox"
     },
     "scripts-descriptions": {
         "check-style": "Run style checks (only dry run - no fixing!).",
