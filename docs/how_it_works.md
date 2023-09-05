@@ -4,7 +4,7 @@ title: How it works
 sidebar_label: How it works
 ---
 
-The BigPipe integration works by utilizing the `dobron\BigPipe\AsyncResponse` class to process requests and generate the defined instructions. These instructions are then handled by the `ServerJS` class on the frontend.
+The BigPipe integration works by utilizing the `dobron\BigPipe\AsyncResponse` class to process requests and generate the defined instructions. These instructions are then handled by the `ServerJS` class on the frontend. The required `Primer` module registers essential event listeners, such as click and submit, for elements with the `rel` attribute.
 
 
 To make `XHR` (XMLHttpRequest) requests, you can use the `AsyncRequest` JavaScript class. It allows you to send requests to the server and receive responses, similar to using the native `fetch` method. These responses are automatically processed and executed through BigPipe. However, it's important to note that the response on the backend must always be sent using the `AsyncResponse` class.

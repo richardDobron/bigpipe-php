@@ -1,4 +1,4 @@
-<img src="bigpipe.svg">
+<img src="bigpipe.svg" alt="BigPipe logo" />
 
 This library currently implements small part of [Facebook BigPipe][blog] so far, but the advantage is to efficiently insert/replace content and work with the DOM. It is also possible to easily call JavaScript modules from PHP.
 

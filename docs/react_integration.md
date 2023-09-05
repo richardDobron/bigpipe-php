@@ -12,8 +12,13 @@ $ npm install react react-dom @babel/preset-react
 # or
 $ yarn add react react-dom @babel/preset-react
 ```
+Create a `.babelrc` or `babel.config.js` file to add the transformation plugins with the following content:
 
-add `@babel/preset-react` to your Babel configuration
+```json
+{
+   "presets": ["@babel/preset-react"]
+}
+```
 
 2. Create a file named `ModalRenderer.js` that renders dialogs using React:
 
