@@ -8,6 +8,7 @@ class BigPipe
 {
     private const JAVASCRIPT_REQUIRE_REGEX = "/^require\(['\"\[]+(?<module>.+?)['\"\]]+\)(\.(?<method>\w+)\(\))?$/";
 
+    private static $priorities = [];
     private static $jsmods = [
         "require" => [],
     ];
@@ -60,34 +61,37 @@ class BigPipe
      * @throws BigPipeInvalidArgumentException
      * @throws \Throwable
      */
-    public function require($fragment, array $args = []): self
+    public function require($fragment, array $args = [], int $priority = null): self
     {
         if (!self::isValidRequireCall($fragment)) {
             throw new BigPipeInvalidArgumentException("Invalid call.");
         }
 
         $fragmentParts = self::parseRequireCall($fragment);
+        $priorities = self::$priorities;
+        $requires = self::$jsmods['require'];
 
         $require = [
             $fragmentParts['module'],
             $fragmentParts['method'] ?? null,
         ];
 
-        if (!empty($args)) {
-            try {
-                static::$jsmods[__FUNCTION__][] = [];
-                $lastIndex = count(static::$jsmods[__FUNCTION__]) - 1;
+        try {
+            static::$jsmods[__FUNCTION__][] = [];
+            $lastIndex = array_key_last(static::$jsmods[__FUNCTION__]);
+            static::$priorities[] = $priority ?? $lastIndex;
 
-                $require[] = self::transformObjectString($args);
-                static::$jsmods[__FUNCTION__][$lastIndex] = array_trim($require);
-            } catch (\Throwable $exception) {
-                unset(static::$jsmods[__FUNCTION__][$lastIndex]);
-                static::$jsmods[__FUNCTION__] = array_values(static::$jsmods[__FUNCTION__]);
-
-                throw $exception;
+            if (! empty($args)) {
+                $transformedArgs = self::transformObjectString($args);
+                $require[] = $transformedArgs;
             }
-        } else {
-            static::$jsmods[__FUNCTION__][] = array_trim($require);
+
+            static::$jsmods[__FUNCTION__][$lastIndex] = array_trim($require ?? []);
+        } catch (\Throwable $exception) {
+            static::$jsmods[__FUNCTION__] = $requires;
+            static::$priorities = $priorities;
+
+            throw $exception;
         }
 
         return $this;
@@ -95,6 +99,8 @@ class BigPipe
 
     public static function jsmods(): array
     {
+        array_multisort(static::$priorities, static::$jsmods['require']);
+
         return static::$jsmods;
     }
 

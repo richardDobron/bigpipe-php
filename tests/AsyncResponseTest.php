@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace AsyncResponseTest;
 
 use dobron\BigPipe\AsyncResponse;
+use dobron\BigPipe\DialogResponse;
 use dobron\BigPipe\Exceptions\BigPipeInvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
@@ -12,7 +13,23 @@ class AnonymousTestClass
 {
     public function __toString()
     {
+        $response = new AsyncResponse();
+
+        $response->bigPipe()->require(['module']);
+
         return thisFunctionDoesNotExist();
+    }
+}
+
+class TestClass
+{
+    public function __toString()
+    {
+        $response = new AsyncResponse();
+
+        $response->bigPipe()->require(['second'], [123]);
+
+        return 'test';
     }
 }
 
@@ -105,6 +122,129 @@ class AsyncResponseTest extends TestCase
             'jsmods' => [
                 'require' => [],
             ],
+            '__ar' => 1,
+        ]);
+    }
+
+    public function testRequireInRequire(): void
+    {
+        $response = new DialogResponse();
+
+        $response->bigPipe()->require("require('first').init()");
+
+        $response->setDialog(new TestClass())
+            ->dialog([
+                'backdrop' => 'static',
+                'keyboard' => false,
+            ]);
+
+        $response->bigPipe()->require("require('third')");
+
+        $this->assertEquals($response->getResponse(), [
+            'payload' => [],
+            'domops' => [],
+            'jsmods' => [
+                'require' => [
+                    [
+                        'first', 'init'
+                    ],
+                    [
+                        'bigpipe-util/src/core/Dialog', 'render', [
+                            [
+                                'backdrop' => 'static',
+                                'keyboard' => false,
+                                'content' => 'test',
+                                'controller' => null,
+                            ],
+                            []
+                        ]
+                    ],
+                    [
+                        'second', null, [123]
+                    ],
+                    [
+                        'third'
+                    ],
+                ]
+            ],
+            '__ar' => 1,
+        ]);
+    }
+
+    public function testPriorityInRequire(): void
+    {
+        $response = new AsyncResponse();
+
+        $response->bigPipe()->require("require('someLowPriorityFunction')", [20], 20);
+        $response->bigPipe()->require("require('someMediumPriorityFunction')", [3], 3);
+        $response->bigPipe()->require("require('somePriorityFunction')", [0], 0);
+        $response->bigPipe()->require("require('someSuperHighPriorityFunction')", [-1], -1);
+        $response->bigPipe()->require("require('someFunctionWithDefaultPriority')", [1]);
+        $response->bigPipe()->require("require('someFunctionWithDefaultPriority')", [2]);
+        $response->bigPipe()->require("require('someFunctionWithDefaultPriority')", [3]);
+        $response->bigPipe()->require("require('someFunctionWithDefaultPriority')", [4]);
+
+        $this->assertEquals($response->getResponse(), [
+            'payload' => [],
+            'domops' => [],
+            'jsmods' => [
+                'require' => [
+                    [
+                        'someSuperHighPriorityFunction',
+                        null,
+                        [
+                            -1,
+                        ],
+                    ],
+                    [
+                        'somePriorityFunction',
+                        null,
+                        [
+                            0,
+                        ],
+                    ],
+                    [
+                        'someMediumPriorityFunction',
+                        null,
+                        [
+                            3,
+                        ],
+                    ],
+                    [
+                        'someFunctionWithDefaultPriority',
+                        null,
+                        [
+                            1,
+                        ],
+                    ],
+                    [
+                        'someFunctionWithDefaultPriority',
+                        null,
+                        [
+                            2,
+                        ],
+                    ],
+                    [
+                        'someFunctionWithDefaultPriority',
+                        null,
+                        [
+                            3,
+                        ],
+                    ],
+                    [
+                        'someFunctionWithDefaultPriority',
+                        null,
+                        [
+                            4,
+                        ],
+                    ],
+                    [
+                        'someLowPriorityFunction',
+                        null,
+                        [
+                            20,
+                        ],
+                    ],],],
             '__ar' => 1,
         ]);
     }
