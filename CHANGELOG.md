@@ -3,6 +3,10 @@
 All notable changes to `bigpipe-util` will be documented in this file.
 
 Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
+## v0.2.2 - 2024-11-15
+
+### Added
+- Priority parameter to `require()` method.
 
 ## v0.2.1 - 2023-02-05
 
