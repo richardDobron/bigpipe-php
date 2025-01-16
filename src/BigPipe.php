@@ -8,8 +8,8 @@ class BigPipe
 {
     private const JAVASCRIPT_REQUIRE_REGEX = "/^require\(['\"\[]+(?<module>.+?)['\"\]]+\)(\.(?<method>\w+)\(\))?$/";
 
-    private static $priorities = [];
-    private static $jsmods = [
+    private static array $priorities = [];
+    private static array $jsmods = [
         "require" => [],
     ];
 
@@ -20,14 +20,14 @@ class BigPipe
      *
      * @return bool
      */
-    public static function isValidRequireCall($fragment): bool
+    public static function isValidRequireCall(string|array $fragment): bool
     {
         if (is_array($fragment)) {
             $fragments = count($fragment);
             return $fragments === 1 || $fragments === 2;
         }
 
-        return !!preg_match(self::JAVASCRIPT_REQUIRE_REGEX, $fragment);
+        return !!preg_match(static::JAVASCRIPT_REQUIRE_REGEX, $fragment);
     }
 
     /**
@@ -37,7 +37,7 @@ class BigPipe
      *
      * @return array|null
      */
-    public static function parseRequireCall($fragment): ?array
+    public static function parseRequireCall(string|array $fragment): ?array
     {
         if (is_array($fragment)) {
             return [
@@ -46,7 +46,7 @@ class BigPipe
             ];
         }
 
-        preg_match(self::JAVASCRIPT_REQUIRE_REGEX, $fragment, $match);
+        preg_match(static::JAVASCRIPT_REQUIRE_REGEX, $fragment, $match);
 
         return [
             "module" => $match['module'] ?? null,
@@ -61,15 +61,15 @@ class BigPipe
      * @throws BigPipeInvalidArgumentException
      * @throws \Throwable
      */
-    public function require($fragment, array $args = [], int $priority = null): self
+    public function require(string|array $fragment, array $args = [], int $priority = null): static
     {
-        if (!self::isValidRequireCall($fragment)) {
+        if (!static::isValidRequireCall($fragment)) {
             throw new BigPipeInvalidArgumentException("Invalid call.");
         }
 
-        $fragmentParts = self::parseRequireCall($fragment);
-        $priorities = self::$priorities;
-        $requires = self::$jsmods['require'];
+        $fragmentParts = static::parseRequireCall($fragment);
+        $priorities = static::$priorities;
+        $requires = static::$jsmods['require'];
 
         $require = [
             $fragmentParts['module'],
@@ -82,7 +82,7 @@ class BigPipe
             static::$priorities[] = $priority ?? $lastIndex;
 
             if (! empty($args)) {
-                $transformedArgs = self::transformObjectString($args);
+                $transformedArgs = static::transformObjectString($args);
                 $require[] = $transformedArgs;
             }
 
@@ -104,7 +104,7 @@ class BigPipe
         return static::$jsmods;
     }
 
-    private static function transformObjectString($data)
+    private static function transformObjectString(mixed $data)
     {
         if (is_object($data) && method_exists($data, '__toString')) {
             return (string)$data;
@@ -119,10 +119,10 @@ class BigPipe
             if (is_array($item)) {
                 $result[$index] = [];
                 foreach ($item as $key => $value) {
-                    $result[$index][$key] = self::transformObjectString($value);
+                    $result[$index][$key] = static::transformObjectString($value);
                 }
             } else {
-                $result[$index] = self::transformObjectString($item);
+                $result[$index] = static::transformObjectString($item);
             }
         }
 

@@ -6,12 +6,12 @@ use dobron\BigPipe\Exceptions\BigPipeInvalidArgumentException;
 
 class DialogResponse extends AsyncResponse
 {
-    protected $controller = null;
-    protected $controllerArgs = [];
-    protected $title = null;
-    protected $body = null;
-    protected $content = null;
-    protected $footer = null;
+    protected ?string $controller = null;
+    protected array $controllerArgs = [];
+    protected ?string $title = null;
+    protected mixed $body = null;
+    protected mixed $content = null;
+    protected ?string $footer = null;
 
     public function setTitle(?string $title): static
     {
@@ -24,7 +24,7 @@ class DialogResponse extends AsyncResponse
      * @param null|string|object $body
      * @return static
      */
-    public function setBody($body): static
+    public function setBody(mixed $body): static
     {
         $this->body = $body;
 
@@ -35,7 +35,7 @@ class DialogResponse extends AsyncResponse
      * @param null|string|object $content
      * @return static
      */
-    public function setDialog($content): static
+    public function setDialog(mixed $content): static
     {
         $this->content = $content;
 
@@ -63,21 +63,23 @@ class DialogResponse extends AsyncResponse
         return $this;
     }
 
-    public function closeDialogs()
+    public function closeDialogs(int $limit = -1): static
     {
-        $this->bigPipe()->require("require('bigpipe-util/src/core/Dialog').close()");
+        $this->bigPipe()->require("require('bigpipe-util/src/core/Dialog').close()", [
+            $limit
+        ]);
 
         return $this;
     }
 
-    public function closeDialog()
+    public function closeDialog(): static
     {
         $this->bigPipe()->require("require('bigpipe-util/src/core/Dialog').closeCurrent()");
 
         return $this;
     }
 
-    public function dialog(array $options = [])
+    public function dialog(array $options = []): static
     {
         if ($this->content) {
             $this->bigPipe()->require(

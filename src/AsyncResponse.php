@@ -103,7 +103,7 @@ class AsyncResponse
      * @param mixed $data
      * @return static
      */
-    public function setPayload($data): static
+    public function setPayload(mixed $data): static
     {
         $this->payload = $data;
 
@@ -307,9 +307,9 @@ class AsyncResponse
     /**
      * Send response
      *
-     * @return void
+     * @return mixed
      */
-    public function send()
+    public function send(): mixed
     {
         header("content-type: text/javascript");
 

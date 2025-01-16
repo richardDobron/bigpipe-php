@@ -21,7 +21,7 @@ class TransportMarker
      *
      * @return array
      */
-    private static function createTransportMarker($data, string $marker): array
+    private static function createTransportMarker(mixed $data, string $marker): array
     {
         return [
             $marker => $data
