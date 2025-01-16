@@ -22,7 +22,7 @@ class DialogResponse extends AsyncResponse
 
     /**
      * @param null|string|object $body
-     * @return $this
+     * @return self
      */
     public function setBody($body): self
     {
@@ -33,7 +33,7 @@ class DialogResponse extends AsyncResponse
 
     /**
      * @param null|string|object $content
-     * @return $this
+     * @return self
      */
     public function setDialog($content): self
     {
@@ -63,7 +63,7 @@ class DialogResponse extends AsyncResponse
         return $this;
     }
 
-    public function closeDialogs()
+    public function closeDialogs(int $limit = -1): self
     {
         $this->bigPipe()->require("require('bigpipe-util/src/core/Dialog').close()");
 
@@ -77,7 +77,7 @@ class DialogResponse extends AsyncResponse
         return $this;
     }
 
-    public function dialog(array $options = [])
+    public function dialog(array $options = []): self
     {
         if ($this->content) {
             $this->bigPipe()->require(
