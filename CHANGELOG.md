@@ -4,6 +4,11 @@ All notable changes to `bigpipe-util` will be documented in this file.
 
 Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
 
+## v1.0.4 - 2025-01-16
+
+### Added
+- `$limit` parameter to `closeDialogs()` method.
+
 ## v1.0.3 - 2024-11-15
 
 ### Added
