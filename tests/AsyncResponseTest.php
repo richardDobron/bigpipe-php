@@ -69,6 +69,39 @@ class AsyncResponseTest extends TestCase
         ]);
     }
 
+    public function testProxyRequire(): void
+    {
+        $response = new AsyncResponse();
+
+        $response->bigPipe()->require()->someFunction(['abc']);
+
+        $response->bigPipe()->require(priority: 0)->Composer()->init([123]);
+
+        $this->assertEquals($response->getResponse(), [
+            'payload' => [],
+            'domops' => [],
+            'jsmods' => [
+                'require' => [
+                    [
+                        'Composer',
+                        'init',
+                        [
+                            123
+                        ]
+                    ],
+                    [
+                        'someFunction',
+                        null,
+                        [
+                            'abc'
+                        ]
+                    ]
+                ]
+            ],
+            '__ar' => 1,
+        ]);
+    }
+
     public function testOmittingEmptyMethodName(): void
     {
         $response = new AsyncResponse();

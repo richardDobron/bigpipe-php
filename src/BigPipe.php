@@ -55,14 +55,18 @@ class BigPipe
     }
 
     /**
-     * @param string|array $fragment
+     * @param string|array|null $fragment
      * @param array $args
-     * @return $this
-     * @throws BigPipeInvalidArgumentException
+     * @param int|null $priority
+     * @return self|RequireProxy
      * @throws \Throwable
      */
-    public function require($fragment, array $args = [], int $priority = null): self
+    public function require($fragment = null, array $args = [], int $priority = null)
     {
+        if ($fragment === null) {
+            return new RequireProxy($this, $priority);
+        }
+
         if (!self::isValidRequireCall($fragment)) {
             throw new BigPipeInvalidArgumentException("Invalid call.");
         }
@@ -81,7 +85,7 @@ class BigPipe
             $lastIndex = array_key_last(static::$jsmods[__FUNCTION__]);
             static::$priorities[] = $priority ?? $lastIndex;
 
-            if (! empty($args)) {
+            if (!empty($args)) {
                 $transformedArgs = self::transformObjectString($args);
                 $require[] = $transformedArgs;
             }
