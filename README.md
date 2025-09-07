@@ -102,6 +102,7 @@ $asyncResponse->bigPipe()->require("require('SecretModule').run()", [
     ...
 ]);
 // is same as $asyncResponse->bigPipe()->require(["SecretModule", "run"], ...)
+// is same as $asyncResponse->bigPipe()->require()->SecretModule()->run(...)
 $asyncResponse->send();
 ```
 Example JavaScript code:

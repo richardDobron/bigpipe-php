@@ -21,7 +21,7 @@ module.exports = {
       "dialogs",
       "payload"
     ],
-    Examples: ["example_forms", "arbiter", "example_configuration"],
+    Examples: ["example_forms", "arbiter", "wait_for_load", "example_configuration"],
     Integrations: ["react_integration", "laravel_integration"],
   }
 };
