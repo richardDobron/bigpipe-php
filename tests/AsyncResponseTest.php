@@ -87,7 +87,9 @@ class AsyncResponseTest extends TestCase
 
         $response->bigPipe()->require()->someFunction(['abc']);
 
-        $response->bigPipe()->require(priority: 0)->Composer()->init([123]);
+        $response->bigPipe()->require(priority: 0)->Composer()->init([123, 321]);
+
+        $response->bigPipe()->require()->someFunctionWithoutArgs();
 
         $this->assertEquals($response->getResponse(), [
             'payload' => [],
@@ -98,7 +100,8 @@ class AsyncResponseTest extends TestCase
                         'Composer',
                         'init',
                         [
-                            123
+                            123,
+                            321
                         ]
                     ],
                     [
@@ -107,6 +110,9 @@ class AsyncResponseTest extends TestCase
                         [
                             'abc'
                         ]
+                    ],
+                    [
+                        'someFunctionWithoutArgs'
                     ]
                 ]
             ],
