@@ -4,6 +4,11 @@ All notable changes to `bigpipe-util` will be documented in this file.
 
 Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
 
+## v0.2.4 - 2026-01-05
+
+### Added
+- Require proxy support.
+
 ## v0.2.3 - 2025-01-16
 
 ### Added
