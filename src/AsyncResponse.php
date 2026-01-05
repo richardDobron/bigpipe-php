@@ -29,11 +29,11 @@ class AsyncResponse
     /**
      * @var BigPipe
      */
-    private $bigPipe;
+    protected $bigPipe;
     /**
      * @var TransportMarker
      */
-    private $transport;
+    protected $transport;
 
     public function __construct()
     {
@@ -47,9 +47,6 @@ class AsyncResponse
      * Object.prototype.__defineSetter__() or similar to read response data.
      * This header causes the browser to loop infinitely instead of handing over
      * sensitive data.
-     *
-     * @param string $jsonResponse
-     * @return string
      */
     private function addJSONShield(string $jsonResponse): string
     {
@@ -280,7 +277,7 @@ class AsyncResponse
     /**
      * Get response
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function getResponse(): array
     {

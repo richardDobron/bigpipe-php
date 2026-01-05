@@ -49,6 +49,12 @@ class DialogResponse extends AsyncResponse
         return $this;
     }
 
+    /**
+     * @param array{0: string, 1?: string}|string $fragment
+     * @param array $args
+     * @return static
+     * @throws BigPipeInvalidArgumentException
+     */
     public function setController($fragment, array $args = []): self
     {
         if (!BigPipe::isValidRequireCall($fragment)) {
@@ -65,7 +71,9 @@ class DialogResponse extends AsyncResponse
 
     public function closeDialogs(int $limit = -1): self
     {
-        $this->bigPipe()->require("require('bigpipe-util/src/core/Dialog').close()");
+        $this->bigPipe()->require("require('bigpipe-util/src/core/Dialog').close()", [
+            $limit
+        ]);
 
         return $this;
     }

@@ -6,17 +6,17 @@ use dobron\BigPipe\Exceptions\BigPipeInvalidArgumentException;
 
 class BigPipe
 {
-    private const JAVASCRIPT_REQUIRE_REGEX = "/^require\(['\"\[]+(?<module>.+?)['\"\]]+\)(\.(?<method>\w+)\(\))?$/";
+    protected const JAVASCRIPT_REQUIRE_REGEX = "/^require\(['\"\[]+(?<module>.+?)['\"\]]+\)(\.(?<method>\w+)\(\))?$/";
 
-    private static $priorities = [];
-    private static $jsmods = [
+    protected static $priorities = [];
+    protected static $jsmods = [
         "require" => [],
     ];
 
     /**
      * Check if require call is valid
      *
-     * @param string|array $fragment
+     * @param string|array{0: string, 1?: string} $fragment
      *
      * @return bool
      */
@@ -33,9 +33,9 @@ class BigPipe
     /**
      * Parse JavaScript fragment or array like [module, method]
      *
-     * @param string|array $fragment
+     * @param string|array{0: string, 1?: string} $fragment
      *
-     * @return array|null
+     * @return array{module: null|string, method: null|string}
      */
     public static function parseRequireCall($fragment): ?array
     {
@@ -55,7 +55,7 @@ class BigPipe
     }
 
     /**
-     * @param string|array|null $fragment
+     * @param string|array{0: string, 1?: string}|null $fragment
      * @param array $args
      * @param int|null $priority
      * @return self|RequireProxy
@@ -90,7 +90,7 @@ class BigPipe
                 $require[] = $transformedArgs;
             }
 
-            static::$jsmods[__FUNCTION__][$lastIndex] = array_trim($require ?? []);
+            static::$jsmods[__FUNCTION__][$lastIndex] = array_trim($require);
         } catch (\Throwable $exception) {
             static::$jsmods[__FUNCTION__] = $requires;
             static::$priorities = $priorities;

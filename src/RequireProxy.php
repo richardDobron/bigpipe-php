@@ -6,6 +6,7 @@ class RequireProxy
 {
     /** @var BigPipe */
     protected $parent;
+    /** @var array{0: string, 1?: string} */
     protected $parts = [];
     protected $args = [];
     protected $priority;
