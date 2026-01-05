@@ -5,6 +5,7 @@ namespace dobron\BigPipe;
 class RequireProxy
 {
     protected BigPipe $parent;
+    /** @var array{0: string, 1?: string} */
     protected array $parts = [];
     protected array $args = [];
     protected ?int $priority;

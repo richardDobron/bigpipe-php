@@ -19,7 +19,7 @@ class TransportMarker
      * @param mixed $data
      * @param string $marker
      *
-     * @return array
+     * @return array<string, mixed>
      */
     private static function createTransportMarker(mixed $data, string $marker): array
     {
@@ -33,7 +33,7 @@ class TransportMarker
      *
      * @param null|string $content
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public static function transportHtml(?string $content): array
     {
@@ -45,7 +45,7 @@ class TransportMarker
      *
      * @param string $elementId
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public static function transportElement(string $elementId): array
     {
@@ -57,7 +57,7 @@ class TransportMarker
      *
      * @param string $module
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public static function transportModule(string $module): array
     {
@@ -69,7 +69,7 @@ class TransportMarker
      *
      * @param array $data
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public static function transportMap(array $data): array
     {
@@ -81,7 +81,7 @@ class TransportMarker
      *
      * @param array $data
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public static function transportSet(array $data): array
     {

@@ -49,7 +49,13 @@ class DialogResponse extends AsyncResponse
         return $this;
     }
 
-    public function setController($fragment, array $args = []): static
+    /**
+     * @param array{0: string, 1?: string}|string $fragment
+     * @param array $args
+     * @return static
+     * @throws BigPipeInvalidArgumentException
+     */
+    public function setController(string|array $fragment, array $args = []): static
     {
         if (!BigPipe::isValidRequireCall($fragment)) {
             throw new BigPipeInvalidArgumentException("Invalid fragment.");

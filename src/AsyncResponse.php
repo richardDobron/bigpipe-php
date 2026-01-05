@@ -18,22 +18,13 @@ class AsyncResponse
     public const DOM_REMOVE = "remove";
     public const DOM_REPLACE = "replace";
 
-    /**
-     * @var array
-     */
-    public $domops = [];
-    /**
-     * @var null|array
-     */
-    public $payload = [];
-    /**
-     * @var BigPipe
-     */
-    private $bigPipe;
-    /**
-     * @var TransportMarker
-     */
-    private $transport;
+    public array $domops = [];
+
+    public ?array $payload = [];
+
+    private BigPipe $bigPipe;
+
+    private TransportMarker $transport;
 
     public function __construct()
     {
@@ -47,9 +38,6 @@ class AsyncResponse
      * Object.prototype.__defineSetter__() or similar to read response data.
      * This header causes the browser to loop infinitely instead of handing over
      * sensitive data.
-     *
-     * @param string $jsonResponse
-     * @return string
      */
     private function addJSONShield(string $jsonResponse): string
     {
@@ -280,7 +268,7 @@ class AsyncResponse
     /**
      * Get response
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function getResponse(): array
     {
@@ -299,7 +287,7 @@ class AsyncResponse
      */
     public function buildResponseString(): string
     {
-        $jsonResponse = json_encode($this->getResponse());
+        $jsonResponse = json_encode($this->getResponse(), JSON_THROW_ON_ERROR);
 
         return $this->addJSONShield($jsonResponse);
     }
