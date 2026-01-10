@@ -1,0 +1,6 @@
+<script>
+(new (require("bigpipe-util/src/BigPipe"))).onPageletArrive({"id":"content","js":[".\/scripts\/app.js"],"css":[".\/styles\/content.css"],"domops":[["setContent","#u_0_0",false,{"__html":"<header><div><div id=\"u_0_1\"><\/div><\/div><\/header>\nMain page content<footer><div><div id=\"u_0_2\"><\/div><\/div><\/footer>\n"}]],"jsmods":{"require":[["Users","setup"]]}});
+(new (require("bigpipe-util/src/BigPipe"))).onPageletArrive({"id":"header","js":[],"css":[],"domops":[["setContent","#u_0_1",false,{"__html":"Header content"}]],"jsmods":{"require":[["Header","init"]]}});
+(new (require("bigpipe-util/src/BigPipe"))).onPageletArrive({"id":"footer","js":[],"css":[],"domops":[["setContent","#u_0_2",false,{"__html":"Footer content"}],["eval","body",false,"console.warn(\"Footer loaded\");"]],"jsmods":{"require":[["Footer","setYear"]]},"is_last":true});
+(new (require("bigpipe-util/src/ServerJS"))).handle({"require":[["Page","setup"]]});
+</script>

@@ -40,9 +40,7 @@ window.require = (modulePath) => {
 
 ### 4. Add these lines to the page footer:
 ```html
-<script>
-    (new (require("bigpipe-util/src/ServerJS"))).handle(<?=json_encode(\dobron\BigPipe\BigPipe::jsmods())?>);
-</script>
+<?= \dobron\BigPipe\BigPipe::render() ?>
 ```
 
 

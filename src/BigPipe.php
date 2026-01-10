@@ -2,103 +2,30 @@
 
 namespace dobron\BigPipe;
 
-use dobron\BigPipe\Exceptions\BigPipeInvalidArgumentException;
-
 class BigPipe
 {
-    protected const JAVASCRIPT_REQUIRE_REGEX = "/^require\(['\"\[]+(?<module>.+?)['\"\]]+\)(\.(?<method>\w+)\(\))?$/";
+    use JsMods;
 
+    /** @var array<string, Pagelet> */
+    protected static array $pagelets = [];
     protected static array $priorities = [];
     protected static array $jsmods = [
         "require" => [],
     ];
 
-    /**
-     * Check if require call is valid
-     *
-     * @param string|array{0: string, 1?: string} $fragment
-     *
-     * @return bool
-     */
-    public static function isValidRequireCall(string|array $fragment): bool
+    protected function &jsmodsStore(): array
     {
-        if (is_array($fragment)) {
-            $fragments = count($fragment);
-            return $fragments === 1 || $fragments === 2;
-        }
-
-        return !!preg_match(static::JAVASCRIPT_REQUIRE_REGEX, $fragment);
+        return self::$jsmods;
     }
 
-    /**
-     * Parse JavaScript fragment or array like [module, method]
-     *
-     * @param string|array{0: string, 1?: string} $fragment
-     *
-     * @return array{module: null|string, method: null|string}
-     */
-    public static function parseRequireCall(string|array $fragment): array
+    protected function &prioritiesStore(): array
     {
-        if (is_array($fragment)) {
-            return [
-                "module" => $fragment[0],
-                "method" => $fragment[1] ?? null,
-            ];
-        }
-
-        preg_match(static::JAVASCRIPT_REQUIRE_REGEX, $fragment, $match);
-
-        return [
-            "module" => $match['module'] ?? null,
-            "method" => $match['method'] ?? null,
-        ];
+        return self::$priorities;
     }
 
-    /**
-     * @param string|array{0: string, 1?: string}|null $fragment
-     * @param array $args
-     * @param int|null $priority
-     * @return static|RequireProxy
-     * @throws \Throwable
-     */
-    public function require(string|array $fragment = null, array $args = [], int $priority = null): RequireProxy|static
+    public static function addPagelet($id, Pagelet $pagelet): void
     {
-        if ($fragment === null) {
-            return new RequireProxy($this, $priority);
-        }
-
-        if (!static::isValidRequireCall($fragment)) {
-            throw new BigPipeInvalidArgumentException("Invalid call.");
-        }
-
-        $fragmentParts = static::parseRequireCall($fragment);
-        $priorities = static::$priorities;
-        $requires = static::$jsmods['require'];
-
-        $require = [
-            $fragmentParts['module'],
-            $fragmentParts['method'] ?? null,
-        ];
-
-        try {
-            static::$jsmods[__FUNCTION__][] = [];
-            $lastIndex = array_key_last(static::$jsmods[__FUNCTION__]);
-            static::$priorities[] = $priority ?? $lastIndex;
-
-            if (!empty($args)) {
-                $transformedArgs = static::transformObjectString($args);
-                $require[] = $transformedArgs;
-            }
-
-            static::$jsmods[__FUNCTION__][$lastIndex] = array_trim($require);
-        } catch (\Throwable $exception) {
-            static::$jsmods[__FUNCTION__] = $requires;
-            static::$priorities = $priorities;
-
-            throw $exception;
-        }
-
-        return $this;
+        self::$pagelets[$id] = $pagelet;
     }
 
     public static function jsmods(): array
@@ -108,28 +35,32 @@ class BigPipe
         return static::$jsmods;
     }
 
-    protected static function transformObjectString(mixed $data): mixed
+    public static function render(): string
     {
-        if (is_object($data) && method_exists($data, '__toString')) {
-            return (string)$data;
-        }
+        return new static();
+    }
 
-        if (!is_array($data)) {
-            return $data;
-        }
+    public function __toString(): string
+    {
+        $script = '';
 
-        $result = [];
-        foreach ($data as $index => $item) {
-            if (is_array($item)) {
-                $result[$index] = [];
-                foreach ($item as $key => $value) {
-                    $result[$index][$key] = static::transformObjectString($value);
-                }
-            } else {
-                $result[$index] = static::transformObjectString($item);
+        foreach (static::$pagelets as $i => $pagelet) {
+            $data = $pagelet->renderData();
+
+            if (array_key_last(static::$pagelets) === $i) {
+                $data['is_last'] = true;
             }
+
+            $script .= "(new (require(\"bigpipe-util/src/BigPipe\"))).onPageletArrive(" . json_encode($data) . ");\n";
         }
 
-        return $result;
+        $script .= "(new (require(\"bigpipe-util/src/ServerJS\"))).handle(" . json_encode(static::jsmods()) . ");";
+
+        return <<<HTML
+<script>
+$script
+</script>
+HTML;
+
     }
 }
