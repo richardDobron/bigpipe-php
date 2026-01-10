@@ -25,7 +25,7 @@ $ composer require richarddobron/bigpipe
 $ npm install bigpipe-util
 ```
 
-### 3. Add the following to /path/to/resources/js/app.js:
+### 3. Add the following to `/path/to/resources/js/app.js`:
 ```javascript
 import Primer from 'bigpipe-util/src/Primer';
 
@@ -38,7 +38,7 @@ window.require = (modulePath) => {
 };
 ```
 
-### 4. Add these lines to the page footer:
+### 4. Add this line to the page footer:
 ```html
 <?= \dobron\BigPipe\BigPipe::render() ?>
 ```
@@ -180,6 +180,6 @@ Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
-[blog]: https://www.facebook.com/notes/facebook-engineering/bigpipe-pipelining-web-pages-for-high-performance/389414033919
+[blog]: https://web.archive.org/web/20160223093221/https://www.facebook.com/notes/facebook-engineering/bigpipe-pipelining-web-pages-for-high-performance/389414033919
 [bigpipe-0-repo]: https://github.com/richarddobron/bigpipe-php/tree/0.x
 [bigpipe-1-repo]: https://github.com/richarddobron/bigpipe-php

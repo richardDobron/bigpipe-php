@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 use dobron\BigPipe\BigPipe;
 use dobron\BigPipe\Pagelet;
 use PHPUnit\Framework\TestCase;

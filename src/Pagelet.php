@@ -15,7 +15,6 @@ class Pagelet
     protected array $js = [];
     protected array $css = [];
     protected array $onloads = [];
-
     protected array $priorities = [];
 
     public function __construct(string $id)
