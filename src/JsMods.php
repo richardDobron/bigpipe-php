@@ -6,7 +6,7 @@ use dobron\BigPipe\Exceptions\BigPipeInvalidArgumentException;
 
 trait JsMods
 {
-    protected static $JAVASCRIPT_REQUIRE_REGEX = "/^require\(['\"\[]+(?<module>.+?)['\"\]]+\)(\.(?<method>\w+)\(\))?$/";
+    protected static string $JAVASCRIPT_REQUIRE_REGEX = "/^require\(['\"\[]+(?<module>.+?)['\"\]]+\)(\.(?<method>\w+)\(\))?$/";
 
     abstract protected function &jsmodsStore(): array;
     abstract protected function &prioritiesStore(): array;
