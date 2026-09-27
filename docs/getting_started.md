@@ -5,7 +5,7 @@ sidebar_label: Getting started
 ---
 
 ## ✅ Requirements
-* PHP 7.1 or higher
+* PHP 8.0 or higher
 * Webpack
 
 ## 📦 Installing
@@ -33,7 +33,7 @@ $ npm install bigpipe-util
 In your entrypoint file (e.g., `/path/to/resources/js/app.js`), add the following code to set up BigPipe:
 
 ```javascript
-import Primer from 'bigpipe-util/src/Primer';
+import Primer from 'bigpipe-util/dist/Primer';
 
 Primer();
 
@@ -74,7 +74,7 @@ In your page footer, add the following code to set up BigPipe:
 
 ```php
 <script>
-    (new (require("bigpipe-util/src/ServerJS"))).handle(<?=json_encode(\dobron\BigPipe\BigPipe::jsmods())?>);
+    (new (require("bigpipe-util/dist/ServerJS"))).handle(<?=json_encode(\dobron\BigPipe\BigPipe::jsmods())?>);
 </script>
 ```
 

@@ -40,7 +40,7 @@ Here's a step-by-step example of how to use BigPipe to display an alert with the
 In your frontend JavaScript, you can use the `AsyncRequest` class to send XHR requests.
 
 ```javascript
-import AsyncRequest from 'bigpipe-util/src/AsyncRequest';
+import AsyncRequest from 'bigpipe-util/dist/AsyncRequest';
 
 const request = (new AsyncRequest('/ajax/remove.php'))
   // or .setURI('/ajax/remove.php')

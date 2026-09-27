@@ -93,7 +93,7 @@ To open this dialog from the frontend, you can use the following HTML code:
 For frontend-triggered dialog invocation:
 
 ```javascript
-import Dialog from "bigpipe-util/src/core/Dialog";
+import Dialog from "bigpipe-util/dist/core/Dialog";
 
 (new Dialog()).showFromModel({
     controller: 'ModalLogger',

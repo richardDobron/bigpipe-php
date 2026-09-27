@@ -9,7 +9,7 @@ Arbiter is a straightforward event system designed to facilitate communication b
 Here's a concise code example demonstrating how to use Arbiter:
 
 ```javascript
-import Arbiter from 'bigpipe-util/src/core/Arbiter';
+import Arbiter from 'bigpipe-util/dist/core/Arbiter';
 
 // Create an instance of Arbiter
 const arbiter1 = new Arbiter();

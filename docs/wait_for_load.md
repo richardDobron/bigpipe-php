@@ -7,9 +7,9 @@ sidebar_label: "Wait for load"
 Page loading sometimes takes more time than expected. This can be due to various reasons, such as network latency, server response time, or resource loading issues. To handle such scenarios gracefully, you can implement a loading mechanism that waits for the page to load completely before executing certain actions.
 
 ```javascript
-import { byTag } from "bigpipe-util/src/core/Parent";
-import onAfterLoad from "bigpipe-util/src/core/onAfterLoad";
-import waitForLoad from "bigpipe-util/src/core/waitForLoad";
+import { byTag } from "bigpipe-util/dist/core/Parent";
+import onAfterLoad from "bigpipe-util/dist/core/onAfterLoad";
+import waitForLoad from "bigpipe-util/dist/core/waitForLoad";
 
 (function setupClickListener() {
     const clickHandler = function (event) {

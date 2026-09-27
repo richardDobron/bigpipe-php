@@ -27,7 +27,7 @@ $ npm install bigpipe-util
 
 ### 3. Add the following to `/path/to/resources/js/app.js`:
 ```javascript
-import Primer from 'bigpipe-util/src/Primer';
+import Primer from 'bigpipe-util/dist/Primer';
 
 Primer();
 

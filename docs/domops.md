@@ -25,7 +25,7 @@ These methods offer a robust toolkit for dynamic manipulation of the DOM element
     ```
 
     ```javascript
-    import DOM from "bigpipe-util/src/core/DOM";
+    import DOM from "bigpipe-util/dist/core/DOM";
 
     DOM.prependContent(
         document.querySelector('span.current-date'), // element

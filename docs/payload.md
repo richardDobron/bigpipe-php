@@ -28,7 +28,7 @@ $response->send();
 
 Subsequently, you can access the response payload from the server by calling the **AsyncRequest** method:
 ```javascript
-import AsyncRequest from "bigpipe-util/src/async/AsyncRequest";
+import AsyncRequest from "bigpipe-util/dist/async/AsyncRequest";
 
 (new AsyncRequest('payload.php'))
     .setData({
