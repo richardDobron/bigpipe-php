@@ -68,6 +68,7 @@ module.exports = {
       items: [
         { type: "doc", docId: "getting_started", label: "Docs", position: "left" },
         { type: "doc", docId: "how_it_works", label: "How it works", position: "left" },
+        { href: "https://richarddobron.github.io/bigpipe-util/", label: "JavaScript API", position: "left" },
         { href: "http://bigpipe.xf.cz", label: "Demo", position: "right" },
         { href: "https://packagist.org/packages/richarddobron/bigpipe", label: "Packagist", position: "right" },
         { href: "https://www.npmjs.com/package/bigpipe-util", label: "npm", position: "right" },
@@ -88,6 +89,7 @@ module.exports = {
             { label: "Getting started", to: "docs/getting_started" },
             { label: "How it works", to: "docs/how_it_works" },
             { label: "DOMOPS API", to: "docs/domops" },
+            { label: "JavaScript API", href: "https://richarddobron.github.io/bigpipe-util/" },
           ],
         },
         {

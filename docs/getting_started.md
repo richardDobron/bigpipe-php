@@ -39,7 +39,7 @@ Primer();
 
 window.require = (modulePath) => {
     return modulePath.startsWith('bigpipe-util/')
-        ? require('bigpipe-util/' + modulePath.substring(13) + '.js').default
+        ? require('bigpipe-util/dist/' + modulePath.replace(/^bigpipe-util\/(src|dist)\//, '') + '.js').default
         : require('./' + modulePath).default;
 };
 ```
