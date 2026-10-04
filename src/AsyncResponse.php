@@ -297,9 +297,9 @@ class AsyncResponse
     /**
      * Send response
      *
-     * @return void
+     * @return mixed
      */
-    public function send(): void
+    public function send(): mixed
     {
         header("content-type: text/javascript");
 
