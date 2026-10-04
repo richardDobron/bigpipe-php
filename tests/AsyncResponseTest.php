@@ -188,7 +188,7 @@ class AsyncResponseTest extends TestCase
                         'first', 'init'
                     ],
                     [
-                        'bigpipe-util/src/core/Dialog', 'render', [
+                        'bigpipe-util/dist/core/Dialog', 'render', [
                             [
                                 'backdrop' => 'static',
                                 'keyboard' => false,

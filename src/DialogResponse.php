@@ -63,6 +63,12 @@ class DialogResponse extends AsyncResponse
 
         $require = BigPipe::parseRequireCall($fragment);
 
+        if (!empty($require['method'])) {
+            throw new BigPipeInvalidArgumentException(
+                "Dialog controller can't have a method, use require('{$require['module']}') instead."
+            );
+        }
+
         $this->controller = $require['module'];
         $this->controllerArgs = $args;
 
@@ -71,7 +77,7 @@ class DialogResponse extends AsyncResponse
 
     public function closeDialogs(int $limit = -1): static
     {
-        $this->bigPipe()->require("require('bigpipe-util/src/core/Dialog').close()", [
+        $this->bigPipe()->require("require('bigpipe-util/dist/core/Dialog').close()", [
             $limit
         ]);
 
@@ -80,7 +86,7 @@ class DialogResponse extends AsyncResponse
 
     public function closeDialog(): static
     {
-        $this->bigPipe()->require("require('bigpipe-util/src/core/Dialog').closeCurrent()");
+        $this->bigPipe()->require("require('bigpipe-util/dist/core/Dialog').closeCurrent()");
 
         return $this;
     }
@@ -89,7 +95,7 @@ class DialogResponse extends AsyncResponse
     {
         if ($this->content) {
             $this->bigPipe()->require(
-                "require('bigpipe-util/src/core/Dialog').render()",
+                "require('bigpipe-util/dist/core/Dialog').render()",
                 [
                     array_merge($options, [
                         'content' => $this->content,
@@ -107,7 +113,7 @@ class DialogResponse extends AsyncResponse
             ]);
 
             $this->bigPipe()->require(
-                "require('bigpipe-util/src/core/Dialog').showFromModel()",
+                "require('bigpipe-util/dist/core/Dialog').showFromModel()",
                 [
                     $options,
                     $this->controllerArgs,

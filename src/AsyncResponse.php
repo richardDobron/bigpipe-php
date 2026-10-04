@@ -236,11 +236,11 @@ class AsyncResponse
     public function reload(int $delay = 0): static
     {
         if ($delay > 0) {
-            $this->bigPipe()->require("require('bigpipe-util/src/core/ReloadPage').delay()", [
+            $this->bigPipe()->require("require('bigpipe-util/dist/core/ReloadPage').delay()", [
                 $delay,
             ]);
         } else {
-            $this->bigPipe()->require("require('bigpipe-util/src/core/ReloadPage').now()");
+            $this->bigPipe()->require("require('bigpipe-util/dist/core/ReloadPage').now()");
         }
 
         return $this;
@@ -257,7 +257,7 @@ class AsyncResponse
      */
     public function redirect(string $url, int $delay = 0): static
     {
-        $this->bigPipe()->require("require('bigpipe-util/src/core/ServerRedirect').redirectPageTo()", [
+        $this->bigPipe()->require("require('bigpipe-util/dist/core/ServerRedirect').redirectPageTo()", [
             $url,
             $delay,
         ]);
@@ -288,6 +288,8 @@ class AsyncResponse
     public function buildResponseString(): string
     {
         $jsonResponse = json_encode($this->getResponse(), JSON_THROW_ON_ERROR);
+
+        BigPipe::reset();
 
         return $this->addJSONShield($jsonResponse);
     }

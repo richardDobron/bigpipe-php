@@ -28,7 +28,7 @@ class DialogResponseTest extends TestCase
             'jsmods' => [
                 'require' => [
                     [
-                        'bigpipe-util/src/core/Dialog', 'showFromModel', [
+                        'bigpipe-util/dist/core/Dialog', 'showFromModel', [
                             [
                                 'title' => 'Dialog title',
                                 'body' => 'html <strong>content</strong>',

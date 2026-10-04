@@ -37,7 +37,16 @@ class BigPipe
 
     public static function render(): string
     {
-        return new static();
+        return (string) new static();
+    }
+
+    public static function reset(): void
+    {
+        static::$pagelets = [];
+        static::$priorities = [];
+        static::$jsmods = [
+            "require" => [],
+        ];
     }
 
     public function __toString(): string
@@ -51,10 +60,12 @@ class BigPipe
                 $data['is_last'] = true;
             }
 
-            $script .= "(new (require(\"bigpipe-util/src/BigPipe\"))).onPageletArrive(" . json_encode($data) . ");\n";
+            $script .= "(new (require(\"bigpipe-util/dist/BigPipe\"))).onPageletArrive(" . json_encode($data, JSON_THROW_ON_ERROR) . ");\n";
         }
 
-        $script .= "(new (require(\"bigpipe-util/src/ServerJS\"))).handle(" . json_encode(static::jsmods()) . ");";
+        $script .= "(new (require(\"bigpipe-util/dist/ServerJS\"))).handle(" . json_encode(static::jsmods(), JSON_THROW_ON_ERROR) . ");";
+
+        static::reset();
 
         return <<<HTML
 <script>
