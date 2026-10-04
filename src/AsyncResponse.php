@@ -20,7 +20,7 @@ class AsyncResponse
 
     public array $domops = [];
 
-    public ?array $payload = [];
+    public mixed $payload = [];
 
     private BigPipe $bigPipe;
 
