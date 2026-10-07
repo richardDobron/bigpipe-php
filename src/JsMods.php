@@ -59,7 +59,7 @@ trait JsMods
      * @return static|RequireProxy
      * @throws \Throwable
      */
-    public function require(string|array $fragment = null, array $args = [], int $priority = null): RequireProxy|static
+    public function require(string|array|null $fragment = null, array $args = [], ?int $priority = null): RequireProxy|static
     {
         if ($fragment === null) {
             return new RequireProxy($this, $priority);

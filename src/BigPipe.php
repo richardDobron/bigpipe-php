@@ -6,33 +6,89 @@ class BigPipe
 {
     use JsMods;
 
-    /** @var array<string, Pagelet> */
-    protected static array $pagelets = [];
-    protected static array $priorities = [];
-    protected static array $jsmods = [
-        "require" => [],
-    ];
+    protected static ?Context $defaultContext = null;
+
+    /** @var null|callable(): Context */
+    protected static $contextResolver = null;
+
+    protected Context $context;
+
+    public function __construct(?Context $context = null)
+    {
+        $this->context = $context ?? static::context();
+    }
+
+    /**
+     * Returns the context of the current request.
+     */
+    public static function context(): Context
+    {
+        if (static::$contextResolver !== null) {
+            return (static::$contextResolver)();
+        }
+
+        return static::$defaultContext ??= new Context();
+    }
+
+    /**
+     * Resolves the context of the current request, e.g. from a request scoped container binding
+     * or the current coroutine. Pass null to go back to the default (one per PHP process).
+     *
+     * @param null|callable(): Context $resolver
+     */
+    public static function setContextResolver(?callable $resolver): void
+    {
+        static::$contextResolver = $resolver;
+    }
+
+    /**
+     * Runs the callback with the given (or a fresh) context and restores the previous one afterwards,
+     * even when the callback throws.
+     *
+     * @template T
+     * @param callable(Context): T $callback
+     * @return T
+     */
+    public static function withContext(callable $callback, ?Context $context = null): mixed
+    {
+        $context ??= new Context();
+        $previousDefault = static::$defaultContext;
+        $previousResolver = static::$contextResolver;
+
+        static::$defaultContext = $context;
+        static::$contextResolver = null;
+
+        try {
+            return $callback($context);
+        } finally {
+            static::$defaultContext = $previousDefault;
+            static::$contextResolver = $previousResolver;
+        }
+    }
+
+    public function getContext(): Context
+    {
+        return $this->context;
+    }
 
     protected function &jsmodsStore(): array
     {
-        return self::$jsmods;
+        return $this->context->jsmods;
     }
 
     protected function &prioritiesStore(): array
     {
-        return self::$priorities;
+        return $this->context->priorities;
     }
 
     public static function addPagelet($id, Pagelet $pagelet): void
     {
-        self::$pagelets[$id] = $pagelet;
+        static::context()->addPagelet($id, $pagelet);
     }
 
     public static function jsmods(): array
     {
-        array_multisort(static::$priorities, static::$jsmods['require']);
-
-        return static::$jsmods;
+        return static::context()->jsmods();
     }
 
     public static function render(): string
@@ -42,30 +98,29 @@ class BigPipe
 
     public static function reset(): void
     {
-        static::$pagelets = [];
-        static::$priorities = [];
-        static::$jsmods = [
-            "require" => [],
-        ];
+        static::context()->reset();
     }
 
     public function __toString(): string
     {
-        $script = '';
+        try {
+            $script = '';
+            $pagelets = $this->context->pagelets;
 
-        foreach (static::$pagelets as $i => $pagelet) {
-            $data = $pagelet->renderData();
+            foreach ($pagelets as $i => $pagelet) {
+                $data = $pagelet->renderData();
 
-            if (array_key_last(static::$pagelets) === $i) {
-                $data['is_last'] = true;
+                if (array_key_last($pagelets) === $i) {
+                    $data['is_last'] = true;
+                }
+
+                $script .= "(new (require(\"bigpipe-util/dist/BigPipe\"))).onPageletArrive(" . json_encode($data, JSON_THROW_ON_ERROR) . ");\n";
             }
 
-            $script .= "(new (require(\"bigpipe-util/dist/BigPipe\"))).onPageletArrive(" . json_encode($data, JSON_THROW_ON_ERROR) . ");\n";
+            $script .= "(new (require(\"bigpipe-util/dist/ServerJS\"))).handle(" . json_encode($this->context->jsmods(), JSON_THROW_ON_ERROR) . ");";
+        } finally {
+            $this->context->reset();
         }
-
-        $script .= "(new (require(\"bigpipe-util/dist/ServerJS\"))).handle(" . json_encode(static::jsmods(), JSON_THROW_ON_ERROR) . ");";
-
-        static::reset();
 
         return <<<HTML
 <script>

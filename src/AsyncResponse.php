@@ -26,9 +26,9 @@ class AsyncResponse
 
     private TransportMarker $transport;
 
-    public function __construct()
+    public function __construct(?Context $context = null)
     {
-        $this->bigPipe = new BigPipe();
+        $this->bigPipe = new BigPipe($context);
         $this->transport = new TransportMarker();
     }
 
@@ -275,7 +275,7 @@ class AsyncResponse
         return [
             "payload" => $this->payload,
             "domops" => $this->domops,
-            "jsmods" => BigPipe::jsmods(),
+            "jsmods" => $this->bigPipe->getContext()->jsmods(),
             "__ar" => 1,
         ];
     }
@@ -287,9 +287,11 @@ class AsyncResponse
      */
     public function buildResponseString(): string
     {
-        $jsonResponse = json_encode($this->getResponse(), JSON_THROW_ON_ERROR);
-
-        BigPipe::reset();
+        try {
+            $jsonResponse = json_encode($this->getResponse(), JSON_THROW_ON_ERROR);
+        } finally {
+            $this->bigPipe->getContext()->reset();
+        }
 
         return $this->addJSONShield($jsonResponse);
     }

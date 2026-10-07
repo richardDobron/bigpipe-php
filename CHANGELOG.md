@@ -4,6 +4,18 @@ All notable changes to `bigpipe-util` will be documented in this file.
 
 Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
 
+## Unreleased
+
+### Added
+- `Context` holds the pagelets and jsmods of a request; `BigPipe::setContextResolver()` and `BigPipe::withContext()`
+  give long-running servers (Octane, FrankenPHP, RoadRunner, Swoole) a fresh context per request.
+- `BigPipe` and `AsyncResponse` accept an optional `Context` in the constructor.
+
+### Fixed
+- The state is reset even when encoding the response or rendering the pagelets throws, so it no longer leaks into
+  the next request.
+- PHP 8.4 deprecation of implicitly nullable parameters in `require()`.
+
 ## v1.0.5 - 2025-09-07
 
 ### Added
