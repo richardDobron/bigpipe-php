@@ -33,4 +33,17 @@ class PageletsTest extends TestCase
         $this->assertMatchesSnapshot((string) $bigPipe);
         $this->assertEquals('<div id="u_0_0"></div>', (string) $pagelet);
     }
+
+    public function testProxyRequire(): void
+    {
+        $pagelet = new Pagelet('content');
+
+        $pagelet->require()->Users()->setup(['abc']);
+        $pagelet->require(priority: -1)->Page()->init();
+
+        $this->assertSame([
+            ['Page', 'init'],
+            ['Users', 'setup', ['abc']],
+        ], $pagelet->jsmods()['require']);
+    }
 }

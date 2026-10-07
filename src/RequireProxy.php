@@ -4,13 +4,13 @@ namespace dobron\BigPipe;
 
 class RequireProxy
 {
-    protected BigPipe $parent;
+    protected BigPipe|Pagelet $parent;
     /** @var array{0: string, 1?: string} */
     protected array $parts = [];
     protected array $args = [];
     protected ?int $priority;
 
-    public function __construct(BigPipe $parent, ?int $priority = null)
+    public function __construct(BigPipe|Pagelet $parent, ?int $priority = null)
     {
         $this->parent = $parent;
         $this->priority = $priority;

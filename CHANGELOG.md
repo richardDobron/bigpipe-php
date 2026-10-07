@@ -15,6 +15,7 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 - The state is reset even when encoding the response or rendering the pagelets throws, so it no longer leaks into
   the next request.
 - PHP 8.4 deprecation of implicitly nullable parameters in `require()`.
+- `$pagelet->require()` without arguments (the require proxy) threw a `TypeError`.
 
 ## v1.0.5 - 2025-09-07
 
