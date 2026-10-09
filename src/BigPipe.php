@@ -149,7 +149,7 @@ class BigPipe
     public function __toString(): string
     {
         try {
-            $script = '';
+            $pageletsScript = '';
             $pagelets = $this->context->pagelets;
 
             foreach ($pagelets as $i => $pagelet) {
@@ -159,10 +159,21 @@ class BigPipe
                     $data['is_last'] = true;
                 }
 
-                $script .= "(new (require(\"bigpipe-util/dist/BigPipe\"))).onPageletArrive(" . json_encode($data, JSON_THROW_ON_ERROR) . ");\n";
+                $pageletsScript .= "(new (require(\"bigpipe-util/dist/BigPipe\"))).onPageletArrive(" . json_encode($data, JSON_THROW_ON_ERROR) . ");\n";
             }
 
-            $script .= "(new (require(\"bigpipe-util/dist/ServerJS\"))).handle(" . json_encode($this->context->jsmods(), JSON_THROW_ON_ERROR) . ");";
+            $jsmods = $this->context->jsmods();
+            $defines = $jsmods['define'] ?? [];
+            unset($jsmods['define']);
+
+            $script = '';
+
+            if (!empty($defines)) {
+                $script .= "(new (require(\"bigpipe-util/dist/ServerJS\"))).handle(" . json_encode(['define' => $defines], JSON_THROW_ON_ERROR) . ");\n";
+            }
+
+            $script .= $pageletsScript;
+            $script .= "(new (require(\"bigpipe-util/dist/ServerJS\"))).handle(" . json_encode($jsmods, JSON_THROW_ON_ERROR) . ");";
         } finally {
             $this->context->reset();
         }

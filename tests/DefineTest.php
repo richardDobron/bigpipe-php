@@ -58,6 +58,24 @@ class DefineTest extends TestCase
         $this->assertArrayNotHasKey('define', BigPipe::jsmods());
     }
 
+    public function testRendersTheDefinesBeforeThePagelets(): void
+    {
+        (new BigPipe())->define('SiteData', ['locale' => 'sk_SK'])->require(['Page', 'init']);
+        (new Pagelet('feed'))->require(['Feed', 'init']);
+
+        $lines = explode("\n", trim(strip_tags(BigPipe::render())));
+
+        $this->assertSame(
+            '(new (require("bigpipe-util/dist/ServerJS"))).handle({"define":[["SiteData",{"locale":"sk_SK"}]]});',
+            trim($lines[0])
+        );
+        $this->assertStringContainsString('onPageletArrive({"id":"feed"', $lines[1]);
+        $this->assertSame(
+            '(new (require("bigpipe-util/dist/ServerJS"))).handle({"require":[["Page","init"]]});',
+            trim($lines[2])
+        );
+    }
+
     public function testRejectsAnEmptyModule(): void
     {
         $this->expectException(BigPipeInvalidArgumentException::class);
