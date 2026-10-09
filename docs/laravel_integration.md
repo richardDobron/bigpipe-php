@@ -85,6 +85,17 @@ class UserController extends Controller
 
 ```
 
+## CSRF protection
+Send the CSRF token of the session to the browser, e.g. in a middleware or a view composer. Every request of
+`AsyncRequest` that can change data then carries it in the `X-CSRF-TOKEN` header, which Laravel checks:
+
+```php
+\dobron\BigPipe\BigPipe::setCSRFToken(csrf_token());
+```
+
+The token is only sent to URLs of the same origin. To send it as a field of the data instead, e.g. `_token`, use
+`setCSRFToken(csrf_token(), header: null, param: '_token')`.
+
 ## Long-running servers (Octane, FrankenPHP, RoadRunner, Swoole)
 
 BigPipe collects the `require` calls and pagelets of a request in a `dobron\BigPipe\Context`. By default there is one

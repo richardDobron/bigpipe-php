@@ -6,6 +6,8 @@ class BigPipe
 {
     use JsMods;
 
+    public const CSRF_TOKEN_MODULE = 'CSRFToken';
+
     protected static ?Context $defaultContext = null;
 
     /** @var null|callable(): Context */
@@ -91,6 +93,26 @@ class BigPipe
         return static::context()->jsmods();
     }
 
+    /**
+     * Sends the CSRF token of the current request to the browser, which adds it to every request
+     * that can change data (not GET, HEAD or OPTIONS) to the same origin, as the header and/or
+     * the field of the data.
+     *
+     * @throws Exceptions\BigPipeInvalidArgumentException
+     * @throws \Throwable
+     */
+    public static function setCSRFToken(string $token, ?string $header = 'X-CSRF-TOKEN', ?string $param = null): void
+    {
+        if ($token === '' || ($header === null && $param === null)) {
+            throw new Exceptions\BigPipeInvalidArgumentException("Set a token and a header or a parameter for it.");
+        }
+
+        (new static())->define(static::CSRF_TOKEN_MODULE, [
+            'token' => $token,
+            'header' => $header,
+            'param' => $param,
+        ]);
+    }
     public static function render(): string
     {
         return (string) new static();
