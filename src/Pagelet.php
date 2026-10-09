@@ -15,6 +15,9 @@ class Pagelet
     protected array $js = [];
     protected array $css = [];
     protected array $onloads = [];
+    protected array $onafterload = [
+        'require' => [],
+    ];
     protected array $priorities = [];
 
     public function __construct(string $id)
@@ -49,6 +52,36 @@ class Pagelet
     public function addOnload(string $code): static
     {
         $this->onloads[] = $code;
+
+        return $this;
+    }
+
+    /**
+     * Calls a JavaScript module once every pagelet has run its jsmods and the window has loaded,
+     * for work that must not compete with the page, like prefetching or analytics.
+     *
+     * @param string|array{0: string, 1?: string} $fragment
+     * @param array $args
+     * @return static
+     * @throws Exceptions\BigPipeInvalidArgumentException
+     */
+    public function onAfterLoad(string|array $fragment, array $args = []): static
+    {
+        if (!static::isValidRequireCall($fragment)) {
+            throw new Exceptions\BigPipeInvalidArgumentException("Invalid call.");
+        }
+
+        $fragmentParts = static::parseRequireCall($fragment);
+        $require = [
+            $fragmentParts['module'],
+            $fragmentParts['method'] ?? null,
+        ];
+
+        if (!empty($args)) {
+            $require[] = static::transformObjectString($args);
+        }
+
+        $this->onafterload['require'][] = array_trim($require);
 
         return $this;
     }
@@ -89,13 +122,19 @@ class Pagelet
             ];
         }
 
-        return [
+        $data = [
             'id' => $this->id,
             'js' => $this->js,
             'css' => $this->css,
             "domops" => $domops,
             'jsmods' => $this->jsmods(),
         ];
+
+        if (!empty($this->onafterload['require'])) {
+            $data['onafterload'] = $this->onafterload;
+        }
+
+        return $data;
     }
 
     protected function &jsmodsStore(): array

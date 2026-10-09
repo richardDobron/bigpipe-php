@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use dobron\BigPipe\BigPipe;
+use dobron\BigPipe\Exceptions\BigPipeInvalidArgumentException;
 use dobron\BigPipe\Pagelet;
 use PHPUnit\Framework\TestCase;
 use Spatie\Snapshots\MatchesSnapshots;
@@ -32,6 +33,27 @@ class PageletsTest extends TestCase
 
         $this->assertMatchesSnapshot((string) $bigPipe);
         $this->assertEquals('<div id="u_0_0"></div>', (string) $pagelet);
+    }
+
+    public function testOnAfterLoad(): void
+    {
+        $pagelet = new Pagelet('content');
+        $this->assertArrayNotHasKey('onafterload', $pagelet->renderData());
+
+        $pagelet
+            ->onAfterLoad(['Prefetch', 'start'], ['/next'])
+            ->onAfterLoad("require('Analytics').track()");
+
+        $this->assertSame([
+            'require' => [
+                ['Prefetch', 'start', ['/next']],
+                ['Analytics', 'track'],
+            ],
+        ], $pagelet->renderData()['onafterload']);
+        $this->assertSame([], $pagelet->jsmods()['require']);
+
+        $this->expectException(BigPipeInvalidArgumentException::class);
+        $pagelet->onAfterLoad('Analytics.track()');
     }
 
     public function testProxyRequire(): void
