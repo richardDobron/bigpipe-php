@@ -101,6 +101,32 @@ trait JsMods
         return $this;
     }
 
+    /**
+     * Defines an object the browser creates as `new module(...args)` the first time it is used, and
+     * shares between all later uses. Call its methods with Instance::call(), or pass it as an
+     * argument to another module.
+     *
+     * @throws \Throwable
+     */
+    public function instance(string $module, array $args = []): Instance
+    {
+        if ($module === '') {
+            throw new BigPipeInvalidArgumentException("Invalid module.");
+        }
+
+        $id = '__inst_' . generate_unique_node_id();
+        $instance = [$id, $module];
+
+        if (!empty($args)) {
+            $instance[] = static::transformObjectString($args);
+        }
+
+        $jsmods = &$this->jsmodsStore();
+        $jsmods['instances'][] = $instance;
+
+        return new Instance($this, $id);
+    }
+
     protected static function transformObjectString(mixed $data): mixed
     {
         if (is_object($data) && method_exists($data, '__toString')) {

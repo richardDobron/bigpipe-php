@@ -36,6 +36,27 @@ Here's a step-by-step example of how to use BigPipe to display an alert with the
     $asyncResponse->send();
     ```
 
+## Instances
+A call with a method creates a new object of a class every time. To keep one object and talk to it from more calls,
+define an instance. The browser creates it as `new ChartRenderer(element, data)` the first time it is used and shares
+it between all later uses, also in the following responses:
+
+```php
+<?php
+$chart = $asyncResponse->bigPipe()->instance('ChartRenderer', [
+    \dobron\BigPipe\TransportMarker::transportElement('chart'),
+    [10, 20, 30],
+]);
+
+$chart->call('render');
+$chart->call('highlight', [2]);
+
+// Passed as an argument, the module receives the object itself.
+$asyncResponse->bigPipe()->require("require('Dashboard').add()", [$chart]);
+```
+
+Pagelets define instances the same way, with `$pagelet->instance()`.
+
 ## Request API
 In your frontend JavaScript, you can use the `AsyncRequest` class to send XHR requests.
 
