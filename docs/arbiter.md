@@ -15,15 +15,18 @@ import Arbiter from 'bigpipe-util/dist/core/Arbiter';
 const arbiter1 = new Arbiter();
 
 // Subscribe to an event with a callback function
-arbiter1.subscribe("ORDER/READY", (order) => {
+const subscription = arbiter1.subscribe("ORDER/READY", (order) => {
     console.warn(order);
 });
 
 // To unsubscribe, use one of the following methods:
-// 1. Unsubscribe a specific callback function
+// 1. Remove the subscription
+// subscription.remove();
+
+// 2. Unsubscribe a specific callback function
 // arbiter1.unsubscribe("ORDER/READY", callbackFunction);
 
-// 2. Clear all subscribers for a specific event
+// 3. Clear all subscribers for a specific event
 // arbiter1.clearSubscribers("ORDER/READY");
 
 // Simulate an event trigger after a delay
@@ -37,4 +40,14 @@ setTimeout(() => {
         total: 100.99,
     });
 }, 1000);
+```
+
+An event that happens once, like "the user is logged in", can be informed with `informState()` instead. A callback
+subscribed later is then called right away with the last data:
+
+```javascript
+new Arbiter().informState("USER/LOGGED_IN", user);
+
+// Later, e.g. in a module loaded afterwards
+new Arbiter().subscribe("USER/LOGGED_IN", (user) => greet(user)); // called right away
 ```
