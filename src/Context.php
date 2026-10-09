@@ -19,6 +19,12 @@ class Context
         "require" => [],
     ];
 
+    /**
+     * Content Security Policy nonce of the request, added to the inline scripts BigPipe renders.
+     * Unlike the pagelets and jsmods, reset() keeps it: it belongs to the whole request.
+     */
+    public ?string $nonce = null;
+
     public function addPagelet(string $id, Pagelet $pagelet): void
     {
         $this->pagelets[$id] = $pagelet;

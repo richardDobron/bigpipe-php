@@ -113,6 +113,29 @@ class BigPipe
             'param' => $param,
         ]);
     }
+
+    /**
+     * Sets the Content Security Policy nonce of the current request. BigPipe adds it to the inline
+     * script it renders, and the browser part copies it to the stylesheets and scripts it loads.
+     */
+    public static function setNonce(?string $nonce): void
+    {
+        static::context()->nonce = $nonce;
+    }
+
+    /**
+     * Returns the nonce attribute for an inline script (with a leading space), or an empty string.
+     */
+    public static function nonceAttribute(): string
+    {
+        return static::formatNonceAttribute(static::context()->nonce);
+    }
+
+    protected static function formatNonceAttribute(?string $nonce): string
+    {
+        return $nonce === null ? '' : ' nonce="' . htmlspecialchars($nonce, ENT_QUOTES) . '"';
+    }
+
     public static function render(): string
     {
         return (string) new static();
@@ -144,8 +167,10 @@ class BigPipe
             $this->context->reset();
         }
 
+        $nonce = static::formatNonceAttribute($this->context->nonce);
+
         return <<<HTML
-<script>
+<script$nonce>
 $script
 </script>
 HTML;

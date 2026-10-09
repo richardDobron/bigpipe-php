@@ -73,9 +73,17 @@ $asyncResponse->bigPipe()->require("require('MyModule').init()", [
 In your page footer, add the following code to set up BigPipe:
 
 ```php
-<script>
+<script<?=\dobron\BigPipe\BigPipe::nonceAttribute()?>>
     (new (require("bigpipe-util/dist/ServerJS"))).handle(<?=json_encode(\dobron\BigPipe\BigPipe::jsmods())?>);
 </script>
+```
+
+With a nonce-based Content Security Policy, set the nonce of the request before rendering. `nonceAttribute()` and
+`BigPipe::render()` add it to the inline scripts, and the browser part adds it to the stylesheets and scripts of the
+pagelets:
+
+```php
+\dobron\BigPipe\BigPipe::setNonce($cspNonce);
 ```
 
 🎉 Congratulations! You've successfully integrated BigPipe into your application. Enjoy improved web performance and user experiences.
