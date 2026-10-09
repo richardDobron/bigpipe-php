@@ -46,3 +46,56 @@ $feed = (new Pagelet('feed'))->defer(function (Pagelet $feed) {
     return renderFeed(loadPosts()); // e.g. slow queries
 });
 ```
+
+## Streaming
+
+With `BigPipe::render()`, the browser gets the pagelets at the end of the request, so the slowest pagelet holds up all
+of them. `BigPipe::stream()` sends every pagelet as soon as it is rendered instead: the page printed so far is flushed
+first, then each pagelet in its own `<script>`, flushed right away. Use it in place of `render()` and give the slow
+pagelets [deferred content](#deferred-content), so the page reaches the browser before they are rendered:
+
+```php
+<?php
+use dobron\BigPipe\BigPipe;
+use dobron\BigPipe\Pagelet;
+
+$feed = (new Pagelet('feed'))->defer(fn () => renderFeed(loadPosts()));
+$ads = (new Pagelet('ads'))->defer(fn () => renderAds());
+?>
+<html>
+<body>
+    <main><?= $feed ?></main>
+    <aside><?= $ads ?></aside>
+
+    <?php BigPipe::stream(); ?>
+</body>
+</html>
+```
+
+Pagelets created while another one is rendered, e.g. a pagelet inside the feed, are sent after it. The last script
+marks the end of the page and runs the modules of the page.
+
+The output has to reach the browser unbuffered:
+
+- Send the `X-Accel-Buffering: no` header behind nginx, and turn off buffering in other proxies.
+- Compression like `zlib.output_compression` buffers the output, turn it off for streamed pages.
+- A framework that buffers the response needs a streamed response. `stream()` accepts a callback that gets every
+  chunk, by default it prints and flushes it.
+
+In Laravel:
+
+```php
+use dobron\BigPipe\BigPipe;
+use dobron\BigPipe\Pagelet;
+
+return response()->stream(function () {
+    $feed = (new Pagelet('feed'))->defer(fn () => view('feed', ['posts' => Post::latest()->get()])->render());
+
+    echo view('page', ['feed' => $feed])->render(); // the page with the placeholders, without </body></html>
+    BigPipe::stream();
+    echo '</body></html>';
+}, 200, ['X-Accel-Buffering' => 'no']);
+```
+
+The browser part shows each pagelet as soon as it arrives, as long as `require` exists by then: load the entrypoint
+with a classic `<script src>` in the `<head>`. A `<script type="module">` runs only after the whole page is parsed.

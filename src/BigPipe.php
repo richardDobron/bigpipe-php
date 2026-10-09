@@ -10,6 +10,9 @@ class BigPipe
 
     public const CSP_NONCE_MODULE = 'CSPNonce';
 
+    /** Marks the end of a streamed page: the browser starts loading the JS of the pagelets. */
+    public const LAST_PAGELET_ID = '__bigpipe_last';
+
     protected static ?Context $defaultContext = null;
 
     /** @var null|callable(): Context */
@@ -150,6 +153,88 @@ class BigPipe
         static::context()->reset();
     }
 
+    /**
+     * Sends the pagelets one by one, each as soon as it is rendered, and flushes the output after
+     * each of them. Call it at the end of the page, after the placeholders were printed: the page
+     * printed so far is flushed first. Pagelets created while another one is rendered are sent too.
+     *
+     * @param null|callable(string): void $write gets every chunk, prints and flushes it by default
+     * @throws \Throwable
+     */
+    public static function stream(?callable $write = null): void
+    {
+        (new static())->streamTo($write ?? static function (string $chunk): void {
+            echo $chunk;
+
+            if (ob_get_level() > 0) {
+                ob_flush();
+            }
+
+            flush();
+        });
+    }
+
+    /**
+     * @param callable(string): void $write
+     * @throws \Throwable
+     */
+    public function streamTo(callable $write): void
+    {
+        $nonce = static::formatNonceAttribute($this->context->nonce);
+        $tag = static fn (string $script): string => "<script$nonce>$script</script>\n";
+
+        try {
+            $defines = $this->takeDefines();
+            $write(empty($defines) ? '' : $tag(static::handleScript(['define' => $defines])));
+
+            while (($id = array_key_first($this->context->pagelets)) !== null) {
+                $pagelet = $this->context->pagelets[$id];
+                unset($this->context->pagelets[$id]);
+
+                $write($tag(static::arriveScript($pagelet->renderData())));
+            }
+
+            $last = [
+                'id' => static::LAST_PAGELET_ID,
+                'js' => [],
+                'css' => [],
+                'domops' => [],
+                'jsmods' => ['require' => []],
+                'is_last' => true,
+            ];
+
+            $write($tag(static::arriveScript($last) . static::handleScript($this->context->jsmods())));
+        } finally {
+            $this->context->reset();
+        }
+    }
+
+    protected static function arriveScript(array $data): string
+    {
+        return "(new (require(\"bigpipe-util/dist/BigPipe\"))).onPageletArrive(" . json_encode($data, JSON_THROW_ON_ERROR) . ");";
+    }
+
+    protected static function handleScript(array $jsmods): string
+    {
+        return "(new (require(\"bigpipe-util/dist/ServerJS\"))).handle(" . json_encode($jsmods, JSON_THROW_ON_ERROR) . ");";
+    }
+
+    /**
+     * Takes the defines of the page out of its jsmods, with the nonce first: the pagelets can
+     * require them, so they are sent before the pagelets.
+     */
+    protected function takeDefines(): array
+    {
+        $defines = $this->context->jsmods['define'] ?? [];
+        unset($this->context->jsmods['define']);
+
+        if ($this->context->nonce !== null) {
+            array_unshift($defines, [static::CSP_NONCE_MODULE, $this->context->nonce]);
+        }
+
+        return $defines;
+    }
+
     public function __toString(): string
     {
         try {
@@ -163,25 +248,12 @@ class BigPipe
                     $data['is_last'] = true;
                 }
 
-                $pageletsScript .= "(new (require(\"bigpipe-util/dist/BigPipe\"))).onPageletArrive(" . json_encode($data, JSON_THROW_ON_ERROR) . ");\n";
+                $pageletsScript .= static::arriveScript($data) . "\n";
             }
 
-            $jsmods = $this->context->jsmods();
-            $defines = $jsmods['define'] ?? [];
-            unset($jsmods['define']);
-
-            if ($this->context->nonce !== null) {
-                array_unshift($defines, [static::CSP_NONCE_MODULE, $this->context->nonce]);
-            }
-
-            $script = '';
-
-            if (!empty($defines)) {
-                $script .= "(new (require(\"bigpipe-util/dist/ServerJS\"))).handle(" . json_encode(['define' => $defines], JSON_THROW_ON_ERROR) . ");\n";
-            }
-
-            $script .= $pageletsScript;
-            $script .= "(new (require(\"bigpipe-util/dist/ServerJS\"))).handle(" . json_encode($jsmods, JSON_THROW_ON_ERROR) . ");";
+            $defines = $this->takeDefines();
+            $script = empty($defines) ? '' : static::handleScript(['define' => $defines]) . "\n";
+            $script .= $pageletsScript . static::handleScript($this->context->jsmods());
         } finally {
             $this->context->reset();
         }
