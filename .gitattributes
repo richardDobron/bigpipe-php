@@ -9,3 +9,5 @@
 /phpcs.xml.dist              export-ignore
 /phpunit.xml.dist            export-ignore
 /tests                       export-ignore
+
+/tests/** text eol=lf
