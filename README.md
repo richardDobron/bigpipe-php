@@ -52,6 +52,8 @@ window.require = (modulePath) => {
 - **insertBefore**: Insert content before specified element.
 - **remove**: Remove specified element and its children.
 - **replace**: Replace specified element with content.
+- **morph**: Update specified element to match content, keeping focus and form values.
+- **morphContent**: Like morph, for the children of specified element only.
 - **eval**: Evaluates JavaScript code represented as a string.
 
 ```php

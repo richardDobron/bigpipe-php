@@ -17,6 +17,8 @@ class AsyncResponse
     public const DOM_INSERT_BEFORE = "insertBefore";
     public const DOM_REMOVE = "remove";
     public const DOM_REPLACE = "replace";
+    public const DOM_MORPH = "morph";
+    public const DOM_MORPH_CONTENT = "morphContent";
 
     public array $domops = [];
 
@@ -263,6 +265,33 @@ class AsyncResponse
     public function replace(string $selector, ?string $html): static
     {
         return $this->defineDomOp($selector, $html, self::DOM_REPLACE);
+    }
+
+    /**
+     * Define morph DOM operation: updates the element to match the HTML while keeping the existing
+     * elements, so focus, form values and element state survive.
+     *
+     * @param string      $selector
+     * @param string|null $html
+     *
+     * @return static
+     */
+    public function morph(string $selector, ?string $html): static
+    {
+        return $this->defineDomOp($selector, $html, self::DOM_MORPH);
+    }
+
+    /**
+     * Define morph content DOM operation: like morph(), but for the children of the element only.
+     *
+     * @param string      $selector
+     * @param string|null $html
+     *
+     * @return static
+     */
+    public function morphContent(string $selector, ?string $html): static
+    {
+        return $this->defineDomOp($selector, $html, self::DOM_MORPH_CONTENT);
     }
 
     /**

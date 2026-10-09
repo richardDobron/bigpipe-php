@@ -132,6 +132,44 @@ These methods offer a robust toolkit for dynamic manipulation of the DOM element
     );
     ```
 
+### **morph**
+- This method updates a specified element to match new content, but keeps the elements that stay, so focus, typed
+  values and scroll positions survive. Use it instead of `replace` when the user may be interacting with the element,
+  e.g. a form re-rendered with validation errors. It uses the morph algorithm of Alpine and Livewire.
+- Elements are matched by their position and tag. Give list items a `key` attribute or an `id` to keep them when they
+  are reordered. Render the same template the page was rendered with.
+
+    ```php
+    $response->morph(
+        '#post-form',
+        view('posts.form', ['errors' => $errors])->render(),
+    );
+    ```
+
+    ```javascript
+    DOM.morph(
+        document.querySelector('#post-form'),
+        '<form id="post-form">...</form>'
+    );
+    ```
+
+### **morphContent**
+- Like `morph`, but only for the children of the element: the element itself and its attributes stay as they are.
+
+    ```php
+    $response->morphContent(
+        'ul.comments',
+        view('comments.list', ['comments' => $comments])->render(),
+    );
+    ```
+
+    ```javascript
+    DOM.morphContent(
+        document.querySelector('ul.comments'),
+        '<li id="comment-1">...</li><li id="comment-2">...</li>'
+    );
+    ```
+
 ### **eval**
 - Use this method to evaluate JavaScript code provided as a string.
 - **Deprecated:** a Content Security Policy without `'unsafe-eval'` blocks it. Call a JavaScript module with

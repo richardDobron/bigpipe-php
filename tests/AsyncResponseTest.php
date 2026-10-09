@@ -384,6 +384,22 @@ class AsyncResponseTest extends TestCase
         ]);
     }
 
+    public function testMorph(): void
+    {
+        $response = new AsyncResponse();
+
+        $response
+            ->morph('#form', '<form id="form"></form>')
+            ->morphContent('#list', '<li id="one">One</li>')
+            ->morphContent('', '<p>Saved</p>');
+
+        $this->assertSame([
+            ['morph', '#form', false, ['__html' => '<form id="form"></form>']],
+            ['morphContent', '#list', false, ['__html' => '<li id="one">One</li>']],
+            ['morphContent', '', true, ['__html' => '<p>Saved</p>']],
+        ], $response->getResponse()['domops']);
+    }
+
     public function testException(): void
     {
         $this->expectException(BigPipeInvalidArgumentException::class);
