@@ -127,6 +127,26 @@ trait JsMods
         return new Instance($this, $id);
     }
 
+    /**
+     * Sends data the browser can require as a module, e.g. the configuration of the page.
+     * Defining a module again, also in a later response, replaces it.
+     *
+     * @throws \Throwable
+     */
+    public function define(string $module, mixed $exports): static
+    {
+        if ($module === '') {
+            throw new BigPipeInvalidArgumentException("Invalid module.");
+        }
+
+        $define = [$module, static::transformObjectString($exports)];
+
+        $jsmods = &$this->jsmodsStore();
+        $jsmods['define'][] = $define;
+
+        return $this;
+    }
+
     protected static function transformObjectString(mixed $data): mixed
     {
         if (is_object($data) && method_exists($data, '__toString')) {

@@ -57,6 +57,29 @@ $asyncResponse->bigPipe()->require("require('Dashboard').add()", [$chart]);
 
 Pagelets define instances the same way, with `$pagelet->instance()`.
 
+## Defining modules
+Send data the browser can require as a module, e.g. the configuration of the page or the current user. A module
+defined again, also in a later response, replaces the previous one:
+
+```php
+<?php
+$asyncResponse->bigPipe()->define('SiteData', [
+    'locale' => 'sk_SK',
+    'user' => ['id' => 7],
+]);
+
+// Passed to another module with a module transport marker.
+$asyncResponse->bigPipe()->require("require('Dashboard').init()", [
+    \dobron\BigPipe\TransportMarker::transportModule('SiteData'),
+]);
+```
+
+```javascript
+import { requireModule } from 'bigpipe-util/dist/ModuleRegistry';
+
+requireModule('SiteData').locale; // "sk_SK"
+```
+
 ## Errors
 Mark a response as failed with `setError()`. The browser calls the error handler of the request instead of its
 handler, with the summary, description and flags. The DOM operations and modules of the response are still applied,
