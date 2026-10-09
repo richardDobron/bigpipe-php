@@ -145,6 +145,9 @@ class AsyncResponse
     /**
      * Define eval script to evaluate
      *
+     * @deprecated A Content Security Policy without 'unsafe-eval' blocks it in the browser,
+     *             call a JavaScript module with $response->bigPipe()->require() instead.
+     *
      * @param string $context
      * @param string $code
      *
@@ -152,6 +155,11 @@ class AsyncResponse
      */
     public function eval(string $context, string $code): static
     {
+        trigger_error(
+            __METHOD__ . "() is deprecated, call a JavaScript module with bigPipe()->require() instead.",
+            E_USER_DEPRECATED
+        );
+
         return $this->defineDomOp($context, $code, self::DOM_EVAL);
     }
 

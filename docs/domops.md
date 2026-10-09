@@ -134,6 +134,8 @@ These methods offer a robust toolkit for dynamic manipulation of the DOM element
 
 ### **eval**
 - Use this method to evaluate JavaScript code provided as a string.
+- **Deprecated:** a Content Security Policy without `'unsafe-eval'` blocks it. Call a JavaScript module with
+  `$response->bigPipe()->require()` instead.
 
     ```php
     $response->eval(

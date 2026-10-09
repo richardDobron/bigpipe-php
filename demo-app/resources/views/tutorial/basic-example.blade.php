@@ -78,7 +78,7 @@ CODE
         <li class="relative flex flex-col">
             <div class="mt-8 text-left">
                 <h3 class="pointer-events-none mt-2 block truncate font-bold">eval</h3>
-                <p class="pointer-events-none mt-1 block text-color-800">Evaluates JavaScript code represented as a string.</p>
+                <p class="pointer-events-none mt-1 block text-color-800">Evaluates JavaScript code represented as a string. Deprecated: call a JavaScript module instead.</p>
             </div>
         </li>
     </ul>

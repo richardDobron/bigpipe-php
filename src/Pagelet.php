@@ -49,8 +49,18 @@ class Pagelet
         return $this;
     }
 
+    /**
+     * @deprecated The code is sent as an eval DOM operation, which a Content Security Policy without
+     *             'unsafe-eval' blocks in the browser. Call a JavaScript module with require() or
+     *             onAfterLoad() instead.
+     */
     public function addOnload(string $code): static
     {
+        trigger_error(
+            __METHOD__ . "() is deprecated, call a JavaScript module with require() or onAfterLoad() instead.",
+            E_USER_DEPRECATED
+        );
+
         $this->onloads[] = $code;
 
         return $this;
