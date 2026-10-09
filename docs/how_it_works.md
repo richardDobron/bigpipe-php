@@ -36,6 +36,10 @@ Here's a step-by-step example of how to use BigPipe to display an alert with the
     $asyncResponse->send();
     ```
 
+   `send()` prints the response and ends the script. To let your framework or middleware finish the request, call
+   `output()` instead: it prints the response the same way, but the script goes on. To build the response yourself,
+   e.g. as a framework response object, use `buildResponseString()`.
+
 ## Instances
 A call with a method creates a new object of a class every time. To keep one object and talk to it from more calls,
 define an instance. The browser creates it as `new ChartRenderer(element, data)` the first time it is used and shares

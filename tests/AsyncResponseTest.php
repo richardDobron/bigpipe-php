@@ -165,6 +165,21 @@ class AsyncResponseTest extends TestCase
         ]);
     }
 
+    public function testOutputPrintsTheResponseWithoutEndingTheScript(): void
+    {
+        $response = new AsyncResponse();
+        $response->setPayload(['saved' => true]);
+
+        ob_start();
+        $response->output();
+        $output = ob_get_clean();
+
+        $this->assertSame(
+            'for (;;);{"payload":{"saved":true},"domops":[],"jsmods":{"require":[]},"__ar":1}',
+            $output
+        );
+    }
+
     public function testError(): void
     {
         $response = new AsyncResponse();

@@ -341,15 +341,26 @@ class AsyncResponse
     }
 
     /**
+     * Sends the content type header and prints the response, but unlike send(), it doesn't end
+     * the script, so a framework or a middleware can finish the request.
+     */
+    public function output(): void
+    {
+        if (!headers_sent()) {
+            header("content-type: text/javascript");
+        }
+
+        echo $this->buildResponseString();
+    }
+
+    /**
      * Send response
      *
      * @return mixed
      */
     public function send(): mixed
     {
-        header("content-type: text/javascript");
-
-        echo $this->buildResponseString();
+        $this->output();
 
         exit();
     }
