@@ -19,6 +19,8 @@ class Pagelet
         'require' => [],
     ];
     protected array $priorities = [];
+    /** @var list<callable(Pagelet): mixed> */
+    protected array $deferred = [];
 
     public function __construct(string $id)
     {
@@ -47,6 +49,43 @@ class Pagelet
         }
 
         return $this;
+    }
+
+    /**
+     * Renders content when the pagelet is rendered, not when it is created, so a streamed page can
+     * be sent before its pagelets are ready. The callable gets the pagelet, e.g. to add CSS or
+     * modules; what it prints and returns is appended to the content.
+     *
+     * @param callable(Pagelet): mixed $content
+     */
+    public function defer(callable $content): static
+    {
+        $this->deferred[] = $content;
+
+        return $this;
+    }
+
+    public function renderContent(): string
+    {
+        while ($content = array_shift($this->deferred)) {
+            ob_start();
+
+            try {
+                $returned = $content($this);
+            } catch (\Throwable $exception) {
+                ob_end_clean();
+
+                throw $exception;
+            }
+
+            $this->content .= ob_get_clean();
+
+            if (is_string($returned) || $returned instanceof \Stringable) {
+                $this->content .= $returned;
+            }
+        }
+
+        return $this->content;
     }
 
     /**
@@ -118,7 +157,7 @@ class Pagelet
                 '#' . $this->element,
                 false,
                 [
-                    '__html' => $this->content,
+                    '__html' => $this->renderContent(),
                 ]
             ]
         ];
