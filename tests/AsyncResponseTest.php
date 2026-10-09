@@ -165,6 +165,37 @@ class AsyncResponseTest extends TestCase
         ]);
     }
 
+    public function testError(): void
+    {
+        $response = new AsyncResponse();
+        $this->assertFalse($response->hasError());
+
+        $response
+            ->setPayload(['field' => 'title'])
+            ->setContent('.status', 'Too long')
+            ->setError('Could not save', 'The title is too long.', 1001, isTransient: true);
+
+        $this->assertTrue($response->hasError());
+        $this->assertSame([
+            'payload' => ['field' => 'title'],
+            'domops' => [['setContent', '.status', false, ['__html' => 'Too long']]],
+            'jsmods' => ['require' => []],
+            '__ar' => 1,
+            'error' => 1001,
+            'errorSummary' => 'Could not save',
+            'errorDescription' => 'The title is too long.',
+            'errorIsWarning' => false,
+            'isTransient' => true,
+        ], $response->getResponse());
+    }
+
+    public function testErrorCodeCannotBeZero(): void
+    {
+        $this->expectException(BigPipeInvalidArgumentException::class);
+
+        (new AsyncResponse())->setError('Failed', code: 0);
+    }
+
     public function testRequireInRequire(): void
     {
         $response = new DialogResponse();

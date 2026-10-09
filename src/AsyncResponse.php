@@ -22,6 +22,9 @@ class AsyncResponse
 
     public mixed $payload = [];
 
+    /** @var null|array{error: int, errorSummary: string, errorDescription: string, errorIsWarning: bool, isTransient: bool} */
+    protected ?array $error = null;
+
     private BigPipe $bigPipe;
 
     private TransportMarker $transport;
@@ -96,6 +99,47 @@ class AsyncResponse
         $this->payload = $data;
 
         return $this;
+    }
+
+    /**
+     * Marks the response as failed: the browser calls the error handler of the request instead of
+     * its handler. The DOM operations and modules of the response are applied anyway, e.g. to mark
+     * an invalid field.
+     *
+     * @param string $summary a short title of the error
+     * @param string $description a sentence for the user
+     * @param int $code an application specific code, not 0
+     * @param bool $isWarning the error is only a warning
+     * @param bool $isTransient trying again may help
+     *
+     * @return static
+     * @throws Exceptions\BigPipeInvalidArgumentException
+     */
+    public function setError(
+        string $summary,
+        string $description = '',
+        int $code = 1,
+        bool $isWarning = false,
+        bool $isTransient = false
+    ): static {
+        if ($code === 0) {
+            throw new Exceptions\BigPipeInvalidArgumentException("The error code must not be 0.");
+        }
+
+        $this->error = [
+            "error" => $code,
+            "errorSummary" => $summary,
+            "errorDescription" => $description,
+            "errorIsWarning" => $isWarning,
+            "isTransient" => $isTransient,
+        ];
+
+        return $this;
+    }
+
+    public function hasError(): bool
+    {
+        return $this->error !== null;
     }
 
     /**
@@ -277,7 +321,7 @@ class AsyncResponse
             "domops" => $this->domops,
             "jsmods" => $this->bigPipe->getContext()->jsmods(),
             "__ar" => 1,
-        ];
+        ] + ($this->error ?? []);
     }
 
     /**

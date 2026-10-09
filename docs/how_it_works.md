@@ -57,6 +57,27 @@ $asyncResponse->bigPipe()->require("require('Dashboard').add()", [$chart]);
 
 Pagelets define instances the same way, with `$pagelet->instance()`.
 
+## Errors
+Mark a response as failed with `setError()`. The browser calls the error handler of the request instead of its
+handler, with the summary, description and flags. The DOM operations and modules of the response are still applied,
+so you can e.g. mark the invalid field:
+
+```php
+<?php
+$asyncResponse = new \dobron\BigPipe\AsyncResponse();
+
+$asyncResponse
+    ->setContent('#title-error', 'At most 80 characters.')
+    ->setError(
+        'Could not save the post',
+        'The title is too long.',
+        code: 1001,           // optional, your own code (not 0)
+        isTransient: false,   // true when trying again may help
+    );
+
+$asyncResponse->send();
+```
+
 ## Request API
 In your frontend JavaScript, you can use the `AsyncRequest` class to send XHR requests.
 
