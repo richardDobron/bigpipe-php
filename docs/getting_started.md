@@ -79,12 +79,15 @@ In your page footer, add the following code to set up BigPipe:
 ```
 
 With a nonce-based Content Security Policy, set the nonce of the request before rendering. `nonceAttribute()` and
-`BigPipe::render()` add it to the inline scripts, and the browser part adds it to the stylesheets and scripts of the
-pagelets:
+`BigPipe::render()` add it to the inline scripts. `BigPipe::render()` also defines it as the `CSPNonce` module, from
+which the browser part adds it to the stylesheets and scripts of the pagelets:
 
 ```php
 \dobron\BigPipe\BigPipe::setNonce($cspNonce);
 ```
+
+Only the page script defines the nonce, `AsyncResponse` never does: the page keeps the nonce of its own policy, also
+when later requests have nonces of their own.
 
 🎉 Congratulations! You've successfully integrated BigPipe into your application. Enjoy improved web performance and user experiences.
 

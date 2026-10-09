@@ -8,6 +8,8 @@ class BigPipe
 
     public const CSRF_TOKEN_MODULE = 'CSRFToken';
 
+    public const CSP_NONCE_MODULE = 'CSPNonce';
+
     protected static ?Context $defaultContext = null;
 
     /** @var null|callable(): Context */
@@ -116,7 +118,9 @@ class BigPipe
 
     /**
      * Sets the Content Security Policy nonce of the current request. BigPipe adds it to the inline
-     * script it renders, and the browser part copies it to the stylesheets and scripts it loads.
+     * script it renders and defines it there as the CSPNonce module, which the browser part adds to
+     * the stylesheets and scripts it loads. Only the page script defines it, never an AsyncResponse,
+     * because the page keeps the nonce of its own policy.
      */
     public static function setNonce(?string $nonce): void
     {
@@ -165,6 +169,10 @@ class BigPipe
             $jsmods = $this->context->jsmods();
             $defines = $jsmods['define'] ?? [];
             unset($jsmods['define']);
+
+            if ($this->context->nonce !== null) {
+                array_unshift($defines, [static::CSP_NONCE_MODULE, $this->context->nonce]);
+            }
 
             $script = '';
 
