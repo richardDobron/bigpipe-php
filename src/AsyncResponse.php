@@ -34,6 +34,7 @@ class AsyncResponse
 
     /** @var null|array{error: int, errorSummary: string, errorDescription: string, errorIsWarning: bool, isTransient: bool} */
     protected ?array $error = null;
+    protected bool $csrfRefresh = false;
 
     /** @var list<array<string, mixed>> */
     protected array $pagelets = [];
@@ -196,6 +197,26 @@ class AsyncResponse
             "errorIsWarning" => $isWarning,
             "isTransient" => $isTransient,
         ];
+
+        return $this;
+    }
+
+    /**
+     * Tells the browser that the request was rejected because of its CSRF token, e.g. one that
+     * expired with the session, and gives it the new token: the browser sends the request again,
+     * once, and calls the handlers of the request for that response. See BigPipe::setCSRFToken().
+     *
+     * @throws Exceptions\BigPipeInvalidArgumentException
+     * @throws \Throwable
+     */
+    public function retryWithCSRFToken(
+        string $token,
+        ?string $header = 'X-CSRF-TOKEN',
+        ?string $param = null,
+        ?string $refreshUri = null
+    ): static {
+        $this->define(BigPipe::CSRF_TOKEN_MODULE, BigPipe::csrfTokenModule($token, $header, $param, $refreshUri));
+        $this->csrfRefresh = true;
 
         return $this;
     }
@@ -435,7 +456,7 @@ class AsyncResponse
         return $response + Bootloader::dataFor([], $jsmods) + [
             "jsmods" => $jsmods,
             "__ar" => 1,
-        ] + ($this->error ?? []);
+        ] + ($this->csrfRefresh ? ['csrf_refresh' => 1] : []) + ($this->error ?? []);
     }
 
     /**

@@ -144,20 +144,41 @@ class BigPipe
      * that can change data (not GET, HEAD or OPTIONS) to the same origin, as the header and/or
      * the field of the data.
      *
+     * When the token expires and the server responds with 419, the browser requests $refreshUri,
+     * a same-origin URL that sets a new token, and sends the request again once.
+     *
      * @throws Exceptions\BigPipeInvalidArgumentException
      * @throws \Throwable
      */
-    public static function setCSRFToken(string $token, ?string $header = 'X-CSRF-TOKEN', ?string $param = null): void
-    {
+    public static function setCSRFToken(
+        string $token,
+        ?string $header = 'X-CSRF-TOKEN',
+        ?string $param = null,
+        ?string $refreshUri = null
+    ): void {
+        (new static())->define(static::CSRF_TOKEN_MODULE, static::csrfTokenModule($token, $header, $param, $refreshUri));
+    }
+
+    /**
+     * @internal the CSRFToken module sent to the browser
+     * @return array<string, ?string>
+     * @throws Exceptions\BigPipeInvalidArgumentException
+     */
+    public static function csrfTokenModule(
+        string $token,
+        ?string $header = 'X-CSRF-TOKEN',
+        ?string $param = null,
+        ?string $refreshUri = null
+    ): array {
         if ($token === '' || ($header === null && $param === null)) {
             throw new Exceptions\BigPipeInvalidArgumentException("Set a token and a header or a parameter for it.");
         }
 
-        (new static())->define(static::CSRF_TOKEN_MODULE, [
+        return [
             'token' => $token,
             'header' => $header,
             'param' => $param,
-        ]);
+        ] + ($refreshUri === null ? [] : ['refresh' => $refreshUri]);
     }
 
     /**

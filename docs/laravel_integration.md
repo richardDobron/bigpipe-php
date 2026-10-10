@@ -96,6 +96,43 @@ Send the CSRF token of the session to the browser, e.g. in a middleware or a vie
 The token is only sent to URLs of the same origin. To send it as a field of the data instead, e.g. `_token`, use
 `setCSRFToken(csrf_token(), header: null, param: '_token')`.
 
+### Expired tokens
+
+A page that stays open after the session expired sends a token Laravel rejects with `419 Page Expired`. The browser can
+get a new token and send the request again, once, so the user does not lose what they typed. There are two ways, use
+either or both.
+
+**Name a refresh URL.** On a `419` the browser requests the URL, which answers with a new token, and then repeats the
+request:
+
+```php
+// where the token is set
+\dobron\BigPipe\BigPipe::setCSRFToken(csrf_token(), refreshUri: '/csrf-token');
+
+// routes/web.php
+Route::get('/csrf-token', function () {
+    \dobron\BigPipe\BigPipe::setCSRFToken(csrf_token(), refreshUri: '/csrf-token');
+
+    return (new \App\Arch\BigPipe\AsyncResponse())->send();
+})->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class);
+```
+
+**Answer the rejected request.** Respond to a `TokenMismatchException` with a response that carries the new token. The
+browser applies it and sends the request again, and the handlers of the request see the response of the second try:
+
+```php
+// app/Exceptions/Handler.php
+use Illuminate\Session\TokenMismatchException;
+
+$this->renderable(function (TokenMismatchException $e, $request) {
+    if ($request->ajax()) {
+        return (new \App\Arch\BigPipe\AsyncResponse())->retryWithCSRFToken(csrf_token())->send();
+    }
+});
+```
+
+If the token is rejected again, the second response is handled like any other, so a request never loops.
+
 ## Long-running servers (Octane, FrankenPHP, RoadRunner, Swoole)
 
 BigPipe collects the `require` calls and pagelets of a request in a `dobron\BigPipe\Context`. By default there is one
