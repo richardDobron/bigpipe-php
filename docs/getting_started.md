@@ -71,8 +71,18 @@ to the browser:
 
 The script runs where it is printed and needs the entrypoint to be loaded by then: add the entrypoint with a classic
 `<script src>` before it, in the `<head>` or at the end of the `<body>`. A `<script type="module">`, which is what Vite
-adds by default, is deferred until the whole page is parsed. If your entrypoint has to be a module and the page has no
-pagelets, print only the modules once the page is parsed:
+adds by default, is deferred until the whole page is parsed. If your entrypoint is a module, render the inline scripts of
+BigPipe as module scripts too. They run in the order of the document, after the entrypoint:
+
+```php title="layout.php"
+<?php \dobron\BigPipe\BigPipe::setScriptType('module'); ?>
+<script type="module" src="/build/app.js"></script>
+...
+<?= \dobron\BigPipe\BigPipe::render() ?>
+```
+
+Pagelets are then displayed once the page has been parsed instead of while it streams. Without pagelets you can also
+print only the modules, once the page is parsed:
 
 ```php title="layout.php"
 <script>

@@ -241,6 +241,29 @@ class BigPipe
         return static::formatNonceAttribute(static::context()->nonce);
     }
 
+    /**
+     * Renders the inline scripts of the page as module scripts, which a bundler such as Vite
+     * loads its entrypoint with: module scripts run in the order of the document, after the
+     * entrypoint, so `require` exists when they run. The pagelets are then displayed once the
+     * whole page has been parsed, not while it streams. Null renders classic scripts.
+     *
+     * @throws Exceptions\BigPipeInvalidArgumentException
+     */
+    public static function setScriptType(?string $type): void
+    {
+        if ($type !== null && $type !== 'module') {
+            throw new Exceptions\BigPipeInvalidArgumentException('The script type is "module" or null.');
+        }
+
+        static::context()->scriptType = $type;
+    }
+
+    protected static function formatScriptAttributes(Context $context): string
+    {
+        return ($context->scriptType === null ? '' : ' type="' . $context->scriptType . '"')
+            . static::formatNonceAttribute($context->nonce);
+    }
+
     protected static function formatNonceAttribute(?string $nonce): string
     {
         return $nonce === null ? '' : ' nonce="' . htmlspecialchars($nonce, ENT_QUOTES) . '"';
@@ -283,7 +306,7 @@ class BigPipe
      */
     public function streamTo(callable $write): void
     {
-        $nonce = static::formatNonceAttribute($this->context->nonce);
+        $nonce = static::formatScriptAttributes($this->context);
         $tag = static fn (string $script): string => "<script$nonce>$script</script>\n";
 
         try {
@@ -432,7 +455,7 @@ class BigPipe
             $this->context->reset();
         }
 
-        $nonce = static::formatNonceAttribute($this->context->nonce);
+        $nonce = static::formatScriptAttributes($this->context);
 
         return <<<HTML
 <script$nonce>

@@ -38,6 +38,12 @@ class Context
     public bool $parallel = false;
 
     /**
+     * The type of the inline scripts BigPipe renders, "module" or null for classic scripts, see
+     * BigPipe::setScriptType(). Like the nonce, reset() keeps it.
+     */
+    public ?string $scriptType = null;
+
+    /**
      * The last phase of the pagelets that make the page interactive, see BigPipe::setTtiPhase().
      * Like the nonce, reset() keeps it.
      */
