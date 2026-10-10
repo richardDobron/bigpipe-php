@@ -45,8 +45,8 @@ npm run build           # or npm run dev
 php artisan serve
 ```
 
-`bigpipe-util` 2.x is installed from npm. Until it is released, build it from its repository (`npm run build` in
-`bigpipe-util`) and use it with `npm install ../../bigpipe-util` (the path of your checkout) instead.
+`bigpipe-util` 2.x is installed from npm. To try a change of the library, build it (`npm run build` in `bigpipe-util`)
+and use it with `npm install ../../bigpipe-util` (the path of your checkout) instead.
 
 The pagelets of the dashboard wait for slow "APIs" at the same time. With `php artisan serve` run
 `PHP_CLI_SERVER_WORKERS=4 php artisan serve`: with one worker, the stylesheet and the script of a page are served only
