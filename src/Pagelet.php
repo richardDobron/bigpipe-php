@@ -14,6 +14,10 @@ class Pagelet
     ];
     protected array $js = [];
     protected array $css = [];
+    /** @var list<string> */
+    protected array $displayResources = [];
+    /** @var list<string> */
+    protected array $allResources = [];
     protected array $onloads = [];
     protected array $onload = [
         'require' => [],
@@ -401,6 +405,29 @@ class Pagelet
     }
 
     /**
+     * Adds resources the pagelet needs to be displayed, names from the resource map of the
+     * Bootloader or URLs, e.g. its stylesheet.
+     */
+    public function addDisplayResource(string ...$resources): static
+    {
+        array_push($this->displayResources, ...$resources);
+
+        return $this;
+    }
+
+    /**
+     * Adds resources the pagelet needs only before it runs its onLoad() modules, names from the
+     * resource map of the Bootloader or URLs, e.g. its scripts or the stylesheet of a dialog. They
+     * load with the JavaScript of the pagelets and do not delay its display.
+     */
+    public function addResource(string ...$resources): static
+    {
+        array_push($this->allResources, ...$resources);
+
+        return $this;
+    }
+
+    /**
      * The browser displays the pagelet after the pagelets of a lower phase, e.g. the content of the
      * page in phase 0 (default) before the sidebar and ads in phase 1. BigPipe sends the pagelets
      * in the order of their phases.
@@ -491,6 +518,14 @@ class Pagelet
             $data['display_dependency'] = $this->displayDependency;
         }
 
+        if (!empty($this->displayResources)) {
+            $data['displayResources'] = $this->displayResources;
+        }
+
+        if (!empty($this->allResources)) {
+            $data['allResources'] = $this->allResources;
+        }
+
         if (!empty($this->prefetchRsrcs)) {
             $data['prefetchRsrcs'] = $this->prefetchRsrcs;
         }
@@ -500,7 +535,7 @@ class Pagelet
         }
 
         return $data + Bootloader::dataFor(
-            array_merge($data['css'], $this->js, $this->prefetchRsrcs),
+            array_merge($data['css'], $this->js, $this->displayResources, $this->allResources, $this->prefetchRsrcs),
             ['require' => array_merge(
                 $data['jsmods']['require'] ?? [],
                 $this->onload['require'],

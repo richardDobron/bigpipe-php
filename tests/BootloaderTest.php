@@ -25,6 +25,26 @@ class BootloaderTest extends TestCase
         Bootloader::enableBootload(['Editor' => ['editor.css', 'editor.js']]);
     }
 
+    public function testAPageletSendsItsDisplayResourcesAndTheRest(): void
+    {
+        $data = (new Pagelet('feed'))
+            ->addDisplayResource('feed.css')
+            ->addResource('editor.css', 'feed.js')
+            ->renderData();
+
+        $this->assertSame(['feed.css'], $data['displayResources']);
+        $this->assertSame(['editor.css', 'feed.js'], $data['allResources']);
+        $this->assertSame(['feed.css', 'feed.js', 'editor.css'], array_keys($data['resource_map']));
+    }
+
+    public function testAPageletWithoutDisplayResourcesSendsNone(): void
+    {
+        $data = (new Pagelet('feed'))->renderData();
+
+        $this->assertArrayNotHasKey('displayResources', $data);
+        $this->assertArrayNotHasKey('allResources', $data);
+    }
+
     public function testRejectsAResourceWithoutATypeOrSrc(): void
     {
         $this->expectException(BigPipeInvalidArgumentException::class);

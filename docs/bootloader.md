@@ -54,6 +54,21 @@ The page, a pagelet or a response that calls the module sends its resources with
 before it calls the module. The script has to make the module available when it runs, e.g. a chunk of the bundle that
 calls `registerModules()` from `bigpipe-util/dist/ModuleRegistry`.
 
+## Display resources
+
+A pagelet waits for its CSS before it is displayed, and for its JS before it runs its `onLoad()` modules. With the
+resource map it can split its resources further:
+
+```php
+<?php
+$feed = (new Pagelet('feed'))
+    ->addDisplayResource('feed.css')           // needed to display the pagelet
+    ->addResource('dialog.css', 'feed.js');    // needed only before its onLoad() modules run
+```
+
+Resources added with `addResource()` load with the JavaScript of the pagelets, so a stylesheet that is not needed to
+show the pagelet, e.g. of a dialog it opens, does not delay its display.
+
 ## Preloading and prefetching
 
 With a priority above 0, every page preloads the resources of bootloadable modules while the network is idle, higher
