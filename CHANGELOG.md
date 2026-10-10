@@ -13,6 +13,9 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
   new token and answers an expired token so the browser sends the request again, and adds the `@bigpipe`, `@jsmod`,
   `@jsmodIf` and `@define` Blade directives. `dobron\BigPipe\Laravel\AsyncResponse` and `DialogResponse` are
   `Responsable` and streamed when the browser asks for it.
+- Symfony integration (6.4 or later): `dobron\BigPipe\Symfony\BigPipeBundle` keeps a context per request (also in
+  worker mode), turns the `AsyncResponse` and `DialogResponse` a controller returns into a response, sends the CSRF
+  token of a configured id and adds the `bigpipe()`, `bigpipe_jsmod()` and `bigpipe_define()` Twig functions.
 
 ### Fixed
 
