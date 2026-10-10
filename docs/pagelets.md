@@ -19,11 +19,18 @@ $sidebar = (new Pagelet('sidebar'))
     ->appendFile(__DIR__ . '/views/friends.php')  // the file is included and its output appended
     ->addCss('/css/sidebar.css')
     ->addJs('/js/sidebar.js')
-    ->require(['Sidebar', 'init']);
+    ->call('Tooltips', 'init')           // a module of the page bundle, runs when the pagelet is displayed
+    ->onLoad(['Sidebar', 'init']);       // a module in /js/sidebar.js, runs once the file is loaded
 ?>
 
 <aside><?= $sidebar ?></aside>  <!-- prints <div id="pagelet_sidebar"></div> -->
 ```
+
+The modules called with `call()` run as soon as the pagelet is displayed, so they must be in the bundle of the page
+or [bootloadable](bootloader.md#bootloadable-modules). The JS files of the pagelets load once every pagelet is
+displayed; call the modules in those files with `onLoad()`, and use `onAfterLoad()` for work that can wait until the
+window has loaded. `setJSNonBlock()` loads the JS files of a pagelet right after it is displayed, without waiting for
+the other pagelets.
 
 The placeholder is the root element of the pagelet, with the id `pagelet_` followed by the id of the pagelet, so the
 pagelet can be found again, e.g. to [refresh](#pagelets-in-a-response) it. A pagelet id starts with a letter and has
@@ -197,7 +204,7 @@ $ads = new AdsPagelet();
 $chat = (new Pagelet('chat'))->setPhase(1)->displayAfter($feed);
 ```
 
-The JavaScript of the pagelets still runs only when all of them are displayed.
+The JS files of the pagelets still load only when all of them are displayed.
 
 ## Pagelets in a response
 

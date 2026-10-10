@@ -15,9 +15,13 @@ class Pagelet
     protected array $js = [];
     protected array $css = [];
     protected array $onloads = [];
+    protected array $onload = [
+        'require' => [],
+    ];
     protected array $onafterload = [
         'require' => [],
     ];
+    protected bool $jsNonBlock = false;
     protected array $priorities = [];
     protected int $phase = 0;
     /** @var list<string> */
@@ -241,8 +245,24 @@ class Pagelet
     }
 
     /**
-     * Calls a JavaScript module once every pagelet has run its jsmods and the window has loaded,
-     * for work that must not compete with the page, like prefetching or analytics.
+     * Calls a JavaScript module once the JS files of the pagelet are loaded, for a module in those
+     * files. The modules called with call() run as soon as the pagelet is displayed.
+     *
+     * @param string|array{0: string, 1?: string} $fragment
+     * @param array $args
+     * @return static
+     * @throws Exceptions\BigPipeInvalidArgumentException
+     */
+    public function onLoad(string|array $fragment, array $args = []): static
+    {
+        $this->onload['require'][] = static::requireCall($fragment, $args);
+
+        return $this;
+    }
+
+    /**
+     * Calls a JavaScript module once every pagelet has run its onload modules and the window has
+     * loaded, for work that must not compete with the page, like prefetching or analytics.
      *
      * @param string|array{0: string, 1?: string} $fragment
      * @param array $args
@@ -250,6 +270,16 @@ class Pagelet
      * @throws Exceptions\BigPipeInvalidArgumentException
      */
     public function onAfterLoad(string|array $fragment, array $args = []): static
+    {
+        $this->onafterload['require'][] = static::requireCall($fragment, $args);
+
+        return $this;
+    }
+
+    /**
+     * @throws Exceptions\BigPipeInvalidArgumentException
+     */
+    protected static function requireCall(string|array $fragment, array $args): array
     {
         if (!static::isValidRequireCall($fragment)) {
             throw new Exceptions\BigPipeInvalidArgumentException("Invalid call.");
@@ -265,7 +295,16 @@ class Pagelet
             $require[] = static::transformObjectString($args);
         }
 
-        $this->onafterload['require'][] = array_trim($require);
+        return array_trim($require);
+    }
+
+    /**
+     * The browser loads the JS files of the pagelet and runs its onload modules right after the
+     * pagelet is displayed, instead of after every pagelet of the page is displayed.
+     */
+    public function setJSNonBlock(bool $jsNonBlock = true): static
+    {
+        $this->jsNonBlock = $jsNonBlock;
 
         return $this;
     }
@@ -355,8 +394,16 @@ class Pagelet
             'jsmods' => $this->jsmods(),
         ];
 
+        if (!empty($this->onload['require'])) {
+            $data['onload'] = $this->onload;
+        }
+
         if (!empty($this->onafterload['require'])) {
             $data['onafterload'] = $this->onafterload;
+        }
+
+        if ($this->jsNonBlock) {
+            $data['jsNonBlock'] = true;
         }
 
         if ($this->phase !== 0) {
@@ -369,7 +416,7 @@ class Pagelet
 
         return $data + Bootloader::dataFor(
             array_merge($data['css'], $this->js),
-            ['require' => array_merge($data['jsmods']['require'] ?? [], $this->onafterload['require'])]
+            ['require' => array_merge($data['jsmods']['require'] ?? [], $this->onload['require'], $this->onafterload['require'])]
         );
     }
 
