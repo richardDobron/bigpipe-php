@@ -82,4 +82,28 @@ class DefineTest extends TestCase
 
         (new BigPipe())->define('', []);
     }
+
+    public function testDefinesAnElementAsAModule(): void
+    {
+        $response = (new AsyncResponse())->defineElement('ChartBox', 'chart-box');
+
+        $this->assertSame(
+            [['ChartBox', ['__e' => 'chart-box']]],
+            $response->getResponse()['jsmods']['define']
+        );
+    }
+
+    public function testAPageletDefinesElementsToo(): void
+    {
+        $pagelet = (new Pagelet('feed'))->defineElement('FeedList', 'feed-list');
+
+        $this->assertSame([['FeedList', ['__e' => 'feed-list']]], $pagelet->jsmods()['define']);
+    }
+
+    public function testAnElementNeedsAnId(): void
+    {
+        $this->expectException(BigPipeInvalidArgumentException::class);
+
+        (new BigPipe())->defineElement('ChartBox', '');
+    }
 }

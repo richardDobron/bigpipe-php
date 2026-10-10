@@ -164,6 +164,22 @@ trait JsMods
         return $this;
     }
 
+    /**
+     * Defines a module that is an element of the page: the browser finds the element with the id
+     * when the module is first required, so any module can require it by name. The same as
+     * define($module, TransportMarker::element($elementId)).
+     *
+     * @throws BigPipeInvalidArgumentException
+     */
+    public function defineElement(string $module, string $elementId): static
+    {
+        if ($module === '' || $elementId === '') {
+            throw new BigPipeInvalidArgumentException("Invalid module or element id.");
+        }
+
+        return $this->define($module, TransportMarker::element($elementId));
+    }
+
     protected static function transformObjectString(mixed $data): mixed
     {
         if (is_object($data) && method_exists($data, '__toString')) {

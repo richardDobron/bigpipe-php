@@ -143,6 +143,18 @@ class AsyncResponse
     }
 
     /**
+     * Defines a module that is an element of the page, see JsMods::defineElement().
+     *
+     * @throws Exceptions\BigPipeInvalidArgumentException
+     */
+    public function defineElement(string $module, string $elementId): static
+    {
+        $this->bigPipe->defineElement($module, $elementId);
+
+        return $this;
+    }
+
+    /**
      * Defines an object the browser creates once and shares, see BigPipe::instance().
      *
      * @throws \Throwable

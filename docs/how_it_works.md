@@ -84,6 +84,24 @@ import { requireModule } from 'bigpipe-util/dist/ModuleRegistry';
 requireModule('SiteData').locale; // "sk_SK"
 ```
 
+An element of the page can be defined as a module too. The browser finds it by its id when the module is first
+required, so any module can require it by name instead of looking it up, and it is an error if it is not on the page:
+
+```php
+<?php
+$asyncResponse->defineElement('ChartBox', 'chart-box');
+// the same as define('ChartBox', TransportMarker::element('chart-box'))
+$asyncResponse->call('Dashboard', 'show');
+```
+
+```javascript
+requireModule('ChartBox').classList.add('visible');
+```
+
+Defining the name again replaces it, e.g. after the element was rendered anew. Pagelets define elements the same way
+with `$pagelet->defineElement()`. To give a module an element for one call only, pass `TransportMarker::element()` as an
+argument.
+
 ## Errors
 Mark a response as failed with `setError()`. The browser calls the error handler of the request instead of its
 handler, with the summary, description and flags. The DOM operations and modules of the response are still applied,
