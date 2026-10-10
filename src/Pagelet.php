@@ -22,6 +22,11 @@ class Pagelet
         'require' => [],
     ];
     protected bool $jsNonBlock = false;
+    /** @var list<string> */
+    protected array $prefetchRsrcs = [];
+    protected array $prefetchJsmods = [
+        'require' => [],
+    ];
     protected array $priorities = [];
     protected int $phase = 0;
     /** @var list<string> */
@@ -302,6 +307,29 @@ class Pagelet
      * The browser loads the JS files of the pagelet and runs its onload modules right after the
      * pagelet is displayed, instead of after every pagelet of the page is displayed.
      */
+    /**
+     * Adds resources the browser loads as soon as the pagelet arrives, names from the resource map
+     * of the Bootloader or URLs, e.g. for what the user is likely to need next.
+     */
+    public function prefetch(string ...$resources): static
+    {
+        array_push($this->prefetchRsrcs, ...$resources);
+
+        return $this;
+    }
+
+    /**
+     * Calls a JavaScript module once the prefetched resources are loaded, see prefetch().
+     *
+     * @throws Exceptions\BigPipeInvalidArgumentException
+     */
+    public function prefetchCall(string $module, ?string $method = null, array $args = []): static
+    {
+        $this->prefetchJsmods['require'][] = static::requireCall($method === null ? [$module] : [$module, $method], $args);
+
+        return $this;
+    }
+
     public function setJSNonBlock(bool $jsNonBlock = true): static
     {
         $this->jsNonBlock = $jsNonBlock;
@@ -414,9 +442,22 @@ class Pagelet
             $data['display_dependency'] = $this->displayDependency;
         }
 
+        if (!empty($this->prefetchRsrcs)) {
+            $data['prefetchRsrcs'] = $this->prefetchRsrcs;
+        }
+
+        if (!empty($this->prefetchJsmods['require'])) {
+            $data['prefetchJsmods'] = $this->prefetchJsmods;
+        }
+
         return $data + Bootloader::dataFor(
-            array_merge($data['css'], $this->js),
-            ['require' => array_merge($data['jsmods']['require'] ?? [], $this->onload['require'], $this->onafterload['require'])]
+            array_merge($data['css'], $this->js, $this->prefetchRsrcs),
+            ['require' => array_merge(
+                $data['jsmods']['require'] ?? [],
+                $this->onload['require'],
+                $this->onafterload['require'],
+                $this->prefetchJsmods['require']
+            )]
         );
     }
 

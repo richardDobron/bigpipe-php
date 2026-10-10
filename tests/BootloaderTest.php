@@ -77,4 +77,42 @@ class BootloaderTest extends TestCase
         $this->assertLessThan(strpos($output, 'onPageletArrive'), $enable);
         $this->assertLessThan(strpos($output, '["Editor","open"]'), $enable);
     }
+
+    public function testThePageSendsTheModulesToPreload(): void
+    {
+        Bootloader::setResourceMap(['dialog.js' => ['type' => 'js', 'src' => '/static/dialog.js']]);
+        Bootloader::enableBootload(['Dialog' => ['dialog.js']], 2);
+        new Pagelet('feed');
+
+        $output = BigPipe::render();
+
+        $this->assertStringContainsString(
+            '["bigpipe-util\/dist\/Bootloader","enableBootload",[{"Dialog":{"resources":["dialog.js"],"priority":2}}]]',
+            $output
+        );
+        $this->assertStringNotContainsString('"Editor"', $output);
+    }
+
+    public function testPreloadsModulesOnThePage(): void
+    {
+        Bootloader::preloadModules('Editor');
+
+        $output = BigPipe::render();
+
+        $this->assertStringContainsString('["bigpipe-util\/dist\/Bootloader","enableBootload",[{"Editor":["editor.css","editor.js"]}]]', $output);
+        $this->assertStringContainsString('["bigpipe-util\/dist\/Bootloader","preloadModules",[["Editor"]]]', $output);
+    }
+
+    public function testAPageletSendsWhatItPrefetches(): void
+    {
+        $data = (new Pagelet('feed'))
+            ->prefetch('editor.js')
+            ->prefetchCall('Editor', 'warmUp')
+            ->renderData();
+
+        $this->assertSame(['editor.js'], $data['prefetchRsrcs']);
+        $this->assertSame(['require' => [['Editor', 'warmUp']]], $data['prefetchJsmods']);
+        $this->assertSame(['Editor' => ['editor.css', 'editor.js']], $data['bootloadable']);
+        $this->assertSame(['editor.css', 'editor.js'], array_keys($data['resource_map']));
+    }
 }

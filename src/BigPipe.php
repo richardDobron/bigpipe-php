@@ -271,7 +271,7 @@ class BigPipe
      */
     protected static function bootloadScript(array $jsmods): string
     {
-        $data = Bootloader::dataFor([], $jsmods);
+        $data = Bootloader::dataFor([], $jsmods, true);
         $require = [];
 
         if (isset($data['resource_map'])) {

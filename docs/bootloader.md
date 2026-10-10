@@ -53,3 +53,25 @@ Bootloader::enableBootload(['Editor' => ['editor.css', 'editor.js']]);
 The page, a pagelet or a response that calls the module sends its resources with it, and the browser loads them
 before it calls the module. The script has to make the module available when it runs, e.g. a chunk of the bundle that
 calls `registerModules()` from `bigpipe-util/dist/ModuleRegistry`.
+
+## Preloading and prefetching
+
+With a priority above 0, every page preloads the resources of bootloadable modules while the network is idle, higher
+priorities first, so they load fast when they are called:
+
+```php
+<?php
+Bootloader::enableBootload(['Dialog' => ['dialog.css', 'dialog.js']], priority: 2);
+```
+
+`Bootloader::preloadModules('Editor')` preloads the resources of modules on the current page right away.
+
+A pagelet can prefetch what the user is likely to need next: the resources load as soon as the pagelet arrives, and
+the module calls run once they are loaded.
+
+```php
+<?php
+$feed = (new Pagelet('feed'))
+    ->prefetch('composer.js')
+    ->prefetchCall('Composer', 'warmUp');
+```
