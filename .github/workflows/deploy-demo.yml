@@ -1,0 +1,110 @@
+name: Deploy demo
+
+on:
+  push:
+    branches:
+      - 'main'
+    paths:
+      - 'demo-app/**'
+      - 'src/**'
+      - 'composer.json'
+      - '.github/workflows/deploy-demo.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-demo
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: demo-app
+
+    env:
+      COMPOSER_MIRROR_PATH_REPOS: 1
+      DEMO_PATH: /home/etexweb/domains/bigpipe.etexweb.sk/public_html
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate version.json
+        run: |
+          cat <<EOF > version.json
+          {
+            "commit": "$(git log --pretty="%H" -n1 HEAD)",
+            "date": "$(git log --date=format:'%Y-%m-%d %H:%M:%S' --pretty="%cd" --no-merges -1)",
+            "branch": "${GITHUB_REF_NAME}",
+            "tag": "$(git describe --tags --abbrev=0 2>/dev/null)"
+          }
+          EOF
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: intl, curl, mbstring, openssl, zip, pdo, pdo_sqlite, sqlite3, tokenizer
+          coverage: none
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Composer install
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Setup Laravel
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Run tests
+        run: php artisan test
+
+      - name: NPM install
+        run: |
+          npm install
+
+      - name: Build assets
+        run: npm run build
+
+      - name: Production dependencies
+        run: composer install --no-interaction --prefer-dist --no-dev --optimize-autoloader
+
+      - name: Deploy to server
+        uses: easingthemes/ssh-deploy@v5.1.0
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.DEMO_SSH_PRIVATE_KEY }}
+          ARGS: >-
+            -rltgoDzvO --delete
+            --exclude=.env
+            --exclude=storage/
+            --exclude=node_modules/
+            --exclude=database/database.sqlite
+            --exclude=public/storage
+            --exclude=public/hot
+          SOURCE: "demo-app/"
+          REMOTE_HOST: ${{ secrets.DEMO_DEPLOY_HOST }}
+          REMOTE_USER: ${{ secrets.DEMO_DEPLOY_USER }}
+          TARGET: "${{ env.DEMO_PATH }}"
+
+      - name: Migrate and optimize
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.DEMO_DEPLOY_HOST }}
+          username: ${{ secrets.DEMO_DEPLOY_USER }}
+          key: ${{ secrets.DEMO_SSH_PRIVATE_KEY }}
+          script: |
+            set -e
+            cd ${{ env.DEMO_PATH }}
+
+            php artisan migrate --force
+            [ -L public/storage ] || php artisan storage:link
+            php artisan optimize:clear
+            php artisan optimize
