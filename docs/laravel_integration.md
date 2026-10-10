@@ -76,7 +76,8 @@ class UserController extends Controller
     public function showUserDetailsDialog(User $user)
     {
         $this->response
-            ->setContent('User: ' . $user->email)
+            ->setTitle('User')
+            ->setBody('E-mail: ' . e($user->email))
             ->dialog();
 
         return $this->response->send();
@@ -84,6 +85,9 @@ class UserController extends Controller
 }
 
 ```
+
+See [Laravel recipes](laravel_recipes.md) for complete examples: the layout and the middleware, forms with validation,
+dialogs, an infinite feed, a dashboard of streamed pagelets, page transitions, live notifications, file uploads and tests.
 
 ## CSRF protection
 Send the CSRF token of the session to the browser, e.g. in a middleware or a view composer. Every request of
@@ -117,15 +121,16 @@ Route::get('/csrf-token', function () {
 })->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class);
 ```
 
-**Answer the rejected request.** Respond to a `TokenMismatchException` with a response that carries the new token. The
-browser applies it and sends the request again, and the handlers of the request see the response of the second try:
+**Answer the rejected request.** Respond to the rejection with a response that carries the new token. The browser applies
+it and sends the request again, and the handlers of the request see the response of the second try. Laravel hands the
+handler the expired token as an `HttpException` with the status 419:
 
 ```php
 // app/Exceptions/Handler.php
-use Illuminate\Session\TokenMismatchException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
-$this->renderable(function (TokenMismatchException $e, $request) {
-    if ($request->ajax()) {
+$this->renderable(function (HttpException $e, $request) {
+    if ($e->getStatusCode() === 419 && $request->ajax()) {
         return (new \App\Arch\BigPipe\AsyncResponse())->retryWithCSRFToken(csrf_token())->send();
     }
 });
