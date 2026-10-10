@@ -27,6 +27,9 @@ class AsyncResponse
     /** @var null|array{error: int, errorSummary: string, errorDescription: string, errorIsWarning: bool, isTransient: bool} */
     protected ?array $error = null;
 
+    /** @var list<array<string, mixed>> */
+    protected array $pagelets = [];
+
     private BigPipe $bigPipe;
 
     private TransportMarker $transport;
@@ -353,12 +356,49 @@ class AsyncResponse
      */
     public function getResponse(): array
     {
-        return [
+        $response = [
             "payload" => $this->payload,
             "domops" => $this->domops,
+        ];
+
+        if (!empty($this->pagelets)) {
+            $response["pagelets"] = $this->pagelets;
+        }
+
+        return $response + [
             "jsmods" => $this->bigPipe->getContext()->jsmods(),
             "__ar" => 1,
         ] + ($this->error ?? []);
+    }
+
+    /**
+     * Sends a pagelet, e.g. a pagelet class loaded lazily: it replaces the element matching the
+     * selector, or without one the element that sent the request, like the placeholder of a
+     * LazyPagelet. The browser loads its CSS and JS and runs its modules like on a page.
+     *
+     * @throws \Throwable
+     */
+    public function pagelet(Pagelet $pagelet, string $selector = ''): static
+    {
+        $this->replace($selector, (string) $pagelet);
+        unset($this->bigPipe->getContext()->pagelets[$pagelet->getId()]);
+
+        $data = $pagelet->renderData();
+        $data['is_last'] = true;
+        $this->pagelets[] = $data;
+
+        return $this;
+    }
+
+    /**
+     * Renders a pagelet that is on the page again, e.g. new FeedPagelet() after a post was added:
+     * it replaces the root element of the pagelet with the same id.
+     *
+     * @throws \Throwable
+     */
+    public function refreshPagelet(Pagelet $pagelet): static
+    {
+        return $this->pagelet($pagelet, '#' . Pagelet::rootId($pagelet->getId()));
     }
 
     /**

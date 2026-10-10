@@ -32,7 +32,7 @@ class PageletsTest extends TestCase
             ->require("require('Users').setup()");
 
         $this->assertMatchesSnapshot((string) $bigPipe);
-        $this->assertEquals('<div id="u_0_0"></div>', (string) $pagelet);
+        $this->assertEquals('<div id="pagelet_content"></div>', (string) $pagelet);
     }
 
     public function testOnAfterLoad(): void

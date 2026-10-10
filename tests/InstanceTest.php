@@ -56,8 +56,8 @@ class InstanceTest extends TestCase
         $pagelet->instance('Feed')->call('start');
 
         $this->assertSame([
-            'require' => [['__inst_u_0_1', 'start']],
-            'instances' => [['__inst_u_0_1', 'Feed']],
+            'require' => [['__inst_u_0_0', 'start']],
+            'instances' => [['__inst_u_0_0', 'Feed']],
         ], $pagelet->renderData()['jsmods']);
         $this->assertArrayNotHasKey('instances', BigPipe::jsmods());
     }

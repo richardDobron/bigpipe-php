@@ -22,14 +22,49 @@ $sidebar = (new Pagelet('sidebar'))
     ->require(['Sidebar', 'init']);
 ?>
 
-<aside><?= $sidebar ?></aside>  <!-- prints the placeholder -->
+<aside><?= $sidebar ?></aside>  <!-- prints <div id="pagelet_sidebar"></div> -->
 ```
+
+The placeholder is the root element of the pagelet, with the id `pagelet_` followed by the id of the pagelet, so the
+pagelet can be found again, e.g. to [refresh](#pagelets-in-a-response) it. A pagelet id starts with a letter and has
+only letters, digits, `_` and `-`.
 
 At the end of the page, print the script that sends the pagelets to the browser:
 
 ```php
 <?= \dobron\BigPipe\BigPipe::render() ?>
 ```
+
+## Pagelet classes
+
+A pagelet used in more places, or loaded and refreshed on its own, is best written as a class. It renders its content
+in `content()`, which is called when the pagelet is rendered, like [deferred content](#deferred-content), and it
+declares its CSS and JS:
+
+```php
+<?php
+use dobron\BigPipe\Pagelet;
+
+class FeedPagelet extends Pagelet
+{
+    protected array $css = ['/css/feed.css'];
+    protected array $js = ['/js/feed.js'];
+
+    protected function content(): string
+    {
+        $this->require(['Feed', 'init']);
+
+        return view('feed', ['posts' => Post::latest()->get()])->render();
+    }
+}
+?>
+
+<main><?= new FeedPagelet() ?></main>
+```
+
+`content()` can also print the content instead of returning it. Without an id, a pagelet class gets one from its name,
+e.g. `feed` for `FeedPagelet` and `user_profile` for `UserProfilePagelet`. Set another one with
+`protected string $id = '...';` or `new FeedPagelet('main_feed')`.
 
 ## Deferred content
 
@@ -99,3 +134,30 @@ return response()->stream(function () {
 
 The browser part shows each pagelet as soon as it arrives, as long as `require` exists by then: load the entrypoint
 with a classic `<script src>` in the `<head>`. A `<script type="module">` runs only after the whole page is parsed.
+
+## Pagelets in a response
+
+An `AsyncResponse` sends a pagelet with `pagelet()`: the pagelet replaces the element matching the selector, or without
+one the element that sent the request, e.g. a [lazy pagelet](lazy_pagelets.md) placeholder. The browser loads its CSS
+and JS and runs its modules like on a page:
+
+```php
+<?php
+$response = new \dobron\BigPipe\AsyncResponse();
+
+$response->pagelet(new FeedPagelet(), '#feed-placeholder');
+
+$response->send();
+```
+
+`refreshPagelet()` renders a pagelet that is on the page again, e.g. after a post was added to the feed. It replaces the
+root element with the same id, `pagelet_feed` for `new FeedPagelet()`:
+
+```php
+<?php
+$response = new \dobron\BigPipe\AsyncResponse();
+
+$response->refreshPagelet(new FeedPagelet());
+
+$response->send();
+```

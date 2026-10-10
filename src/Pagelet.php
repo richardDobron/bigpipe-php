@@ -21,13 +21,117 @@ class Pagelet
     protected array $priorities = [];
     /** @var list<callable(Pagelet): mixed> */
     protected array $deferred = [];
+    /** @var list<Pagelet> */
+    private static array $rendering = [];
 
-    public function __construct(string $id)
+    /**
+     * A pagelet class renders its own content in content(), and can declare its id, CSS and JS:
+     *
+     *     class FeedPagelet extends Pagelet
+     *     {
+     *         protected array $css = ['/css/feed.css'];
+     *
+     *         protected function content(): string
+     *         {
+     *             return renderFeed();
+     *         }
+     *     }
+     *
+     * Without an id, a pagelet class gets one from its name, e.g. "user_profile" for
+     * UserProfilePagelet.
+     *
+     * @throws Exceptions\BigPipeInvalidArgumentException
+     */
+    public function __construct(?string $id = null)
     {
-        $this->id = $id;
-        $this->element = generate_unique_node_id();
+        if ($id === null && !isset($this->id) && static::class === self::class) {
+            throw new Exceptions\BigPipeInvalidArgumentException("A pagelet needs an id.");
+        }
 
-        BigPipe::addPagelet($id, $this);
+        $this->id = $id ?? (isset($this->id) ? $this->id : static::defaultId());
+
+        static::assertValidId($this->id);
+
+        $this->element = static::rootId($this->id);
+        $this->deferred[] = fn () => $this->content();
+
+        BigPipe::addPagelet($this->id, $this);
+    }
+
+    public function getId(): string
+    {
+        return $this->id;
+    }
+
+    /**
+     * The id of the element a pagelet is rendered in, "pagelet_feed" for the pagelet "feed".
+     */
+    public static function rootId(string $pageletId): string
+    {
+        return 'pagelet_' . $pageletId;
+    }
+
+    /**
+     * Returns the placeholder of this pagelet class that the browser loads from the URL, when it
+     * becomes visible by default. The endpoint responds with the pagelet, e.g.
+     * `(new AsyncResponse())->pagelet(new FeedPagelet())`.
+     *
+     * @throws Exceptions\BigPipeInvalidArgumentException
+     */
+    public static function lazy(
+        string $url,
+        array $data = [],
+        string $placeholder = '',
+        string $load = LazyPagelet::LOAD_VISIBLE
+    ): LazyPagelet {
+        if (static::class === self::class) {
+            throw new Exceptions\BigPipeInvalidArgumentException("A pagelet needs an id, use new LazyPagelet().");
+        }
+
+        $id = (new \ReflectionClass(static::class))->getDefaultProperties()['id'] ?? null;
+
+        return new LazyPagelet(is_string($id) ? $id : static::defaultId(), $url, $data, $placeholder, $load);
+    }
+
+    /**
+     * The pagelet whose content is being rendered, e.g. to add the modules of what its content
+     * prints to it.
+     */
+    public static function current(): ?Pagelet
+    {
+        return self::$rendering ? self::$rendering[array_key_last(self::$rendering)] : null;
+    }
+
+    /**
+     * @throws Exceptions\BigPipeInvalidArgumentException
+     */
+    public static function assertValidId(string $id): void
+    {
+        if (!preg_match('/^[A-Za-z][\w-]*$/', $id)) {
+            throw new Exceptions\BigPipeInvalidArgumentException(
+                "Invalid pagelet id \"$id\": use letters, digits, \"_\" and \"-\", starting with a letter."
+            );
+        }
+    }
+
+    /**
+     * Renders the content of a pagelet class when the pagelet is rendered, like defer(). What it
+     * prints and returns is appended to the content. Without a return type, so a subclass can
+     * declare string or void.
+     *
+     * @return mixed
+     */
+    protected function content()
+    {
+        return null;
+    }
+
+    protected static function defaultId(): string
+    {
+        $name = substr(strrchr('\\' . static::class, '\\'), 1);
+        $name = preg_replace('/Pagelet$/', '', $name) ?: $name;
+
+        return strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $name));
     }
 
     public function jsmods(): array
@@ -40,10 +144,16 @@ class Pagelet
     public function appendContent(string $stringOrFile, bool $isFile = false): static
     {
         if ($isFile) {
+            self::$rendering[] = $this;
             ob_start();
-            require $stringOrFile;
-            $this->content .= ob_get_contents();
-            ob_end_clean();
+
+            try {
+                require $stringOrFile;
+                $this->content .= ob_get_contents();
+            } finally {
+                ob_end_clean();
+                array_pop(self::$rendering);
+            }
         } else {
             $this->content .= $stringOrFile;
         }
@@ -68,6 +178,7 @@ class Pagelet
     public function renderContent(): string
     {
         while ($content = array_shift($this->deferred)) {
+            self::$rendering[] = $this;
             ob_start();
 
             try {
@@ -76,6 +187,8 @@ class Pagelet
                 ob_end_clean();
 
                 throw $exception;
+            } finally {
+                array_pop(self::$rendering);
             }
 
             $this->content .= ob_get_clean();
