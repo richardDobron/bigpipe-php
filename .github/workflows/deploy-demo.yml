@@ -73,8 +73,8 @@ jobs:
       - name: Run tests
         run: php artisan test
 
-      - name: Production dependencies
-        run: composer install --no-interaction --prefer-dist --no-dev --optimize-autoloader
+      - name: Copy the documentation
+        run: cp -r ../docs docs
 
       - name: Deploy to server
         uses: easingthemes/ssh-deploy@v5.1.0

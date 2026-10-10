@@ -1693,3 +1693,88 @@ body.theme .prose {
 @media (prefers-reduced-motion: reduce) {
     .ghost .bone { animation: none; }
 }
+
+/* The documentation: a sidebar, the page, and the headings of the page */
+.docs { display: grid; gap: 40px; max-width: 1280px; margin: 0 auto; padding: 40px 24px 96px; grid-template-columns: 1fr; }
+@media (min-width: 900px) { .docs { grid-template-columns: 220px minmax(0, 1fr); } }
+@media (min-width: 1200px) { .docs { grid-template-columns: 220px minmax(0, 1fr) 200px; } }
+
+.docs-nav { font-size: 14px; margin-left: -10px; }
+@media (min-width: 900px) { .docs-nav, .docs-toc { position: sticky; top: 76px; align-self: start; max-height: calc(100vh - 100px); overflow: auto; } }
+.docs-group { margin-bottom: 24px; }
+.docs-group .label { margin-bottom: 8px; padding-left: 10px; }
+.docs-nav a, .docs-toc a { display: block; padding: 5px 10px; border-radius: 8px; color: var(--muted); text-decoration: none; }
+.docs-nav a:hover, .docs-toc a:hover { color: var(--ink); background: var(--tint); }
+.docs-nav a.active { color: var(--ink); background: var(--tint); font-weight: 500; }
+.docs-toc { font-size: 13px; margin-left: -10px; }
+.docs-toc .label { margin-bottom: 8px; padding-left: 10px; }
+.docs-toc a.l3 { padding-left: 22px; }
+
+.docs-title { font-family: var(--display); font-size: clamp(30px, 4vw, 44px); font-weight: 600; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 24px; }
+.docs-body { min-width: 0; }
+
+.doc-prose { color: var(--text); line-height: 1.7; font-size: 16px; }
+.doc-prose > * + * { margin-top: 16px; }
+.doc-prose h2 { font-family: var(--display); font-size: 26px; font-weight: 600; letter-spacing: -0.015em; color: var(--ink); margin-top: 48px; padding-top: 8px; scroll-margin-top: 80px; }
+.doc-prose h3 { font-size: 19px; font-weight: 600; color: var(--ink); margin-top: 32px; scroll-margin-top: 80px; }
+.doc-prose h4 { font-weight: 600; color: var(--ink); margin-top: 24px; }
+.doc-prose a { color: var(--blue); text-decoration: underline; text-underline-offset: 3px; }
+.doc-prose ul { list-style: disc; padding-left: 24px; }
+.doc-prose ol { list-style: decimal; padding-left: 24px; }
+.doc-prose li + li { margin-top: 6px; }
+.doc-prose li > ul, .doc-prose li > ol { margin-top: 6px; }
+.doc-prose :not(pre) > code { font-family: var(--mono); font-size: 0.88em; padding: 2px 6px; background: var(--tint); border: 1px solid var(--line); border-radius: 6px; color: var(--ink); }
+.doc-prose kbd { font-family: var(--mono); font-size: 0.85em; padding: 1px 6px; border: 1px solid var(--line-2); border-bottom-width: 2px; border-radius: 6px; background: var(--card); }
+.doc-prose blockquote { border-left: 3px solid var(--line-2); padding-left: 16px; color: var(--muted); }
+.doc-prose hr { border: 0; border-top: 1px solid var(--line); margin: 40px 0; }
+.doc-prose table { width: 100%; border-collapse: collapse; font-size: 14px; display: block; overflow-x: auto; }
+.doc-prose th, .doc-prose td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.doc-prose th { font-weight: 600; color: var(--ink); background: var(--tint); }
+.doc-prose img { max-width: 100%; }
+.doc-code { margin-top: 16px; box-shadow: none; }
+.doc-code pre { margin: 0; overflow: auto; font-size: 13px; line-height: 1.6; }
+
+.docs-edit { margin-top: 48px; font-size: 14px; }
+.docs-edit a { color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
+.docs-pager { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--line); }
+.docs-pager a { display: block; padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; color: var(--ink); text-decoration: none; background: var(--card); }
+.docs-pager a:hover { border-color: var(--line-2); box-shadow: var(--shadow-sm); }
+.docs-pager .next { grid-column: 2; text-align: right; }
+.docs-pager .label { display: block; margin-bottom: 4px; }
+
+/* The code of the documentation: padding for the text, and room for the line numbers */
+.docs .doc-prose .doc-code pre[class*=language-] { padding: 16px 22px 20px; background: transparent; }
+.docs .doc-prose .doc-code pre[class*=language-].line-numbers { padding-left: 3.8em; }
+.docs .doc-prose .doc-code pre[class*=language-] > code { display: block; padding: 0; }
+
+.demo-note { margin: 0 0 24px; padding: 10px 14px; border-radius: 10px; background: var(--tint-blue); color: var(--ink); font-size: 13px; }
+
+/* The documentation on small screens: a menu that opens above the page, and no table of contents */
+.docs-menu-toggle { position: absolute; opacity: 0; pointer-events: none; }
+.docs-menu-button { display: none; }
+@media (max-width: 899.98px) {
+    .docs { gap: 16px; padding: 16px 16px 64px; }
+    .docs-menu-button { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); color: var(--muted); font-size: 14px; cursor: pointer; }
+    .docs-menu-button b { color: var(--ink); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .docs-menu-button::after { content: ""; flex: none; width: 8px; height: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg); order: 3; margin: -3px 2px 0 0; }
+    .docs-menu-toggle:checked + .docs-menu-button::after { transform: rotate(-135deg); margin-top: 3px; }
+    .docs-menu-toggle:focus-visible + .docs-menu-button { outline: 2px solid var(--blue); outline-offset: 2px; }
+    .docs-nav { display: none; margin-left: 0; padding: 12px 8px 4px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); }
+    .docs-menu-toggle:checked ~ .docs-nav { display: block; }
+    .docs-toc { display: none; }
+    .docs-title { margin-bottom: 16px; }
+    .doc-prose { font-size: 15px; }
+    .doc-prose h2 { font-size: 22px; margin-top: 36px; }
+    .docs-pager { grid-template-columns: 1fr; }
+    .docs-pager .next { grid-column: 1; }
+    .docs .doc-prose .doc-code pre[class*=language-] { padding-left: 16px; padding-right: 16px; }
+    .docs .doc-prose .doc-code pre[class*=language-].line-numbers { padding-left: 3.6em; }
+}
+@media (max-width: 640px) {
+    .topbar { flex-wrap: wrap; height: auto; padding-block: 8px; row-gap: 4px; }
+    .topbar .brand { margin-right: auto; }
+    .topbar .links { order: 3; flex: 0 0 100%; flex-wrap: wrap; margin: 0 -8px; }
+}
+
+.docs-nav a + a, .docs-toc a + a { margin-top: 4px; }
+@media (max-width: 640px) { .topbar .links { gap: 4px; } }

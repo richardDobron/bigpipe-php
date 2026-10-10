@@ -6,7 +6,7 @@
         ['Shop', route('products.index'), '^/app/(shop|cart)'],
         ['Dashboard', route('dashboard'), '^/app/dashboard'],
         ['Profile', route('profile.show'), '^/app/profile'],
-        ['Docs', 'https://richarddobron.github.io/bigpipe-php/', null],
+        ['Docs', url('/docs'), '^/docs'],
     ];
     $path = '/'.ltrim(request()->path(), '/');
 @endphp

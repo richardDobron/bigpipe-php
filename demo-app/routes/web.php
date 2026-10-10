@@ -10,6 +10,7 @@ use App\Http\Controllers\CsrfController;
 use App\Http\Controllers\DomReferencesController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DialogController;
+use App\Http\Controllers\DocsController;
 use App\Http\Controllers\EventsController;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\NotificationController;
@@ -26,6 +27,10 @@ use dobron\BigPipe\BigPipe;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', ViewController::class)->defaults('view', 'welcome');
+
+// The documentation, rendered from the markdown files of the repository.
+Route::get('/docs', [DocsController::class, 'index'])->name('docs');
+Route::get('/docs/{slug}', [DocsController::class, 'show'])->where('slug', '[a-z_]+')->name('docs.show');
 
 // An expired CSRF token: the browser gets a new one from here and sends the request again.
 Route::get('/csrf-token', function () {

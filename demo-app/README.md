@@ -17,6 +17,11 @@ A Laravel 13 application with Vite. It has two parts:
   of streamed pagelets, live notifications, avatar upload with progress, unsaved changes warning and expired sessions.
   There is no login: everybody is the demo user.
 
+The documentation (`/docs`) is the markdown of the repository (`docs/`), rendered by `App\Docs\Docs` (CommonMark, with the
+front matter, anchors, table of contents and titled code blocks of the Docusaurus site). It reads `docs/` of the demo,
+or else the one of the repository next to it; the deploy copies `docs/` into the demo. The pages and their order are in
+`config/docs.php`.
+
 Every page renders into one layout (`resources/views/layouts/base.blade.php`), so every link is a page transition:
 `Controller::page()` and `Controller::streamedPage()` answer one with the `canvas` section of the page.
 
