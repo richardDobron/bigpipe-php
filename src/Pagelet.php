@@ -514,6 +514,10 @@ class Pagelet
             $data['phase'] = $this->phase;
         }
 
+        if (BigPipe::context()->ttiPhase !== null) {
+            $data['tti_phase'] = BigPipe::context()->ttiPhase;
+        }
+
         if (!empty($this->displayDependency)) {
             $data['display_dependency'] = $this->displayDependency;
         }

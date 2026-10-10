@@ -232,6 +232,25 @@ $chat = (new Pagelet('chat'))->setPhase(1)->displayAfter($feed);
 
 The JS files of the pagelets still load only when all of them are displayed.
 
+## Time to interactive
+
+Tell the browser which phases are the content the user is waiting for, e.g. the feed in phase 0 and the sidebar and ads
+in the later ones:
+
+```php
+<?php
+use dobron\BigPipe\BigPipe;
+
+BigPipe::setTtiPhase(0);   // the pagelets of the phases up to this one
+```
+
+The browser informs `tti_bigpipe` once those pagelets are displayed (see the [time to interactive in
+`bigpipe-util`](https://github.com/richardDobron/bigpipe-util/blob/main/docs/pagelets.md#time-to-interactive)), e.g. to
+measure it, and then downloads the JS files of the pagelets of the later phases in the background, without running them.
+They are in the cache when the pagelets load their JS after all of them are displayed, and they never compete with the
+first content for the network. The phase is sent with every pagelet of the page, a response with pagelets, and a page
+transition. `BigPipe::setTtiPhase(null)` turns it off.
+
 ## Pagelets in a response
 
 An `AsyncResponse` sends a pagelet with `pagelet()`: the pagelet replaces the element matching the selector, or without

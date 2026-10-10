@@ -31,6 +31,12 @@ class Context
      */
     public bool $pipelining = true;
 
+    /**
+     * The last phase of the pagelets that make the page interactive, see BigPipe::setTtiPhase().
+     * Like the nonce, reset() keeps it.
+     */
+    public ?int $ttiPhase = null;
+
     protected int $nodeIds = 0;
 
     /**
