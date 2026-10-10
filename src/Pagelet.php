@@ -24,6 +24,7 @@ class Pagelet
     protected array $displayDependency = [];
     /** @var list<callable(Pagelet): mixed> */
     protected array $deferred = [];
+    protected bool $inline = false;
     /** @var list<Pagelet> */
     private static array $rendering = [];
 
@@ -324,16 +325,18 @@ class Pagelet
      */
     public function renderData(): array
     {
-        $domops = [
-            [
+        $domops = [];
+
+        if (!$this->inline) {
+            $domops[] = [
                 'setContent',
                 '#' . $this->element,
                 false,
                 [
                     '__html' => $this->renderContent(),
                 ]
-            ]
-        ];
+            ];
+        }
 
         foreach ($this->onloads as $code) {
             $domops[] = [
@@ -347,7 +350,7 @@ class Pagelet
         $data = [
             'id' => $this->id,
             'js' => $this->js,
-            'css' => $this->css,
+            'css' => $this->inline ? [] : $this->css,
             "domops" => $domops,
             'jsmods' => $this->jsmods(),
         ];
@@ -365,7 +368,7 @@ class Pagelet
         }
 
         return $data + Bootloader::dataFor(
-            array_merge($this->css, $this->js),
+            array_merge($data['css'], $this->js),
             ['require' => array_merge($data['jsmods']['require'] ?? [], $this->onafterload['require'])]
         );
     }
@@ -398,6 +401,18 @@ class Pagelet
 
     public function __toString(): string
     {
-        return "<div id=\"" . $this->element . "\"></div>";
+        if (BigPipe::isPipelining()) {
+            return "<div id=\"" . $this->element . "\"></div>";
+        }
+
+        $this->inline = true;
+        $content = $this->renderContent();
+
+        $stylesheets = '';
+        foreach ($this->css as $file) {
+            $stylesheets .= '<link rel="stylesheet" href="' . htmlspecialchars(Bootloader::src($file), ENT_QUOTES) . '">';
+        }
+
+        return $stylesheets . "<div id=\"" . $this->element . "\">" . $content . "</div>";
     }
 }

@@ -49,6 +49,14 @@ class Bootloader
         }
     }
 
+    /**
+     * The URL of a resource: its src in the resource map, or the name itself.
+     */
+    public static function src(string $name): string
+    {
+        return static::$resourceMap[$name]['src'] ?? $name;
+    }
+
     public static function reset(): void
     {
         static::$resourceMap = [];

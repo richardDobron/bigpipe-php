@@ -143,6 +143,21 @@ class BigPipe
     }
 
     /**
+     * Turns pipelining off for the current request, e.g. for crawlers and browsers without
+     * JavaScript: every pagelet is then rendered in its placeholder, with its stylesheets, and the
+     * page script only loads its JS files and runs its modules.
+     */
+    public static function setPipelining(bool $enabled): void
+    {
+        static::context()->pipelining = $enabled;
+    }
+
+    public static function isPipelining(): bool
+    {
+        return static::context()->pipelining;
+    }
+
+    /**
      * Returns the nonce attribute for an inline script (with a leading space), or an empty string.
      */
     public static function nonceAttribute(): string

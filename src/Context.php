@@ -25,6 +25,12 @@ class Context
      */
     public ?string $nonce = null;
 
+    /**
+     * Whether pagelets are filled in by the browser (true) or rendered in their placeholders, for
+     * crawlers and browsers without JavaScript. Like the nonce, reset() keeps it.
+     */
+    public bool $pipelining = true;
+
     protected int $nodeIds = 0;
 
     /**

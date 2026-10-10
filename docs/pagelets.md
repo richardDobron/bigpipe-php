@@ -135,6 +135,44 @@ return response()->stream(function () {
 The browser part shows each pagelet as soon as it arrives, as long as `require` exists by then: load the entrypoint
 with a classic `<script src>` in the `<head>`. A `<script type="module">` runs only after the whole page is parsed.
 
+## Without JavaScript
+
+Crawlers and browsers without JavaScript would only see the empty placeholders. Turn pipelining off for them before
+the page is rendered: every pagelet is then rendered right in its placeholder, with `<link>` tags for its stylesheets,
+also its deferred content and the pagelets inside it. The page script still loads its JS files and runs its modules,
+for the clients that do run JavaScript.
+
+```php
+<?php
+use dobron\BigPipe\BigPipe;
+
+$userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+$isCrawler = (bool) preg_match('/bot|crawl|spider|slurp|facebookexternalhit|embedly|preview/i', $userAgent);
+
+BigPipe::setPipelining(!$isCrawler && !isset($_COOKIE['nojs']));
+```
+
+Browsers without JavaScript can't be recognized from the request. Send them to a version of the page without
+pipelining from a `<noscript>` in the `<head>`, e.g. with a parameter that sets the `nojs` cookie:
+
+```html
+<noscript><meta http-equiv="refresh" content="0; url=?nojs=1"></noscript>
+```
+
+```php
+<?php
+if (isset($_GET['nojs'])) {
+    setcookie('nojs', '1', ['path' => '/', 'samesite' => 'Lax']);
+}
+
+BigPipe::setPipelining(!isset($_GET['nojs']) && !isset($_COOKIE['nojs']));
+```
+
+Without pipelining, `stream()` still works, but the pagelets are rendered where their placeholders are printed, so
+the page is only sent once they are all rendered.
+
+A lazy pagelet is still loaded by the browser, so a crawler only sees its placeholder.
+
 ## Display order
 
 The browser shows every pagelet as soon as its CSS is loaded, in any order. A pagelet can wait for others:
