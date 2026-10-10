@@ -24,7 +24,6 @@ jobs:
         working-directory: demo-app
 
     env:
-      COMPOSER_MIRROR_PATH_REPOS: 1
       DEMO_PATH: /home/etexweb/domains/bigpipe.etexweb.sk/public_html
 
     steps:
