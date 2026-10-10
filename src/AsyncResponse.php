@@ -565,7 +565,7 @@ class AsyncResponse
 
         $parts = parse_url($uri) ?: [];
         parse_str($parts['query'] ?? '', $query);
-        unset($query[Quickling::PARAM], $query['__req']);
+        unset($query[Quickling::PARAM], $query['__req'], $query[static::STREAM_PARAM]);
 
         return ($parts['path'] ?? '/') . (empty($query) ? '' : '?' . http_build_query($query));
     }

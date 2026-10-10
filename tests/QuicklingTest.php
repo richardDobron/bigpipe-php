@@ -48,7 +48,7 @@ class QuicklingTest extends TestCase
     public function testAnswersAPageTransition(): void
     {
         Quickling::configure('v1');
-        $_SERVER['REQUEST_URI'] = '/feed?page=2&quickling%5Bversion%5D=v1&__req=3';
+        $_SERVER['REQUEST_URI'] = '/feed?page=2&quickling%5Bversion%5D=v1&__stream=1&__req=3';
         $ads = (new Pagelet('ads'))->setPhase(1);
         $feed = new Pagelet('feed');
 

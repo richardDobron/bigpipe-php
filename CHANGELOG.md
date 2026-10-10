@@ -6,7 +6,14 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 
 ## Unreleased
 
-The next major version, 2.0. It works with `bigpipe-util` 2.x.
+### Fixed
+
+- The URL of a streamed page transition (`AsyncResponse::transition()`) no longer keeps the `__stream` parameter,
+  so the browser's address bar shows the URL of the page.
+
+## v2.0.0 - 2026-10-10
+
+It works with `bigpipe-util` 2.x.
 
 ### Added
 
