@@ -16,6 +16,13 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 - Symfony integration (6.4 or later): `dobron\BigPipe\Symfony\BigPipeBundle` keeps a context per request (also in
   worker mode), turns the `AsyncResponse` and `DialogResponse` a controller returns into a response, sends the CSRF
   token of a configured id and adds the `bigpipe()`, `bigpipe_jsmod()` and `bigpipe_define()` Twig functions.
+- Nette integration: `BigPipeResponse` sends an `AsyncResponse` from a presenter, and the DI extension adds the
+  `bigpipe()`, `jsmod()` and `jsdefine()` Latte functions.
+- CakePHP integration (5): `BigPipePlugin` adds a middleware with a context per request that sends the CSRF token of
+  `CsrfProtectionMiddleware`, `AsyncResponse` and `DialogResponse` return a CakePHP response, and `BigPipeHelper` is the
+  view helper.
+- PSR-15 integration (Slim, Mezzio): `BigPipeMiddleware` handles a request with a fresh context and sends a CSRF token,
+  and `ResponseFactory` turns an `AsyncResponse` into a PSR-7 response.
 
 ### Fixed
 

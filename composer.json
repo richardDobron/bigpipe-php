@@ -40,11 +40,21 @@
         "laravel/framework": "^9.0 || ^10.0 || ^11.0 || ^12.0 || ^13.0",
         "symfony/framework-bundle": "^6.4 || ^7.0 || ^8.0",
         "symfony/security-csrf": "^6.4 || ^7.0 || ^8.0",
-        "symfony/twig-bundle": "^6.4 || ^7.0 || ^8.0"
+        "symfony/twig-bundle": "^6.4 || ^7.0 || ^8.0",
+        "nette/application": "^3.1",
+        "nette/di": "^3.1",
+        "nette/bootstrap": "^3.1",
+        "latte/latte": "^3.0",
+        "cakephp/cakephp": "^5.0",
+        "psr/http-server-middleware": "^1.0",
+        "nyholm/psr7": "^1.8"
     },
     "suggest": {
         "laravel/framework": "For the Laravel integration: responses, middleware and Blade directives (^9.0).",
-        "symfony/framework-bundle": "For the Symfony bundle: responses, CSRF token and Twig functions (^6.4)."
+        "symfony/framework-bundle": "For the Symfony bundle: responses, CSRF token and Twig functions (^6.4).",
+        "nette/application": "For the Nette integration: responses and Latte functions (^3.1, with Latte 3).",
+        "cakephp/cakephp": "For the CakePHP plugin: middleware, responses and view helper (^5.0).",
+        "psr/http-server-middleware": "For the PSR-15 middleware and PSR-7 responses (Slim, Mezzio)."
     },
     "scripts": {
         "post-merge": "composer install",
