@@ -2,35 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use dobron\BigPipe\AsyncResponse;
+use App\Arch\BigPipe\AsyncResponse;
 use dobron\BigPipe\TransportMarker;
-use Illuminate\Http\Request;
 
 class TransportController extends Controller
 {
-    private $response;
-
-    public function __construct(AsyncResponse $response)
+    public function collection()
     {
-        $this->response = $response;
-    }
-
-    public function collection(Request $request)
-    {
-        $this->response->bigPipe()->require("require('tutorial/Collections').setup()", [
-            TransportMarker::transportElement('data-box'),
-            TransportMarker::transportMap([
-                ['Jack', 20],
-                ['Alan', 34],
-                ['Bill', 10],
-                ['Sam', 9]
-            ]),
-            $this->response->transport()->transportSet([
-                'a', 'b',
-                'c', 'c', 'c',
-            ]),
-        ]);
-
-        return $this->response->send();
+        return (new AsyncResponse())
+            ->call('tutorial/Collections', 'setup', [
+                TransportMarker::element('data-box'),
+                TransportMarker::map([
+                    ['Jack', 20],
+                    ['Alan', 34],
+                    ['Bill', 10],
+                    ['Sam', 9],
+                ]),
+                TransportMarker::set(['a', 'b', 'c', 'c', 'c']),
+            ])
+            ->send();
     }
 }

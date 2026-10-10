@@ -2,21 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use dobron\BigPipe\DialogResponse;
+use App\Arch\BigPipe\AsyncResponse;
+use App\Arch\BigPipe\DialogResponse;
+use dobron\BigPipe\TransportMarker;
 
 class DialogController extends Controller
 {
-    private $response;
-
-    public function __construct(DialogResponse $response)
-    {
-        $this->response = $response;
-    }
-
     public function modelDialog()
     {
-        $this->response
-            ->setController("require('tutorial/ModalLogger')")
+        return (new DialogResponse())
+            ->setController('tutorial/ModalLogger')
             ->setTitle('Dialog example')
             ->setBody('Content . . .')
             ->setFooter(<<<HTML
@@ -24,26 +19,24 @@ class DialogController extends Controller
     Cancel
 </button>
 HTML)
-            ->dialog();
-
-        return $this->response->send();
+            ->dialog()
+            ->send();
     }
 
     public function htmlDialog()
     {
-        $this->response
-            ->setController("require('tutorial/ModalLogger')")
+        return (new DialogResponse())
+            ->setController('tutorial/ModalLogger')
             ->setDialog(view('tutorial.html-dialog')->render())
-            ->dialog();
-
-        return $this->response->send();
+            ->dialog()
+            ->send();
     }
 
     public function reactDialog()
     {
-        $this->response
-            ->setController("require('tutorial/ModalRenderer')", [[
-                'component' => $this->response->transport()->transportModule('tutorial/ReactModal'),
+        return (new DialogResponse())
+            ->setController('tutorial/ModalRenderer', [[
+                'component' => TransportMarker::module('tutorial/ReactModal'),
                 'props' => [
                     'full_name' => 'Margot Foster',
                     'job_title' => 'Backend Developer',
@@ -51,51 +44,43 @@ HTML)
                     'expected_salary' => '$120,000',
                 ],
             ]])
-            ->dialog();
-
-        return $this->response->send();
+            ->dialog()
+            ->send();
     }
 
     public function commonDialog()
     {
-        $this->response
-            ->setController("require('tutorial/ModalLogger')")
+        return (new DialogResponse())
+            ->setController('tutorial/ModalLogger')
             ->setDialog(view('tutorial.form-dialog')->render())
-            ->dialog();
-
-        return $this->response->send();
+            ->dialog()
+            ->send();
     }
 
     public function deleteDialog()
     {
-        $this->response
-            ->setController("require('tutorial/ModalLogger')")
+        return (new DialogResponse())
+            ->setController('tutorial/ModalLogger')
             ->setDialog(view('tutorial.delete-dialog')->render())
-            ->dialog();
-
-        return $this->response->send();
+            ->dialog()
+            ->send();
     }
 
     public function confirmDialog()
     {
-        $this->response
+        return (new DialogResponse())
             ->closeDialogs()
-            ->setController("require('tutorial/ModalLogger')")
+            ->setController('tutorial/ModalLogger')
             ->setDialog(view('tutorial.confirm-dialog')->render())
-            ->dialog();
-
-        return $this->response->send();
+            ->dialog()
+            ->send();
     }
 
     public function closeDialogs()
     {
-        $this->response->closeDialogs();
-
-        $this->response->bigPipe()->require("require('Toastr').success()", [
-            'All dialogs has been closed...',
-        ]);
-
-
-        return $this->response->send();
+        return (new DialogResponse())
+            ->closeDialogs()
+            ->call('Toastr', 'success', ['All dialogs were closed.'])
+            ->send();
     }
 }

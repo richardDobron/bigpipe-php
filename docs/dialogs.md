@@ -101,7 +101,7 @@ The dialog is also a layer in the browser, whose `beforehide` event a controller
 [Layer](https://github.com/richardDobron/bigpipe-util/blob/main/docs/dialog.md#layer-behaviors).
 
 ## Live Example
-You can observe this API in action in the [demo page](http://bigpipe.xf.cz/tutorial/dialogs) provided.
+You can observe this API in action in the [demo page](http://bigpipe.etexweb.sk/tutorial/dialogs) provided.
 
 ## Example
 If you want to trigger a dialog from the backend:

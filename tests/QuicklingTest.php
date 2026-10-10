@@ -25,6 +25,17 @@ class QuicklingTest extends TestCase
         );
     }
 
+    public function testIsNotTurnedOnAgainByAPageTransition(): void
+    {
+        $_GET['quickling'] = ['version' => '1'];
+
+        Quickling::init('content');
+
+        $response = (new AsyncResponse())->transition('<main></main>', 'Feed')->getResponse();
+
+        $this->assertNotContains(Quickling::MODULE, array_column($response['jsmods']['require'] ?? [], 0));
+    }
+
     public function testRecognizesAPageTransition(): void
     {
         $this->assertFalse(Quickling::isRequested());

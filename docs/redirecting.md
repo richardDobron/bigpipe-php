@@ -33,5 +33,5 @@ The Refresh & Redirecting API allows you to introduce delays (in milliseconds) f
     ```
 
 ## Live Example
-To see this API in action, you can refer to the provided [demo page](http://bigpipe.xf.cz/tutorial/redirecting).
+To see this API in action, you can refer to the provided [demo page](http://bigpipe.etexweb.sk/tutorial/redirecting).
 

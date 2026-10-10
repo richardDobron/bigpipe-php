@@ -1,0 +1,4 @@
+<span class="logo" aria-label="BigPipe">
+    <svg viewBox="0 0 64.8 64.8" width="22" height="22" aria-hidden="true"><defs><linearGradient id="bp-logo" x1="0" y1="0" x2="0" y2="64.8" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#3b7cf6"/><stop offset=".5" stop-color="#7c5cff"/><stop offset="1" stop-color="#d957c0"/></linearGradient></defs><path fill="url(#bp-logo)" d="M.749 21.381a1.543 1.543 0 0 1 0-2.646L31.605.221a1.53 1.53 0 0 1 1.588 0L64.05 18.735a1.543 1.543 0 0 1 0 2.646L33.193 39.895a1.54 1.54 0 0 1-1.588 0Zm61.713 9.697L32.399 49.116 2.337 31.078a1.543 1.543 0 0 0-1.588 2.646l30.856 18.513a1.54 1.54 0 0 0 1.588 0L64.05 33.724a1.543 1.543 0 0 0-1.588-2.646m0 12.343L32.399 61.458 2.337 43.421a1.543 1.543 0 0 0-1.588 2.645L31.605 64.58a1.54 1.54 0 0 0 1.588 0L64.05 46.066a1.543 1.543 0 0 0-1.588-2.645"/></svg>
+    <span class="display">BigPipe</span>
+</span>

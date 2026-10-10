@@ -1,13 +1,12 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 export default class ReactRenderer {
-    createComponent(element, container, callback) {
-        ReactDOM.render(element, container, callback);
+    createComponent(element, container) {
+        createRoot(container).render(element);
     }
 
-    constructAndRenderComponent(component, props, container, callback) {
-        const element = React.createElement(component, props);
-        return this.createComponent(element, container, callback)
+    constructAndRenderComponent(component, props, container) {
+        this.createComponent(React.createElement(component, props), container);
     }
 }

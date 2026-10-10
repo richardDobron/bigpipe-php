@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use dobron\BigPipe\AsyncResponse;
+use App\Arch\BigPipe\AsyncResponse;
 use dobron\BigPipe\TransportMarker;
 use Illuminate\Http\Request;
 
@@ -10,32 +10,26 @@ class UsersController extends Controller
 {
     private const USERNAME_AVAILABLE = 'available';
     private const USERNAME_UNAVAILABLE = 'unavailable';
-    private $response;
-
-    public function __construct(AsyncResponse $response)
-    {
-        $this->response = $response;
-    }
 
     public function checkUsername(Request $request)
     {
-        $username = $request->get('username');
+        $username = (string) $request->get('username');
         $status = preg_match('/[0-9]+/', $username)
             ? self::USERNAME_AVAILABLE
             : self::USERNAME_UNAVAILABLE;
 
         $message = $status === self::USERNAME_AVAILABLE
-            ? "Username $username is available."
-            : "Username $username is unavailable.";
-
-        $this->response->setPayload([
-            'username' => $username,
-            'status' => $status,
-            'message' => TransportMarker::transportHtml($message)
-        ]);
+            ? 'Username '.e($username).' is available.'
+            : 'Username '.e($username).' is unavailable.';
 
         usleep(500000);
 
-        return $this->response->send();
+        return (new AsyncResponse())
+            ->setPayload([
+                'username' => $username,
+                'status' => $status,
+                'message' => TransportMarker::html($message),
+            ])
+            ->send();
     }
 }

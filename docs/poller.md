@@ -41,3 +41,6 @@ if (Poller::requestedId() !== null && isQuietHour()) {
 
 $response->send();
 ```
+
+## Live Example
+A deploy that reports its progress until the server stops the poller, in the [demo page](http://bigpipe.etexweb.sk/tutorial/poller).

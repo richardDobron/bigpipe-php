@@ -69,7 +69,7 @@ module.exports = {
         { type: "doc", docId: "getting_started", label: "Docs", position: "left" },
         { type: "doc", docId: "how_it_works", label: "How it works", position: "left" },
         { href: "https://richarddobron.github.io/bigpipe-util/", label: "JavaScript API", position: "left" },
-        { href: "http://bigpipe.xf.cz", label: "Demo", position: "right" },
+        { href: "http://bigpipe.etexweb.sk", label: "Demo", position: "right" },
         { href: "https://packagist.org/packages/richarddobron/bigpipe", label: "Packagist", position: "right" },
         { href: "https://www.npmjs.com/package/bigpipe-util", label: "npm", position: "right" },
         { href: repoUrl, label: "GitHub", position: "right" },
@@ -97,7 +97,7 @@ module.exports = {
           items: [
             { label: "Issues", href: `${repoUrl}/issues` },
             { label: "Changelog", href: `${repoUrl}/blob/main/CHANGELOG.md` },
-            { label: "Demo app", href: "http://bigpipe.xf.cz" },
+            { label: "Demo app", href: "http://bigpipe.etexweb.sk" },
           ],
         },
         {

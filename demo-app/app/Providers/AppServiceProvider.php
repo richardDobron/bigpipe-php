@@ -2,40 +2,32 @@
 
 namespace App\Providers;
 
-use dobron\BigPipe\BigPipe;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
-    private static $init = false;
-
     /**
      * Register any application services.
-     *
-     * @return void
      */
-    public function register()
+    public function register(): void
     {
-        View::composer('*', function () {
-            if (!request()->ajax() && !self::$init) {
-                self::$init = true;
-
-                $bigPipe = new BigPipe();
-                $bigPipe->require(
-                    "require('Primer')"
-                );
-            }
-        });
+        //
     }
 
     /**
      * Bootstrap any application services.
-     *
-     * @return void
      */
-    public function boot()
+    public function boot(): void
     {
-        //
+        // The class of <body>. A page transition replaces it with the one of its response, so the layout
+        // and the transitions have to use the same.
+        View::share('bodyClass', 'theme');
+
+        // The build is a classic script, not a module: see vite.config.js.
+        Vite::useScriptTagAttributes(fn () => Vite::isRunningHot() ? [] : ['type' => false]);
+        // No modulepreload for it: it is not a module, and the single file has nothing else to preload.
+        Vite::usePreloadTagAttributes(fn () => Vite::isRunningHot() ? [] : false);
     }
 }

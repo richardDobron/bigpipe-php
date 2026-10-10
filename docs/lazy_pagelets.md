@@ -84,3 +84,6 @@ $response->replace('', $hasMore ? (string) new MorePager('/feed?page=' . ($page 
 
 $response->send();
 ```
+
+## Live Example
+A pagelet loaded when it becomes visible and one loaded once the browser is idle, in the [demo page](http://bigpipe.etexweb.sk/tutorial/lazy-pagelets). The infinite feed of the [blog](http://bigpipe.etexweb.sk/app/posts) uses `MorePager`.

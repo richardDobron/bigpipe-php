@@ -1,6 +1,14 @@
-import AsyncRequest from "bigpipe-util/src/async/AsyncRequest";
-import debounce from "fbjs/lib/debounceCore";
-import DOM from "bigpipe-util/src/core/DOM";
+import AsyncRequest from "bigpipe-util/dist/async/AsyncRequest";
+import DOM from "bigpipe-util/dist/core/DOM";
+
+function debounce(callback, wait) {
+    let timer;
+
+    return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => callback(...args), wait);
+    };
+}
 
 export default class UsernameChecker {
     init(endpoint) {
@@ -8,35 +16,49 @@ export default class UsernameChecker {
 
         this.message = document.querySelector('.status-message');
         this.username = document.getElementsByName('username')[0];
+        // The field shows the state: checking (a spinner), available or unavailable.
+        this.field = this.username.closest('.input-wrap');
 
         this._bindEvents();
     }
 
     _bindEvents() {
-        this.username.addEventListener('input', debounce(this._checkValidity.bind(this), 250));
+        const check = debounce(this._checkValidity.bind(this), 250);
+
+        this.username.addEventListener('input', () => {
+            this._setState(this.username.value.trim() ? 'typing' : '');
+            check();
+        });
     }
 
-    _checkValidity(event) {
-        const { value: username } = this.username;
+    _setState(state, message = '') {
+        this.field.dataset.state = state;
+        DOM.setContent(this.message, message);
+    }
+
+    _checkValidity() {
+        const username = this.username.value.trim();
 
         if (this.request) {
             this.request.abort();
+        }
+
+        if (!username) {
+            this._setState('');
+
+            return;
         }
 
         this.request = (new AsyncRequest(this.endpoint))
             .setData({
                 username,
             })
-            .setInitialHandler(() => {
-                this.message.innerHTML = 'Checking...';
-                this.message.classList.remove('text-red-600', 'text-green-600');
-            })
+            .setInitialHandler(() => this._setState('checking', 'Checking availability…'))
             .setHandler(this._showStatus.bind(this))
             .send();
     }
 
     _showStatus({payload}) {
-        DOM.setContent(this.message, payload.message.__html);
-        this.message.classList.add(payload.status === 'available' ? 'text-green-600' : 'text-red-600');
+        this._setState(payload.status, payload.message.__html);
     }
 }

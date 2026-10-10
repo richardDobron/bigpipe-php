@@ -1,15 +1,20 @@
 <img src="bigpipe.svg" alt="BigPipe logo" />
 
-A microframework for PHP and JavaScript. Send a page in independent parts (pagelets) that reach the browser as soon as they are ready, update the page with DOM operations, open dialogs and call JavaScript modules, all from PHP. The browser part is the npm package [bigpipe-util](https://github.com/richardDobron/bigpipe-util).
+A microframework for PHP and JavaScript. Send a page in independent parts (pagelets) that are rendered in parallel and reach the browser as soon as they are ready, update the page with DOM operations, open dialogs, load the next page into the layout and call JavaScript modules, all from PHP. The browser part is the npm package [bigpipe-util](https://github.com/richardDobron/bigpipe-util).
 
 ## 👀 Demo App
-Try the app with [live demo](http://bigpipe.xf.cz) or check how to [install](demo-app/README.md).
+Try the app with [live demo](http://bigpipe.etexweb.sk) or check how to [install](demo-app/README.md). It is a Laravel 13 application with:
+
+- **Tutorials**: a working example of every feature (streaming pagelets, lazy pagelets, poller, morph, Bootloader, events, DOM operations, dialogs, forms, payload, transport markers, configuration, DOM references, expired CSRF tokens and redirects), each with its code and a panel that shows what the server sent back.
+- **A demo app**: a blog, a shop, a dashboard of streamed pagelets, notifications and a profile, built the way an application is, from the [Laravel recipes](https://richarddobron.github.io/bigpipe-php/docs/laravel_recipes).
+
+Every page of it is a page transition.
 
 ## 📕 Full documentation
 https://richarddobron.github.io/bigpipe-php/
 
 ## ℹ️ Requirements
-* PHP 8.0 or higher
+* PHP 8.0 or higher (8.1 for [parallel rendering](#-parallel-rendering-and-fallbacks), which uses Fibers)
 * A bundler: [webpack](https://webpack.js.org/), [Vite](https://vite.dev/) or similar
 
 ## 📦 Installation
@@ -128,6 +133,72 @@ echo new FeedPagelet();          // <div id="pagelet_feed"></div>
 echo FeedPagelet::lazy('/pagelets/feed'); // loaded when it becomes visible
 ```
 
+### ⚡ Parallel rendering and fallbacks
+Pagelets that wait for an API or a query do not have to wait for each other: with `BigPipe::setParallel(true)` they are
+rendered concurrently, so the page takes as long as the slowest pagelet, not as long as all of them. A pagelet that
+throws is replaced by its fallback, and the rest of the page is sent as usual.
+
+```php
+use dobron\BigPipe\BigPipe;
+use dobron\BigPipe\Pagelet;
+
+BigPipe::setParallel(true);
+
+class WeatherPagelet extends Pagelet
+{
+    protected mixed $fallback = '<p>The weather is not available right now.</p>';
+
+    protected function content(): string
+    {
+        // Started without blocking (curl_multi, an async query…), awaited while the other pagelets are rendered.
+        $forecast = Pagelet::await(fn () => $this->api->poll());
+
+        return renderWeather($forecast);
+    }
+}
+```
+
+`setPhase()` and `displayAfter()` decide the order in which the browser shows the pagelets, and
+`$response->refreshPagelet(new FeedPagelet())` renders a pagelet again and replaces it on the page. See
+[Pagelets](https://richarddobron.github.io/bigpipe-php/docs/pagelets).
+
+## 🧭 Page transitions
+The links of the site load only the content of the next page into the layout, which stays with its scripts and state:
+
+```php
+use dobron\BigPipe\AsyncResponse;
+use dobron\BigPipe\Quickling;
+?>
+<main id="content"><?= $content ?></main>
+<?php Quickling::init('content'); // in the layout: does nothing in a page transition ?>
+```
+
+```php
+// the controller answers a page transition with the content only
+if (Quickling::isRequested()) {
+    return (new AsyncResponse())->transition($content, 'Feed')->send();
+}
+```
+
+## 🔁 Poller
+Request a URL again and again; every response is applied like any other, and the server can slow the poller down or stop it:
+
+```php
+use dobron\BigPipe\AsyncResponse;
+use dobron\BigPipe\Poller;
+
+(new Poller('/notifications/poll', 30000))->setMuteWhenIdle(5 * 60 * 1000)->start();
+
+// the endpoint
+$response = (new AsyncResponse())->setContent('#unread', (string) $unread);
+
+if ($unread === 0) {
+    $response->call(Poller::requestedId(), 'setInterval', [120000]); // or 'stop', 'mute'
+}
+
+$response->send();
+```
+
 ## 🪄 DOMOPS API
 - **setContent**: Sets the content of an element.
 - **appendContent**: Insert content as the last child of specified element.
@@ -233,7 +304,18 @@ $asyncResponse->call('Chart', 'setup', [
 $asyncResponse->send();
 ```
 
-# ⚡️ What all can be Ajaxifed?
+## 🔐 Expired CSRF tokens
+A page that stays open after the session expired sends a token the server rejects. Give the browser the token, and a
+URL to get a new one: it sends the rejected request again, once, and the user does not lose what they typed.
+
+```php
+\dobron\BigPipe\BigPipe::setCSRFToken($token, refreshUri: '/csrf-token');
+
+// or answer the rejected request with the new token
+$response->retryWithCSRFToken($newToken)->send();
+```
+
+# ⚡️ What can be ajaxified?
 
 ## 🔗 Links
 ```html
@@ -258,6 +340,25 @@ $asyncResponse->send();
    ajaxify="/ajax/modal.php"
    rel="dialog">Open Modal</a>
 ```
+
+```php
+// /ajax/modal.php
+$response = new \dobron\BigPipe\DialogResponse();
+
+$response->setTitle('Delete the post?')
+    ->setBody('<p>The post and its comments will be removed.</p>')
+    ->setFooter('<button data-dismiss="modal">Cancel</button>')
+    ->setBackdrop('static')
+    ->dialog();
+
+$response->send();
+```
+
+See [Dialogs](https://richarddobron.github.io/bigpipe-php/docs/dialogs) for their options, a React body and closing them from the server.
+
+## 🧱 Integrations
+- [Laravel](https://richarddobron.github.io/bigpipe-php/docs/laravel_integration): the setup, CSRF protection and long-running servers (Octane, FrankenPHP, RoadRunner, Swoole), and [recipes](https://richarddobron.github.io/bigpipe-php/docs/laravel_recipes) for a real application.
+- [React](https://richarddobron.github.io/bigpipe-php/docs/react_integration): render a React component with its props from PHP, e.g. in a dialog.
 
 ## 🌟 Inspiration
 

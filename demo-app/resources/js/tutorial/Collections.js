@@ -1,4 +1,4 @@
-import DOM from "bigpipe-util/src/core/DOM";
+import DOM from "bigpipe-util/dist/core/DOM";
 
 export default class Collections {
     setup(box, map, set) {

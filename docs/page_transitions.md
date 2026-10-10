@@ -28,6 +28,9 @@ Quickling::configure(
 <?php Quickling::init('content'); ?>
 ```
 
+In a page transition `init()` does nothing, as the page in the browser has them on already, so the layout can call it
+while it renders the content of a transition.
+
 The browser part takes over the same-origin links and GET forms, and the back and forward buttons. Links handled by the
 Primer (`rel="async"`, `rel="dialog"`, `ajaxify`), links with `rel="external"`, `target` or `download`, and links to
 another origin are left to the browser.
@@ -72,3 +75,6 @@ reaches the browser first, and every pagelet follows as soon as it is rendered. 
 The pagelets in the canvas are destroyed when the next page arrives, and the timers of the page started with the
 `TimerStorage` of the browser part are cleared. See the page transitions of `bigpipe-util` for the hooks that ask
 before leaving a page with unsaved changes.
+
+## Live Example
+Every page of the [demo app](http://bigpipe.etexweb.sk) is a page transition: the tutorials, the blog, the shop and the dashboard, whose pagelets are streamed in the transition too.

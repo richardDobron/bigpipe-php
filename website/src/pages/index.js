@@ -304,7 +304,7 @@ function Hero() {
             <Link className="button button--primary button--lg" to="/docs/getting_started">
               Get started
             </Link>
-            <Link className="button button--outline button--secondary button--lg" to="http://bigpipe.xf.cz">
+            <Link className="button button--outline button--secondary button--lg" to="http://bigpipe.etexweb.sk">
               Live demo
             </Link>
           </div>
@@ -347,7 +347,7 @@ function InAction() {
           ))}
         </Tabs>
         <p className={styles.exampleFootnote}>
-          See all of them working in the <a href="http://bigpipe.xf.cz">demo app</a>.
+          See all of them working in the <a href="http://bigpipe.etexweb.sk">demo app</a>.
         </p>
       </div>
     </section>

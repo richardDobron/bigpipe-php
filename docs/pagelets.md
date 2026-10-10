@@ -358,3 +358,6 @@ return response($response->buildResponseString())->withHeaders(AsyncResponse::he
 
 Without a callback, `stream()` prints and flushes every part, and sends the headers unless they were sent already.
 Like for a streamed page, the output has to reach the browser unbuffered, see [streaming](#streaming).
+
+## Live Example
+Five pagelets streamed in parallel, one with a fallback and one in a later phase, in the [demo page](http://bigpipe.etexweb.sk/tutorial/pagelets): switch to one after another and compare the times.

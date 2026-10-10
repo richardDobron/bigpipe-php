@@ -9,7 +9,7 @@ The Payload API allows you to send custom data to the frontend for potential fur
 This feature enables seamless data exchange between the backend and frontend, facilitating dynamic and interactive behavior in your application.
 
 ## Live Example
-You can observe the functionality of this API in the [demo page](http://bigpipe.xf.cz/tutorial/payload).
+You can observe the functionality of this API in the [demo page](http://bigpipe.etexweb.sk/tutorial/payload).
 
 ## Example
 Define the payload data on the backend-side:

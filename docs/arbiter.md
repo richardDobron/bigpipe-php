@@ -51,3 +51,6 @@ new Arbiter().informState("USER/LOGGED_IN", user);
 // Later, e.g. in a module loaded afterwards
 new Arbiter().subscribe("USER/LOGGED_IN", (user) => greet(user)); // called right away
 ```
+
+## Live Example
+Independent widgets that react to one event informed from PHP, and one added later that gets the last state, in the [demo page](http://bigpipe.etexweb.sk/tutorial/events).

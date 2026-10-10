@@ -124,3 +124,6 @@ export default class Settings {
     }
 }
 ```
+
+## Live Example
+A configuration that any response defines again, in the [demo page](http://bigpipe.etexweb.sk/tutorial/configuration).

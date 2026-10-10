@@ -90,3 +90,6 @@ $feed = (new Pagelet('feed'))
     ->prefetch('composer.js')
     ->prefetchCall('Composer', 'warmUp');
 ```
+
+## Live Example
+An editor that is not in the bundle, loaded with its CSS the first time the server calls it, in the [demo page](http://bigpipe.etexweb.sk/tutorial/bootloader).

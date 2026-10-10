@@ -2,42 +2,27 @@
 
 namespace App\Http\Controllers;
 
-use dobron\BigPipe\AsyncResponse;
+use App\Arch\BigPipe\AsyncResponse;
 
 class RedirectController extends Controller
 {
-    private $response;
-
-    public function __construct(AsyncResponse $response)
-    {
-        $this->response = $response;
-    }
-
     public function reload()
     {
-        $this->response->reload();
-
-        return $this->response->send();
+        return (new AsyncResponse())->reload()->send();
     }
 
     public function reloadDelay()
     {
-        $this->response->reload(250);
-
-        return $this->response->send();
+        return (new AsyncResponse())->reload(250)->send();
     }
 
     public function redirect()
     {
-        $this->response->redirect('/');
-
-        return $this->response->send();
+        return (new AsyncResponse())->redirect('/')->send();
     }
 
     public function redirectDelay()
     {
-        $this->response->redirect('/', 500);
-
-        return $this->response->send();
+        return (new AsyncResponse())->redirect('/', 500)->send();
     }
 }

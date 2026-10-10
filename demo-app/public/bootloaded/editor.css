@@ -1,0 +1,27 @@
+/* The stylesheet of the bootloaded Editor module: loaded with it, the first time the server calls it. It uses the
+   colors of the page where it has them, so it follows its theme. */
+.editor {
+    overflow: hidden;
+    background: var(--card, #fff);
+    border: 1px solid var(--line-2, #d9dde6);
+    border-radius: 10px;
+    box-shadow: 0 0 0 3px rgba(59, 124, 246, 0.12);
+    animation: editor-in 0.25s ease-out both;
+}
+.editor-bar { display: flex; align-items: center; gap: 4px; padding: 6px; background: var(--tint, #f3f5f9); border-bottom: 1px solid var(--line, #e7e9ef); }
+.editor-bar button {
+    min-width: 30px;
+    height: 28px;
+    padding: 0 8px;
+    font: 500 13px var(--mono, monospace);
+    color: var(--text, #1f2637);
+    background: var(--card, #fff);
+    border: 1px solid var(--line, #e7e9ef);
+    border-radius: 6px;
+    cursor: pointer;
+}
+.editor-bar button:hover { border-color: var(--blue, #3b7cf6); color: var(--blue, #3b7cf6); }
+.editor-count { margin-left: auto; padding-right: 6px; font: 11.5px var(--mono, monospace); color: var(--muted, #5b6477); }
+body.theme .editor textarea { display: block; width: 100%; min-height: 120px; border: 0 !important; border-radius: 0 !important; box-shadow: none !important; }
+.editor-note { padding: 6px 10px; font: 11px var(--mono, monospace); color: var(--faint, #8b93a5); border-top: 1px solid var(--line, #e7e9ef); }
+@keyframes editor-in { from { opacity: 0; transform: translateY(4px); } }

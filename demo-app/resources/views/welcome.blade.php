@@ -1,178 +1,181 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+@extends('layouts.base')
 
-    <title>BigPipe</title>
+@section('title', 'BigPipe: pipelining web pages')
 
-    <link href="https://fonts.googleapis.com/css2?family=Bitter:wght@200;300;400;500;600;700;800&family=Urbanist:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link href="{{ mix('/css/app.css') }}" rel="stylesheet">
+@section('canvas')
+    <div class="hero-wrap">
+        <section class="page hero" style="padding-top:88px;padding-bottom:88px">
+            <div>
+                <a href="https://richarddobron.github.io/bigpipe-php/docs/pagelets" class="badge"><b>PHP 8 · Laravel 13</b> Pagelets render in parallel →</a>
+                <h1 class="hero-title" style="margin-top:24px">Pages that arrive<br><span class="grad-text">in pieces.</span></h1>
+                <p class="lead" style="margin-top:22px">
+                    BigPipe sends the page at once and every part of it as soon as it is ready. Update the DOM, open dialogs
+                    and call JavaScript modules from PHP: an application that feels fast, without becoming a single-page app.
+                </p>
+                <div style="margin-top:32px;display:flex;gap:10px;flex-wrap:wrap">
+                    <a href="/app/dashboard" class="btn">See it stream <span class="arrow">→</span></a>
+                    <a href="https://richarddobron.github.io/bigpipe-php/docs/getting_started" class="btn ghost">Get started</a>
+                </div>
+                <div class="install" style="margin-top:20px">
+                    <div><span>$</span>composer require richarddobron/bigpipe<em>PHP</em></div>
+                    <div><span>$</span>npm install bigpipe-util<em>browser</em></div>
+                </div>
+            </div>
 
-    <!-- Styles -->
-    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
+            <div class="demo play" id="demo" aria-label="A page whose parts arrive as they are ready">
+                <div class="top">
+                    <i></i><i></i><i></i>
+                    <span class="url">demo.test/app/dashboard</span>
+                    <span class="clock" id="clock">0 ms</span>
+                    <button type="button" class="replay" id="replay">Replay</button>
+                </div>
+                <div class="slots">
+                    <div class="slot s-head"><div class="fill" style="--t:30"><span class="ln"></span><span class="ln"></span><span class="ln" style="width:44px"></span></div></div>
+                    <div class="slot s-side"><div class="fill" style="--t:30"><span class="ln" style="width:70%"></span><span class="ln"></span><span class="ln" style="width:80%"></span><span class="ln" style="width:60%"></span></div></div>
+                    <div class="slot s-main"><div class="fill" style="--t:600;--c:var(--blue)"><span class="tag">RevenuePagelet</span><div class="bars"><i style="height:40%"></i><i style="height:60%"></i><i style="height:30%"></i><i style="height:80%"></i><i style="height:100%"></i><i style="height:72%"></i><i style="height:90%"></i></div></div></div>
+                    <div class="slot s-c1"><div class="fill" style="--t:900;--c:var(--violet)"><span class="tag">ActivityPagelet</span><span class="ln"></span><span class="ln" style="width:70%"></span></div></div>
+                    <div class="slot s-c2"><div class="fill" style="--t:1200;--c:var(--magenta)"><span class="tag">ReportPagelet</span><span class="ln"></span><span class="ln" style="width:55%"></span></div></div>
+                </div>
+                <div class="waterfall" style="--max:1250">
+                    <div class="wf-row" style="--c:var(--ink);--t:30"><span class="name">layout</span><span class="track"><span class="seg"></span></span><span class="ms">30 ms</span></div>
+                    <div class="wf-row" style="--c:var(--blue);--t:600"><span class="name">revenue</span><span class="track"><span class="seg"></span></span><span class="ms">600 ms</span></div>
+                    <div class="wf-row" style="--c:var(--violet);--t:900"><span class="name">activity</span><span class="track"><span class="seg"></span></span><span class="ms">900 ms</span></div>
+                    <div class="wf-row" style="--c:var(--magenta);--t:1200"><span class="name">report</span><span class="track"><span class="seg"></span></span><span class="ms">1200 ms</span></div>
+                </div>
+            </div>
+        </section>
+    </div>
 
-    <style>
-        body {
-            font-family: urbanist,system-ui;
-        }
-    </style>
-</head>
-<body class="antialiased">
-    <div class="relative flex items-top justify-center min-h-screen bg-gradient-to-br from-blue-500 via-blue-900 to-blue-700 sm:items-center py-4 sm:pt-0">
-        <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
-            <img src="/images/logo.svg" class="m-auto mt-8">
-            <ul class="mt-8 mx-auto flex justify-center p-0 lg:mx-0">
-                <li class="text-center lg:text-left">
-                    <a href="https://github.com/richardDobron/bigpipe-php" class="mx-2 inline-block" target="_blank"><span class="sr-only">Github</span>
-                        <div class="text-white hover:opacity-80">
-                            <svg class="h-9 w-9" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"></path>
-                            </svg>
-                        </div>
-                    </a>
-                </li>
-            </ul>
-            <div class="mt-8 bg-gray-800 overflow-hidden shadow sm:rounded-lg">
-                <div class="grid grid-cols-1 md:grid-cols-2">
+    <section id="how" class="page">
+        <div class="eyebrow"><span class="label">How it works</span></div>
+        <h2 class="section-title">Stop waiting for the slowest query to show anything.</h2>
+        <p class="lead" style="margin-top:14px">
+            The dashboard of this demo has three parts that call slow APIs. Rendered the usual way, the browser gets nothing until all of them are done.
+            With BigPipe the layout is flushed first and the parts are rendered at the same time.
+        </p>
 
-                    <div class="p-6">
-                        <div class="flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
-                            </svg>
-                            <div class="ml-4 text-lg leading-7 font-semibold"><a href="/tutorial/dialogs" class="underline text-white">Dialogs</a></div>
-                        </div>
-
-                        <div class="ml-12">
-                            <div class="mt-2 text-gray-400 text-sm">
-                                This example illustrates dynamic opening of a dialog but also working with multiple dialogs at once.
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="p-6 border-t border-gray-700 md:border-t-0 md:border-l">
-                        <div class="flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z" />
-                            </svg>
-                            <div class="ml-4 text-lg leading-7 font-semibold"><a href="/tutorial/transport-markers" class="underline text-white">Transport Markers</a></div>
-                        </div>
-
-                        <div class="ml-12">
-                            <div class="mt-2 text-gray-400 text-sm">
-                                Through transport markers you can send HTML content but also transform the content into JavaScript objects (such as Map, Set or Element).
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="p-6 border-t border-gray-200 dark:border-gray-700">
-                        <div class="flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
-                            <div class="ml-4 text-lg leading-7 font-semibold flex">
-                                <span class="text-gray-900 dark:text-white">Custom configuration</span>
-                                <div class="inline-flex items-center ml-3 px-3 py-0.5 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">
-                                    <svg class="-ml-1 mr-1.5 h-2 w-2 text-indigo-400" fill="currentColor" viewBox="0 0 8 8">
-                                        <circle cx="4" cy="4" r="3"></circle>
-                                    </svg>
-                                    Upcoming feature
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="ml-12">
-                            <div class="mt-2 text-gray-600 dark:text-gray-400 text-sm">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="p-6 border-t border-gray-200 dark:border-gray-700 md:border-l">
-                        <div class="flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                            </svg>
-                            <div class="ml-4 text-lg leading-7 font-semibold flex">
-                                <span class="text-gray-900 dark:text-white">DOM References</span>
-                                <div class="inline-flex items-center ml-3 px-3 py-0.5 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">
-                                    <svg class="-ml-1 mr-1.5 h-2 w-2 text-indigo-400" fill="currentColor" viewBox="0 0 8 8">
-                                        <circle cx="4" cy="4" r="3"></circle>
-                                    </svg>
-                                    Upcoming feature
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="ml-12">
-                            <div class="mt-2 text-gray-600 dark:text-gray-400 text-sm">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="p-6 border-t border-gray-700">
-                        <div class="flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                            </svg>
-                            <div class="ml-4 text-lg leading-7 font-semibold"><a href="/tutorial/basic-example" class="underline text-white">Basic Usages</a></div>
-                        </div>
-
-                        <div class="ml-12">
-                            <div class="mt-2 text-gray-400 text-sm">
-                                Examples of common use cases you can use in your application and a list of DOM operations APIs.
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="p-6 border-t border-gray-700 md:border-l">
-                        <div class="flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                            </svg>
-                            <div class="ml-4 text-lg leading-7 font-semibold"><a href="/tutorial/redirecting" class="underline text-white">Refresh & Redirecting</a></div>
-                        </div>
-
-                        <div class="ml-12">
-                            <div class="mt-2 text-gray-400 text-sm">
-                                You can set a delay (in milliseconds) to refresh current page or redirect to another.
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="p-6 border-t border-gray-700">
-                        <div class="flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                            <div class="ml-4 text-lg leading-7 font-semibold"><a href="/tutorial/forms" class="underline text-white">Forms</a></div>
-                        </div>
-
-                        <div class="ml-12">
-                            <div class="mt-2 text-gray-400 text-sm">
-                                This example illustrates an asynchronous form that is processed in the background instead of refreshing the entire page.
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="p-6 border-t border-gray-700 md:border-l">
-                        <div class="flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                            </svg>
-                            <div class="ml-4 text-lg leading-7 font-semibold"><a href="/tutorial/payload" class="underline text-white">Payload</a></div>
-                        </div>
-
-                        <div class="ml-12">
-                            <div class="mt-2 text-gray-400 text-sm">
-                                The payload can contain any data you want to send to the frontend for possible further processing in JavaScript.
-                            </div>
-                        </div>
-                    </div>
+        <div class="compare">
+            <div class="panel">
+                <div class="head"><h3>A regular response</h3><span class="label">one after another</span></div>
+                <div style="--max:2750">
+                    <div class="wf-row" style="--c:var(--faint);--t:600"><span class="name">revenue</span><span class="track"><span class="seg"></span></span><span class="ms">600 ms</span></div>
+                    <div class="wf-row" style="--c:var(--faint);--s:600;--t:900"><span class="name">activity</span><span class="track"><span class="seg"></span></span><span class="ms">900 ms</span></div>
+                    <div class="wf-row" style="--c:var(--faint);--s:1500;--t:1200"><span class="name">report</span><span class="track"><span class="seg"></span></span><span class="ms">1200 ms</span></div>
+                    <div class="wf-row" style="--c:var(--ink);--s:2700;--t:40"><span class="name">layout</span><span class="track"><span class="seg"></span></span><span class="ms">2.7 s</span></div>
+                </div>
+                <div class="result">
+                    <div><strong>2.7 s</strong><span>until the first pixel</span></div>
+                    <div><strong>2.7 s</strong><span>until it is complete</span></div>
+                </div>
+            </div>
+            <div class="panel featured">
+                <div class="head"><h3>With BigPipe</h3><span class="label" style="color:var(--violet)">streamed, in parallel</span></div>
+                <div style="--max:2750">
+                    <div class="wf-row" style="--c:var(--ink);--t:40"><span class="name">layout</span><span class="track"><span class="seg"></span></span><span class="ms">first</span></div>
+                    <div class="wf-row" style="--c:var(--blue);--t:600"><span class="name">revenue</span><span class="track"><span class="seg"></span></span><span class="ms">600 ms</span></div>
+                    <div class="wf-row" style="--c:var(--violet);--t:900"><span class="name">activity</span><span class="track"><span class="seg"></span></span><span class="ms">900 ms</span></div>
+                    <div class="wf-row" style="--c:var(--magenta);--t:1200"><span class="name">report</span><span class="track"><span class="seg"></span></span><span class="ms">1200 ms</span></div>
+                </div>
+                <div class="result">
+                    <div><strong class="grad-text">At once</strong><span>the layout and placeholders</span></div>
+                    <div><strong>1.2 s</strong><span>as long as the slowest part</span></div>
                 </div>
             </div>
         </div>
-    </div>
-</body>
-</html>
+
+        <div class="features">
+            <div class="code-window">
+                <div class="chrome"><i></i><i></i><i></i><span>app/Pagelets/RevenuePagelet.php</span></div>
+<pre style="margin:0;padding:18px 20px 22px;overflow:auto;font-size:13px;line-height:1.7"><code class="language-php">class RevenuePagelet extends Pagelet
+{
+    protected mixed $fallback = 'Revenue is not available right now.';
+
+    protected function content(): string
+    {
+        // A slow API: waiting here does not hold up the other pagelets.
+        $orders = $this->api->orders();
+
+        // Call a JavaScript module once the pagelet is on the page.
+        $this->call('Dashboard/Chart', 'draw', [$orders->daily()]);
+
+        return view('dashboard._revenue', ['total' => $orders->total()])->render();
+    }
+}</code></pre>
+            </div>
+            <div class="feature-list">
+                <div class="feature"><h3>Pagelets</h3><p>Independent parts with their own CSS, JavaScript and a fallback when they fail.</p></div>
+                <div class="feature"><h3>Lazy pagelets</h3><p>Load a part when it becomes visible, and infinite scroll.</p></div>
+                <div class="feature"><h3>Async responses</h3><p>Links and forms that set, append, replace or remove content by a selector.</p></div>
+                <div class="feature"><h3>Dialogs</h3><p>Open, stack and close dialogs from the server.</p></div>
+                <div class="feature"><h3>Page transitions</h3><p>Load the next page into the layout instead of in full.</p></div>
+                <div class="feature"><h3>Poller &amp; bootloader</h3><p>Polling the server controls, and modules loaded only when called.</p></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="tutorials" class="page" style="padding-top:32px">
+        <div class="eyebrow"><span class="label">Tutorials</span></div>
+        <h2 class="section-title">Learn it one feature at a time.</h2>
+        <p class="lead" style="margin-top:14px">
+            Every tutorial is a working example with its code, and a panel that shows what the server sent back.
+            Page transitions, infinite scroll and uploads are in the demo app below.
+        </p>
+
+        <div class="index-grid" style="margin-top:32px">
+            @foreach ([
+                ['Streaming pagelets', '/tutorial/pagelets', 'Parts of a page rendered in parallel and flushed as they are ready, with fallbacks, phases and a refresh.'],
+                ['Lazy pagelets', '/tutorial/lazy-pagelets', 'A pagelet loaded when it scrolls into view, or once the browser is idle.'],
+                ['Poller', '/tutorial/poller', 'A deploy that reports its progress; the server stops the poller when it is done.'],
+                ['Morph', '/tutorial/morph', 'A form rendered on the server with every keystroke, and the focus stays where it was.'],
+                ['Bootloader', '/tutorial/bootloader', 'A module that is not in the bundle, loaded with its CSS the first time the server calls it.'],
+                ['Events', '/tutorial/events', 'One event informed from PHP, and independent widgets that react to it.'],
+                ['Dialogs', '/tutorial/dialogs', 'Open dialogs from the server, stack several of them and close them all at once.'],
+                ['Basic usages', '/tutorial/basic-example', 'The DOM operations: set, append, prepend, replace and remove content by a selector.'],
+                ['Forms', '/tutorial/forms', 'A form that is sent in the background, and its validation errors.'],
+                ['Payload', '/tutorial/payload', 'Data for your JavaScript next to the DOM operations: a live username check.'],
+                ['Transport markers', '/tutorial/transport-markers', 'Send HTML, but also Map, Set and Element values to a module.'],
+                ['Custom configuration', '/tutorial/configuration', 'Define the configuration of the page as a module and change it with any response.'],
+                ['DOM references', '/tutorial/dom-references', 'Define an element of the page as a module that any module can require by name.'],
+                ['Expired CSRF tokens', '/tutorial/csrf', 'The browser gets a new token and sends the request again.'],
+                ['Refresh & redirecting', '/tutorial/redirecting', 'Reload the page or redirect, with a delay.'],
+            ] as $i => [$name, $href, $text])
+                <a href="{{ $href }}" class="index-card">
+                    <span class="num">{{ sprintf('%02d', $i + 1) }}</span>
+                    <span class="go">→</span>
+                    <h3>{{ $name }}</h3>
+                    <p>{{ $text }}</p>
+                </a>
+            @endforeach
+        </div>
+    </section>
+
+    <section id="shop" class="page" style="padding-top:32px">
+        <div class="eyebrow"><span class="label">Demo app</span></div>
+        <h2 class="section-title">Recipes for a real application.</h2>
+        <p class="lead" style="margin-top:14px">
+            A blog and a shop built the way an application is, with a database, validation, tests and expired sessions.
+            Every page is a page transition.
+        </p>
+
+        <div class="index-grid" style="margin-top:32px">
+            @foreach ([
+                ['Blog', '/app/posts', 'An infinite feed, comments with validation errors and a confirmation dialog.'],
+                ['Shop and cart', '/app/shop', 'Links that change several parts of the page from one response.'],
+                ['Dashboard', '/app/dashboard', 'Pagelets that are streamed as they are ready, rendered at the same time, one of them lazy.'],
+                ['Notifications', '/app/notifications', 'A poller that the server controls.'],
+                ['Post editor', '/app/posts/1/edit', 'A warning before leaving a form with unsaved changes.'],
+                ['Profile', '/app/profile', 'A file upload with a progress bar.'],
+            ] as $i => [$name, $href, $text])
+                <a href="{{ $href }}" class="index-card">
+                    <span class="num">{{ sprintf('%02d', $i + 1) }}</span>
+                    <span class="go">→</span>
+                    <h3>{{ $name }}</h3>
+                    <p>{{ $text }}</p>
+                </a>
+            @endforeach
+        </div>
+    </section>
+
+    @php(\dobron\BigPipe\BigPipe::page()->call('Home/StreamDemo', 'init', [\dobron\BigPipe\TransportMarker::element('demo')]))
+    @php(\dobron\BigPipe\BigPipe::page()->call('tutorial/Code', 'highlight'))
+@endsection

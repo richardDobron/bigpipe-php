@@ -51,12 +51,18 @@ class Quickling
     }
 
     /**
-     * Turns page transitions on for the page, with the element of the given id as the canvas.
+     * Turns page transitions on for the page, with the element of the given id as the canvas. In a
+     * page transition it does nothing: the page in the browser has them on already, so a layout that
+     * calls it is rendered for a transition without sending the call with every response.
      *
      * @throws \Throwable
      */
     public static function init(string $canvasId): void
     {
+        if (static::isRequested()) {
+            return;
+        }
+
         BigPipe::page()->call(static::MODULE, 'init', [
             TransportMarker::element($canvasId),
             array_filter([

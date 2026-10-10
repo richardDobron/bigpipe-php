@@ -7,25 +7,17 @@
 @section('code', <<<'CODE'
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use dobron\BigPipe\AsyncResponse;
+use App\Arch\BigPipe\AsyncResponse;
 
-class UsersController extends Controller
+class PostController extends Controller
 {
-    private $response;
-
-    public function __construct(AsyncResponse $response)
-    {
-        $this->response = $response;
-    }
-
     public function loadMore(Request $request)
     {
         ...
 
-        $this->response->appendContent('#users > tbody', view('app.users.partials.table-body', compact('users')));
-
-        return $this->response->send();
+        return (new AsyncResponse())
+            ->appendContent('#posts', view('posts.items', compact('posts'))->render())
+            ->send();
     }
 }
 CODE
@@ -85,96 +77,46 @@ CODE
 @endsection
 
 @php
-        $bigPipe = new \dobron\BigPipe\BigPipe();
-        $bigPipe->require("require('tutorial/IntervalUsage').init()", [
-            route('basic-example.stats')
+        \dobron\BigPipe\BigPipe::page()->call('tutorial/IntervalUsage', 'init', [
+            route('basic-example.stats'),
         ]);
 @endphp
 
 @section('examples')
-    <section class="mx-auto px-6 py-12 lg:pt-32 pb-0 even">
-        <div class="text-left md:text-center">
-            <h2 class="m-auto max-w-4xl text-4xl font-extrabold tracking-tight lg:text-6xl">Examples</h2>
+    <x-example title="A request on an interval" caption="Where the ajaxify attribute does not fit, AsyncRequest sends the request from JavaScript; the response replaces the numbers with setContent.">
+        <div id="box-stats">
+            @include('partials.stats')
         </div>
-        <div class="text-center">
-            <div class="my-12 mx-auto max-w-6xl">
-                <ul role="list" class="grid grid-cols-1 gap-x-4 gap-y-8 sm:gap-x-6 md:grid-cols-3 xl:gap-x-8">
-                    <li class="relative flex flex-col">
-                        <div class="group flex grow items-end">
-                            <div class="grow" id="box-stats">
-                                @include('partials.stats')
-                            </div>
-                        </div>
-                        <div class="mt-8 text-left">
-                            <h3 class="pointer-events-none mt-2 block truncate text-2xl font-bold">Request with Interval</h3>
-                            <p class="pointer-events-none mt-4 block text-xl text-color-800">If it is not possible to use the ajaxify attribute, you can use AsyncRequest & AsyncResponse methods to do the same thing.</p>
-                        </div>
-                    </li>
-                    <li class="relative flex flex-col">
-                        <div class="group flex grow items-end">
-                            <div class="grow">
-                                <div class="relative max-h-64">
-                                    <div class="relative z-10 rounded-md bg-white p-4 text-left text-sm shadow-lg ring-1 ring-black ring-opacity-5">
-                                        <div class="divide-y divide-slate-200">
-                                            <div class="grid grid-cols-2 gap-2 py-4">
-                                                <div class="flex space-x-3 rounded-md">
-                                                    <div>
-                                                        <div class="font-bold">John Doe</div>
-                                                        <div class="text-slate-400"><span class="">Home</span></div>
-                                                    </div>
-                                                </div>
-                                                <div class="text-right">
-                                                    <a class="font-bold text-blue-500" href="#" ajaxify="{{ route('basic-example.show.phone', ['id' => 1]) }}" rel="async-post">+*******84</a></div>
-                                            </div>
-                                            <div class="grid grid-cols-2 gap-2 py-4">
-                                                <div class="flex space-x-3 rounded-md">
-                                                    <div>
-                                                        <div class="font-bold">Jane Doe</div>
-                                                        <div class="text-slate-400"><span class="">Work</span></div>
-                                                    </div>
-                                                </div>
-                                                <div class="text-right">
-                                                    <a class="font-bold text-blue-500" href="#" ajaxify="{{ route('basic-example.show.phone', ['id' => 2]) }}" rel="async-post">+*******11</a></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mt-8 text-left">
-                            <h3 class="pointer-events-none mt-2 block truncate text-2xl font-bold">Click Interaction</h3>
-                            <p class="pointer-events-none mt-4 block text-xl text-color-800">In this example, we use the ajaxify and rel attributes. They respond to the click event which calls AsyncRequest and displays the phone number.</p>
-                        </div>
-                    </li>
-                    <li class="relative flex flex-col">
-                        <div class="group flex grow items-end">
-                            <div class="grow">
-                                <div class="relative max-h-64">
-                                    <div class="relative z-10 rounded-md bg-white p-4 text-left text-sm shadow-lg ring-1 ring-black ring-opacity-5">
-                                        <div class="text-center rounded-md border-4 border-dashed border-slate-200 p-6 text-xs font-bold text-slate-300">
-                                            <div id="image-box">
-                                                <div class="flex flex-col items-center ">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" class="h-6 w-6 shrink-0" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                                    </svg>
-                                                    <a href="#" ajaxify="{{ route('basic-example.image') }}" rel="async-post">Click here to<br>load image</a>
-                                                </div>
-                                                <div class="hidden">
-                                                    <img class="m-auto py-0.5">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mt-8 text-left">
-                            <h3 class="pointer-events-none mt-2 block truncate text-2xl font-bold">Call JS Module from PHP</h3>
-                            <p class="pointer-events-none mt-4 block text-xl text-color-800">It is not always appropriate to use DOMOPS. You can call a specific class method or a regular function with the custom arguments.</p>
-                        </div>
-                    </li>
-                </ul>
+        <p class="polling">a request every 2.5 s</p>
+    </x-example>
+
+    <div class="examples cols-2">
+        <x-example title="A click that replaces the link" caption="The ajaxify and rel attributes send the request; the response replaces the clicked link with the number.">
+            <div class="surface contacts">
+                @foreach ([[1, 'John Doe', 'Home', 'JD', '84'], [2, 'Jane Doe', 'Work', 'JD', '11']] as [$id, $name, $kind, $initials, $end])
+                    <div class="contact">
+                        <span class="avatar">{{ $initials }}</span>
+                        <span class="who"><strong>{{ $name }}</strong><span>{{ $kind }}</span></span>
+                        <a class="reveal" href="{{ url()->current() }}" ajaxify="{{ route('basic-example.show.phone', ['id' => $id]) }}" rel="async-post">+••• •• {{ $end }}</a>
+                    </div>
+                @endforeach
             </div>
-        </div>
-    </section>
+        </x-example>
+
+        <x-example title="A JavaScript module called from PHP" caption="Not everything is a DOM operation: the response calls the set() method of tutorial/Image with a URL.">
+            <div class="dropzone">
+                <div id="image-box">
+                    <div>
+                        <a href="{{ url()->current() }}" ajaxify="{{ route('basic-example.image') }}" rel="async-post">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M3.75 19.5h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Z"/></svg>
+                            Load the image
+                        </a>
+                    </div>
+                    <div class="hidden">
+                        <img alt="">
+                    </div>
+                </div>
+            </div>
+        </x-example>
+    </div>
 @endsection

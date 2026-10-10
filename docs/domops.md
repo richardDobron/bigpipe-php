@@ -190,4 +190,4 @@ These methods offer a robust toolkit for dynamic manipulation of the DOM element
     ```
 
 ## Live Example
-You can observe this API in action in the [demo page](http://bigpipe.xf.cz/tutorial/basic-example) provided.
+You can observe this API in action in the [demo page](http://bigpipe.etexweb.sk/tutorial/basic-example) provided, and `morph` in a [form rendered with every keystroke](http://bigpipe.etexweb.sk/tutorial/morph).
