@@ -134,6 +134,10 @@ class BigPipe
         return new static();
     }
 
+    /**
+     * The modules the page called and defined so far, e.g. to run them once the page is parsed
+     * when the page has no pagelets.
+     */
     public static function jsmods(): array
     {
         return static::context()->jsmods();
@@ -202,6 +206,9 @@ class BigPipe
         static::context()->pipelining = $enabled;
     }
 
+    /**
+     * Whether the pagelets are sent after the page, see setPipelining().
+     */
     public static function isPipelining(): bool
     {
         return static::context()->pipelining;
@@ -218,6 +225,9 @@ class BigPipe
         static::context()->parallel = $enabled;
     }
 
+    /**
+     * Whether the pagelets are rendered concurrently: turned on with setParallel() and Fibers available.
+     */
     public static function isParallel(): bool
     {
         return static::context()->parallel && Parallel::isAvailable();
@@ -269,6 +279,13 @@ class BigPipe
         return $nonce === null ? '' : ' nonce="' . htmlspecialchars($nonce, ENT_QUOTES) . '"';
     }
 
+    /**
+     * The script that sends the pagelets and the modules of the page to the browser, all at once at
+     * the end of the request. Print it at the end of the page, after the entrypoint is loaded; stream()
+     * sends every pagelet as soon as it is rendered instead.
+     *
+     * @throws \Throwable
+     */
     public static function render(): string
     {
         return (string) new static();

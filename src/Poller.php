@@ -39,6 +39,9 @@ class Poller
         return $this->id;
     }
 
+    /**
+     * The HTTP method of the requests, GET by default.
+     */
     public function setMethod(string $method): static
     {
         $this->method = strtoupper($method);
@@ -46,6 +49,9 @@ class Poller
         return $this;
     }
 
+    /**
+     * Data sent with every request, e.g. the id of the last notification seen.
+     */
     public function setData(array $data): static
     {
         $this->data = $data;

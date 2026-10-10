@@ -92,6 +92,10 @@ class AsyncResponse
         return $this;
     }
 
+    /**
+     * The BigPipe of the response, which shares its context: its module calls and pagelets are sent
+     * with the response.
+     */
     public function bigPipe(): BigPipe
     {
         return $this->bigPipe;
@@ -233,6 +237,9 @@ class AsyncResponse
         return $this;
     }
 
+    /**
+     * Whether the response was marked as failed with setError().
+     */
     public function hasError(): bool
     {
         return $this->error !== null;

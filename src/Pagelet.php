@@ -253,6 +253,10 @@ class Pagelet
         return $this;
     }
 
+    /**
+     * Renders the deferred content and content(), once: an exception replaces the content with the
+     * fallback, see setFallback(). BigPipe calls it when it sends the pagelet.
+     */
     public function renderContent(): string
     {
         while ($content = array_shift($this->deferred)) {
@@ -293,6 +297,9 @@ class Pagelet
         return $this;
     }
 
+    /**
+     * Whether the content failed to render and the fallback is sent instead.
+     */
     public function hasFailed(): bool
     {
         return $this->failed;
@@ -423,6 +430,10 @@ class Pagelet
         return $this;
     }
 
+    /**
+     * Loads the JS files of the pagelet right after it is displayed, instead of once every pagelet
+     * of the page is displayed.
+     */
     public function setJSNonBlock(bool $jsNonBlock = true): static
     {
         $this->jsNonBlock = $jsNonBlock;
@@ -430,6 +441,10 @@ class Pagelet
         return $this;
     }
 
+    /**
+     * A script of the pagelet, by its URL or its name in the resource map (see Bootloader). The JS
+     * files load once every pagelet is displayed; run their modules with onLoad().
+     */
     public function addJs(string $file): static
     {
         $this->js[] = $file;
@@ -437,6 +452,10 @@ class Pagelet
         return $this;
     }
 
+    /**
+     * A stylesheet of the pagelet, by its URL or its name in the resource map (see Bootloader). The
+     * pagelet is displayed once its stylesheets are loaded.
+     */
     public function addCss(string $file): static
     {
         $this->css[] = $file;

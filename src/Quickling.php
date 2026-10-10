@@ -45,6 +45,9 @@ class Quickling
         static::$sessionLength = $sessionLength;
     }
 
+    /**
+     * The version of the pages set with configure(), sent with every page transition.
+     */
     public static function version(): ?string
     {
         return static::$version;

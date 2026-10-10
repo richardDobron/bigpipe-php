@@ -49,6 +49,9 @@ class LazyPagelet
         return $this;
     }
 
+    /**
+     * The HTML shown in the root of the pagelet until the pagelet replaces it, e.g. a skeleton.
+     */
     public function setPlaceholder(string $html): static
     {
         $this->placeholder = $html;
@@ -56,6 +59,10 @@ class LazyPagelet
         return $this;
     }
 
+    /**
+     * When the browser requests the pagelet: LOAD_VISIBLE when its root becomes visible (default),
+     * LOAD_IDLE once the browser is idle, or LOAD_EAGER right away.
+     */
     public function setLoad(string $load): static
     {
         $this->load = $load;
