@@ -18,6 +18,9 @@ class BigPipe
     /** @var null|callable(): Context */
     protected static $contextResolver = null;
 
+    /** @var null|callable(\Throwable, Pagelet): void */
+    protected static $errorHandler = null;
+
     protected Context $context;
 
     public function __construct(?Context $context = null)
@@ -46,6 +49,32 @@ class BigPipe
     public static function setContextResolver(?callable $resolver): void
     {
         static::$contextResolver = $resolver;
+    }
+
+    /**
+     * Reports the exception of a pagelet whose content failed to render, e.g. to the error tracking
+     * of the application. Pass null to go back to the default, error_log(). A handler that throws
+     * the exception again breaks the page, e.g. while developing.
+     *
+     * @param null|callable(\Throwable, Pagelet): void $handler
+     */
+    public static function setErrorHandler(?callable $handler): void
+    {
+        static::$errorHandler = $handler;
+    }
+
+    /**
+     * @internal
+     */
+    public static function reportError(\Throwable $exception, Pagelet $pagelet): void
+    {
+        if (static::$errorHandler !== null) {
+            (static::$errorHandler)($exception, $pagelet);
+
+            return;
+        }
+
+        error_log(sprintf('BigPipe: the pagelet "%s" failed to render: %s', $pagelet->getId(), $exception));
     }
 
     /**

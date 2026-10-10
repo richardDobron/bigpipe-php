@@ -34,6 +34,9 @@ class Pagelet
     /** @var list<callable(Pagelet): mixed> */
     protected array $deferred = [];
     protected bool $inline = false;
+    /** @var string|callable(\Throwable, Pagelet): string */
+    protected mixed $fallback = '';
+    protected bool $failed = false;
     /** @var list<Pagelet> */
     private static array $rendering = [];
 
@@ -216,8 +219,9 @@ class Pagelet
                 $returned = $content($this);
             } catch (\Throwable $exception) {
                 ob_end_clean();
+                $this->fail($exception);
 
-                throw $exception;
+                break;
             } finally {
                 array_pop(self::$rendering);
             }
@@ -230,6 +234,51 @@ class Pagelet
         }
 
         return $this->content;
+    }
+
+    /**
+     * The content shown when the content of the pagelet fails to render: HTML, or a callable that
+     * gets the exception and the pagelet and returns HTML. Empty by default.
+     *
+     * @param string|callable(\Throwable, Pagelet): string $fallback
+     */
+    public function setFallback(string|callable $fallback): static
+    {
+        $this->fallback = $fallback;
+
+        return $this;
+    }
+
+    public function hasFailed(): bool
+    {
+        return $this->failed;
+    }
+
+    /**
+     * Reports the exception, see BigPipe::setErrorHandler(), and replaces the content with the
+     * fallback, without the modules of the content, so one failing pagelet does not break the page.
+     */
+    protected function fail(\Throwable $exception): void
+    {
+        $this->failed = true;
+        $this->deferred = [];
+        $this->jsmods = ['require' => []];
+        $this->priorities = [];
+        $this->onload = ['require' => []];
+        $this->onafterload = ['require' => []];
+
+        BigPipe::reportError($exception, $this);
+
+        $this->content = $this->renderFallback($exception);
+    }
+
+    protected function renderFallback(\Throwable $exception): string
+    {
+        $fallback = $this->fallback;
+
+        return !is_string($fallback) && is_callable($fallback)
+            ? (string) $fallback($exception, $this)
+            : (string) $fallback;
     }
 
     /**

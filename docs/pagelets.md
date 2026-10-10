@@ -89,6 +89,32 @@ $feed = (new Pagelet('feed'))->defer(function (Pagelet $feed) {
 });
 ```
 
+## Errors
+
+A pagelet whose `content()` or deferred content throws does not break the page: its content and modules are replaced
+by its fallback, empty by default, the exception is reported, and the other pagelets are rendered and streamed as
+usual.
+
+```php
+<?php
+use dobron\BigPipe\BigPipe;
+use dobron\BigPipe\Pagelet;
+
+class FeedPagelet extends Pagelet
+{
+    protected mixed $fallback = '<p>The feed is not available right now.</p>';
+}
+
+$ads = (new Pagelet('ads'))
+    ->defer(fn () => renderAds())
+    ->setFallback(fn (Throwable $exception, Pagelet $pagelet) => '');
+
+BigPipe::setErrorHandler(fn (Throwable $exception, Pagelet $pagelet) => report($exception));
+```
+
+Without an error handler, the exception is written with `error_log()`. A handler that throws the exception again
+breaks the page instead, e.g. while developing. `hasFailed()` tells whether a pagelet fell back.
+
 ## Streaming
 
 With `BigPipe::render()`, the browser gets the pagelets at the end of the request, so the slowest pagelet holds up all

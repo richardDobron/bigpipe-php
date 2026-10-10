@@ -78,6 +78,9 @@ class DeferredPageletTest extends TestCase
     public function testCleansTheOutputBufferWhenTheCallableThrows(): void
     {
         $level = ob_get_level();
+        BigPipe::setErrorHandler(function (Throwable $exception): void {
+            throw $exception;
+        });
         $pagelet = (new Pagelet('feed'))->defer(function () {
             echo 'partial';
 
