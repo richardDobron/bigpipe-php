@@ -14,6 +14,7 @@ return new class extends Migration
 
         Schema::create('posts', function (Blueprint $table) {
             $table->id();
+            $table->uuid('tenant_id')->index();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('title');
             $table->text('body');
@@ -22,6 +23,7 @@ return new class extends Migration
 
         Schema::create('comments', function (Blueprint $table) {
             $table->id();
+            $table->uuid('tenant_id')->index();
             $table->foreignId('post_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->text('body');
@@ -30,6 +32,7 @@ return new class extends Migration
 
         Schema::create('products', function (Blueprint $table) {
             $table->id();
+            $table->uuid('tenant_id')->index();
             $table->string('name');
             $table->decimal('price', 8, 2);
             $table->timestamps();
@@ -37,6 +40,7 @@ return new class extends Migration
 
         Schema::create('cart_lines', function (Blueprint $table) {
             $table->id();
+            $table->uuid('tenant_id')->index();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('product_id')->constrained()->cascadeOnDelete();
             $table->unsignedInteger('quantity')->default(1);
@@ -45,6 +49,7 @@ return new class extends Migration
 
         Schema::create('alerts', function (Blueprint $table) {
             $table->id();
+            $table->uuid('tenant_id')->index();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('title');
             $table->timestamp('read_at')->nullable();

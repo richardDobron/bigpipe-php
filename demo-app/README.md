@@ -15,7 +15,7 @@ A Laravel 13 application with Vite. It has two parts:
 - **The demo app** (`/app/...`): the [Laravel recipes](https://richarddobron.github.io/bigpipe-php/docs/laravel_recipes)
   as a working application: an infinite feed, forms with validation errors, a confirmation dialog, a cart, a dashboard
   of streamed pagelets, live notifications, avatar upload with progress, unsaved changes warning and expired sessions.
-  There is no login: everybody is the demo user.
+  There is no login: every visitor gets a demo user and a playground of their own (see below).
 
 The documentation (`/docs`) is the markdown of the repository (`docs/`), rendered by `App\Docs\Docs` (CommonMark, with the
 front matter, anchors, table of contents and titled code blocks of the Docusaurus site). It reads `docs/` of the demo,
@@ -67,4 +67,17 @@ Tailwind is compiled by Vite from the classes of the views (`resources/css/app.c
 
 ```bash
 php artisan test
+```
+
+## Playgrounds
+
+Every visitor is a tenant. The first request to `/app/...` creates a demo user with a `tenant_id` and the sample data
+(`App\Tenancy\Playground`); posts, comments, products, cart lines and alerts carry the `tenant_id`, and the
+`BelongsToTenant` trait limits their queries to the tenant of the signed-in user and sets it on new records.
+
+A playground is removed an hour after it was created by `php artisan demo:prune`, scheduled hourly. The server needs the
+Laravel scheduler for it:
+
+```bash
+* * * * * cd /path/to/demo-app && php artisan schedule:run >> /dev/null 2>&1
 ```

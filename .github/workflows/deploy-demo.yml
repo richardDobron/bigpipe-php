@@ -103,7 +103,7 @@ jobs:
             set -e
             cd ${{ env.DEMO_PATH }}
 
-            php artisan migrate --force
+            php artisan migrate:fresh --force
             [ -L public/storage ] || php artisan storage:link
             php artisan optimize:clear
             php artisan optimize
