@@ -135,6 +135,33 @@ return response()->stream(function () {
 The browser part shows each pagelet as soon as it arrives, as long as `require` exists by then: load the entrypoint
 with a classic `<script src>` in the `<head>`. A `<script type="module">` runs only after the whole page is parsed.
 
+## Display order
+
+The browser shows every pagelet as soon as its CSS is loaded, in any order. Like Facebook's BigPipe, a pagelet can
+wait for others:
+
+- `setPhase(int $phase)`: the pagelet is displayed after the pagelets of a lower phase, e.g. the content of the page
+  in phase 0 (default) before the sidebar and ads in phase 1. `render()`, `stream()` and an `AsyncResponse` send the
+  pagelets in the order of their phases, pagelets of the same phase in the order they were created.
+- `displayAfter(...$pagelets)`: the pagelet is displayed after the given pagelets or pagelet ids, e.g. a chat that
+  needs the feed on the page. The browser waits for them to arrive, so send them too.
+
+```php
+<?php
+use dobron\BigPipe\Pagelet;
+
+class AdsPagelet extends Pagelet
+{
+    protected int $phase = 1;
+}
+
+$feed = new FeedPagelet();
+$ads = new AdsPagelet();
+$chat = (new Pagelet('chat'))->setPhase(1)->displayAfter($feed);
+```
+
+The JavaScript of the pagelets still runs only when all of them are displayed.
+
 ## Pagelets in a response
 
 An `AsyncResponse` sends a pagelet with `pagelet()`: the pagelet replaces the element matching the selector, or without

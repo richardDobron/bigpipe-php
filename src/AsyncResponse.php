@@ -402,7 +402,9 @@ class AsyncResponse
         ];
 
         if (!empty($this->pagelets)) {
-            $response["pagelets"] = $this->pagelets;
+            $pagelets = $this->pagelets;
+            usort($pagelets, static fn (array $a, array $b): int => ($a['phase'] ?? 0) <=> ($b['phase'] ?? 0));
+            $response["pagelets"] = $pagelets;
         }
 
         return $response + [

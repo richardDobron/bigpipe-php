@@ -19,6 +19,9 @@ class Pagelet
         'require' => [],
     ];
     protected array $priorities = [];
+    protected int $phase = 0;
+    /** @var list<string> */
+    protected array $displayDependency = [];
     /** @var list<callable(Pagelet): mixed> */
     protected array $deferred = [];
     /** @var list<Pagelet> */
@@ -281,6 +284,42 @@ class Pagelet
     }
 
     /**
+     * The browser displays the pagelet after the pagelets of a lower phase, e.g. the content of the
+     * page in phase 0 (default) before the sidebar and ads in phase 1. BigPipe sends the pagelets
+     * in the order of their phases.
+     */
+    public function setPhase(int $phase): static
+    {
+        $this->phase = $phase;
+
+        return $this;
+    }
+
+    public function getPhase(): int
+    {
+        return $this->phase;
+    }
+
+    /**
+     * The browser displays the pagelet after the given pagelets, waiting for them to arrive.
+     *
+     * @throws Exceptions\BigPipeInvalidArgumentException
+     */
+    public function displayAfter(string|Pagelet ...$pagelets): static
+    {
+        foreach ($pagelets as $pagelet) {
+            $id = $pagelet instanceof Pagelet ? $pagelet->getId() : $pagelet;
+            static::assertValidId($id);
+
+            if (!in_array($id, $this->displayDependency, true)) {
+                $this->displayDependency[] = $id;
+            }
+        }
+
+        return $this;
+    }
+
+    /**
      * @internal the data BigPipe sends to the browser
      */
     public function renderData(): array
@@ -315,6 +354,14 @@ class Pagelet
 
         if (!empty($this->onafterload['require'])) {
             $data['onafterload'] = $this->onafterload;
+        }
+
+        if ($this->phase !== 0) {
+            $data['phase'] = $this->phase;
+        }
+
+        if (!empty($this->displayDependency)) {
+            $data['display_dependency'] = $this->displayDependency;
         }
 
         return $data;

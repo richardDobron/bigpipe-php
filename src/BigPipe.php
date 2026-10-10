@@ -199,9 +199,7 @@ class BigPipe
             $defines = $this->takeDefines();
             $write(empty($defines) ? '' : $tag(static::handleScript(['define' => $defines])));
 
-            while (($id = array_key_first($this->context->pagelets)) !== null) {
-                $pagelet = $this->context->pagelets[$id];
-                unset($this->context->pagelets[$id]);
+            while (($pagelet = $this->takeNextPagelet()) !== null) {
 
                 $write($tag(static::arriveScript($pagelet->renderData())));
             }
@@ -219,6 +217,29 @@ class BigPipe
         } finally {
             $this->context->reset();
         }
+    }
+
+    /**
+     * Takes the first pagelet of the lowest phase, also one created while another was rendered.
+     */
+    protected function takeNextPagelet(): ?Pagelet
+    {
+        $next = null;
+
+        foreach ($this->context->pagelets as $id => $pagelet) {
+            if ($next === null || $pagelet->getPhase() < $this->context->pagelets[$next]->getPhase()) {
+                $next = $id;
+            }
+        }
+
+        if ($next === null) {
+            return null;
+        }
+
+        $pagelet = $this->context->pagelets[$next];
+        unset($this->context->pagelets[$next]);
+
+        return $pagelet;
     }
 
     protected static function arriveScript(array $data): string
@@ -252,6 +273,7 @@ class BigPipe
         try {
             $pageletsScript = '';
             $pagelets = $this->context->pagelets;
+            uasort($pagelets, static fn (Pagelet $a, Pagelet $b): int => $a->getPhase() <=> $b->getPhase());
 
             foreach ($pagelets as $i => $pagelet) {
                 $data = $pagelet->renderData();
