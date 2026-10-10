@@ -12,7 +12,7 @@ A Laravel 13 application with Vite. It has two parts:
     morph, which keeps the focus of a form re-rendered on the server; the Bootloader; events (Arbiter);
   - DOM operations, dialogs, forms, payload, transport markers, custom configuration, DOM references, redirecting and
     expired CSRF tokens.
-- **The demo app** (`/app/...`): the [Laravel recipes](https://richarddobron.github.io/bigpipe-php/docs/laravel_recipes)
+- **The demo app** (`/app/...`): the [Laravel recipes](https://bigpipe.etexweb.sk/docs/laravel_recipes)
   as a working application: an infinite feed, forms with validation errors, a confirmation dialog, a cart, a dashboard
   of streamed pagelets, live notifications, avatar upload with progress, unsaved changes warning and expired sessions.
   There is no login: every visitor gets a demo user and a playground of their own (see below).

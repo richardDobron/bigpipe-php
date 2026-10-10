@@ -6,12 +6,12 @@ A microframework for PHP and JavaScript. Send a page in independent parts (pagel
 Try the app with [live demo](http://bigpipe.etexweb.sk) or check how to [install](demo-app/README.md). It is a Laravel 13 application with:
 
 - **Tutorials**: a working example of every feature (streaming pagelets, lazy pagelets, poller, morph, Bootloader, events, DOM operations, dialogs, forms, payload, transport markers, configuration, DOM references, expired CSRF tokens and redirects), each with its code and a panel that shows what the server sent back.
-- **A demo app**: a blog, a shop, a dashboard of streamed pagelets, notifications and a profile, built the way an application is, from the [Laravel recipes](https://richarddobron.github.io/bigpipe-php/docs/laravel_recipes).
+- **A demo app**: a blog, a shop, a dashboard of streamed pagelets, notifications and a profile, built the way an application is, from the [Laravel recipes](https://bigpipe.etexweb.sk/docs/laravel_recipes).
 
 Every page of it is a page transition.
 
 ## 📕 Full documentation
-https://richarddobron.github.io/bigpipe-php/
+https://bigpipe.etexweb.sk/
 
 ## ℹ️ Requirements
 * PHP 8.0 or higher (8.1 for [parallel rendering](#-parallel-rendering-and-fallbacks), which uses Fibers)
@@ -53,13 +53,13 @@ setModuleLoader(modulePath => modules[`./${modulePath}.js`]?.default);
 ```
 
 > Vite needs an alias for the `events` module used by dialogs, see the
-> [documentation](https://richarddobron.github.io/bigpipe-php/docs/getting_started).
+> [documentation](https://bigpipe.etexweb.sk/docs/getting_started).
 
 ### 4. Add this line to the page footer:
 ```html
 <?= \dobron\BigPipe\BigPipe::render() ?>
 ```
-It prints the script that sends the pagelets and the modules of the page to the browser, so load the entrypoint with a classic `<script src>` before it. See the [documentation](https://richarddobron.github.io/bigpipe-php/docs/getting_started) for module scripts and a Content Security Policy.
+It prints the script that sends the pagelets and the modules of the page to the browser, so load the entrypoint with a classic `<script src>` before it. See the [documentation](https://bigpipe.etexweb.sk/docs/getting_started) for module scripts and a Content Security Policy.
 
 ## 🚀 Quick start
 
@@ -108,11 +108,11 @@ $feed = (new Pagelet('feed'))->defer(fn () => renderFeed(loadPosts()));
 ## 🧩 Pagelets
 A page made of independent parts, each with its own content, CSS and JavaScript. The page is sent with their placeholders and the pagelets follow, one by one while they are rendered with `BigPipe::stream()`, or at the end of the page with `BigPipe::render()`.
 
-- [Pagelets](https://richarddobron.github.io/bigpipe-php/docs/pagelets): classes, deferred content, streaming, errors with fallbacks, display order and a version of the page without JavaScript.
-- [Lazy pagelets](https://richarddobron.github.io/bigpipe-php/docs/lazy_pagelets): load a pagelet when it becomes visible, and infinite scroll.
-- [Page transitions](https://richarddobron.github.io/bigpipe-php/docs/page_transitions): load the next page into the layout instead of in full.
-- [Bootloader](https://richarddobron.github.io/bigpipe-php/docs/bootloader): a resource map, and modules loaded only when they are called.
-- [Poller](https://richarddobron.github.io/bigpipe-php/docs/poller): request a URL again and again, controlled by the server.
+- [Pagelets](https://bigpipe.etexweb.sk/docs/pagelets): classes, deferred content, streaming, errors with fallbacks, display order and a version of the page without JavaScript.
+- [Lazy pagelets](https://bigpipe.etexweb.sk/docs/lazy_pagelets): load a pagelet when it becomes visible, and infinite scroll.
+- [Page transitions](https://bigpipe.etexweb.sk/docs/page_transitions): load the next page into the layout instead of in full.
+- [Bootloader](https://bigpipe.etexweb.sk/docs/bootloader): a resource map, and modules loaded only when they are called.
+- [Poller](https://bigpipe.etexweb.sk/docs/poller): request a URL again and again, controlled by the server.
 
 ```php
 use dobron\BigPipe\Pagelet;
@@ -160,7 +160,7 @@ class WeatherPagelet extends Pagelet
 
 `setPhase()` and `displayAfter()` decide the order in which the browser shows the pagelets, and
 `$response->refreshPagelet(new FeedPagelet())` renders a pagelet again and replaces it on the page. See
-[Pagelets](https://richarddobron.github.io/bigpipe-php/docs/pagelets).
+[Pagelets](https://bigpipe.etexweb.sk/docs/pagelets).
 
 ## 🧭 Page transitions
 The links of the site load only the content of the next page into the layout, which stays with its scripts and state:
@@ -354,11 +354,11 @@ $response->setTitle('Delete the post?')
 $response->send();
 ```
 
-See [Dialogs](https://richarddobron.github.io/bigpipe-php/docs/dialogs) for their options, a React body and closing them from the server.
+See [Dialogs](https://bigpipe.etexweb.sk/docs/dialogs) for their options, a React body and closing them from the server.
 
 ## 🧱 Integrations
-- [Laravel](https://richarddobron.github.io/bigpipe-php/docs/laravel_integration): the setup, CSRF protection and long-running servers (Octane, FrankenPHP, RoadRunner, Swoole), and [recipes](https://richarddobron.github.io/bigpipe-php/docs/laravel_recipes) for a real application.
-- [React](https://richarddobron.github.io/bigpipe-php/docs/react_integration): render a React component with its props from PHP, e.g. in a dialog.
+- [Laravel](https://bigpipe.etexweb.sk/docs/laravel_integration): the setup, CSRF protection and long-running servers (Octane, FrankenPHP, RoadRunner, Swoole), and [recipes](https://bigpipe.etexweb.sk/docs/laravel_recipes) for a real application.
+- [React](https://bigpipe.etexweb.sk/docs/react_integration): render a React component with its props from PHP, e.g. in a dialog.
 
 ## 🌟 Inspiration
 
