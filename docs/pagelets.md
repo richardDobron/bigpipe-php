@@ -137,8 +137,7 @@ with a classic `<script src>` in the `<head>`. A `<script type="module">` runs o
 
 ## Display order
 
-The browser shows every pagelet as soon as its CSS is loaded, in any order. Like Facebook's BigPipe, a pagelet can
-wait for others:
+The browser shows every pagelet as soon as its CSS is loaded, in any order. A pagelet can wait for others:
 
 - `setPhase(int $phase)`: the pagelet is displayed after the pagelets of a lower phase, e.g. the content of the page
   in phase 0 (default) before the sidebar and ads in phase 1. `render()`, `stream()` and an `AsyncResponse` send the

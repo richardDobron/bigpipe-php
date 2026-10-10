@@ -3,9 +3,9 @@
 namespace dobron\BigPipe;
 
 /**
- * A "See more" link that loads the next page of a list when it scrolls into view, like the
- * MorePagerFetchOnScroll of Facebook. It's a plain link handled by the Primer (rel="async"), so it
- * works when clicked too, and without JavaScript it leads to the URL.
+ * A "See more" link that loads the next page of a list when it scrolls into view. It's a plain
+ * link handled by the Primer (rel="async"), so it works when clicked too, and without JavaScript
+ * it leads to the URL.
  *
  * The endpoint appends the items and replaces the pager, the element that sent the request, with
  * the pager of the following page, or removes it:

@@ -4,9 +4,9 @@ namespace dobron\BigPipe;
 
 /**
  * The placeholder of a pagelet that the browser loads from a URL: when it becomes visible
- * (default), when the browser is idle, or right away. Like UIPagelet of Facebook, it prints the
- * root element of the pagelet and calls the UIPagelet module with it. The endpoint responds with
- * the pagelet, e.g. `(new AsyncResponse())->pagelet(new FeedPagelet())`.
+ * (default), when the browser is idle, or right away. It prints the root element of the pagelet
+ * and calls the UIPagelet module with it. The endpoint responds with the pagelet, e.g.
+ * `(new AsyncResponse())->pagelet(new FeedPagelet())`.
  *
  * Printed while a pagelet is rendered, the call is added to that pagelet, so it runs once the
  * placeholder is on the page.

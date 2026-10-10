@@ -7,9 +7,9 @@ sidebar_label: Lazy Pagelets
 A lazy pagelet is loaded from a URL when it is needed: when it becomes visible (default), when the browser is idle,
 or right away. Content below the fold or expensive to render then doesn't delay the page.
 
-Like the `UIPagelet` of Facebook, the page only gets the root element of the pagelet, e.g.
-`<div id="pagelet_feed">Loading…</div>`, and a call of the `UIPagelet` module with it. When it's time, the module
-requests the URL, and the response puts the pagelet in the place of the placeholder.
+The page only gets the root element of the pagelet, e.g. `<div id="pagelet_feed">Loading…</div>`, and a call of
+the `UIPagelet` module with it. When it's time, the module requests the URL, and the response puts the pagelet in the
+place of the placeholder.
 
 ## Rendering the placeholder
 
@@ -59,10 +59,10 @@ $response->send();
 
 ## Infinite scroll
 
-`MorePager` loads the next page of a list when the user scrolls to its end, like the `MorePagerFetchOnScroll` of
-Facebook. It prints a plain "See more" link handled by the Primer (`rel="async"`), and calls the
-`MorePagerFetchOnScroll` module with it, which clicks the link when it comes within 300 pixels of the viewport. The link
-works when clicked too, and without JavaScript it leads to the next page.
+`MorePager` loads the next page of a list when the user scrolls to its end. It prints a plain "See more" link handled
+by the Primer (`rel="async"`), and calls the `MorePagerFetchOnScroll` module with it, which clicks the link when it
+comes within 300 pixels of the viewport. The link works when clicked too, and without JavaScript it leads to the next
+page.
 
 ```php
 <?php
