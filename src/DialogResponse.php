@@ -14,6 +14,113 @@ class DialogResponse extends AsyncResponse
     protected mixed $body = null;
     protected mixed $content = null;
     protected ?string $footer = null;
+    protected array $options = [];
+
+    /**
+     * Sets an option of the dialog by its name in the browser part, see the other setters.
+     */
+    public function setOption(string $name, mixed $value): static
+    {
+        $this->options[$name] = $value;
+
+        return $this;
+    }
+
+    public function setOptions(array $options): static
+    {
+        $this->options = array_merge($this->options, $options);
+
+        return $this;
+    }
+
+    /**
+     * true, false or 'static' for a backdrop that doesn't close the dialog.
+     */
+    public function setBackdrop(bool|string $backdrop): static
+    {
+        return $this->setOption('backdrop', $backdrop);
+    }
+
+    public function setKeyboard(bool $enabled): static
+    {
+        return $this->setOption('keyboard', $enabled);
+    }
+
+    public function setAnimate(bool $enabled): static
+    {
+        return $this->setOption('animate', $enabled);
+    }
+
+    /**
+     * Shows the dialog after the delay in milliseconds.
+     */
+    public function setTimeout(int $milliseconds): static
+    {
+        return $this->setOption('timeout', $milliseconds);
+    }
+
+    /**
+     * Moves the focus into the dialog when it is shown.
+     */
+    public function setAutoFocus(bool $enabled = true): static
+    {
+        return $this->setOption('autoFocus', $enabled);
+    }
+
+    /**
+     * Keeps Tab inside of the dialog.
+     */
+    public function setTrapFocus(bool $enabled = true): static
+    {
+        return $this->setOption('trapFocus', $enabled);
+    }
+
+    /**
+     * Gives the focus back to the element that opened the dialog, or the one given to
+     * setCausalElement(), when the dialog is closed.
+     */
+    public function setRefocus(bool $enabled = true): static
+    {
+        return $this->setOption('refocus', $enabled);
+    }
+
+    public function setCausalElement(string $elementId): static
+    {
+        return $this->setOption('causalElement', TransportMarker::element($elementId));
+    }
+
+    /**
+     * Closes the dialog before a page transition.
+     */
+    public function setHideOnTransition(bool $enabled = true): static
+    {
+        return $this->setOption('hideOnTransition', $enabled);
+    }
+
+    /**
+     * Closes the dialog when a request sent from inside of it succeeds: from any element, or only
+     * from the elements that match the selector.
+     */
+    public function setHideOnSuccess(bool|string $selector = true): static
+    {
+        return $this->setOption('hideOnSuccess', $selector);
+    }
+
+    /**
+     * Sets the top margin of the dialog: a fixed one in pixels, or else a part of the free height
+     * of the window, half of it when centered.
+     */
+    public function setPosition(
+        ?int $top = null,
+        bool $centered = false,
+        bool $ignoreTopInShortViewport = false
+    ): static {
+        return $this->setOption('position', array_filter([
+            'top' => $top,
+            'centered' => $centered,
+            'ignoreTopInShortViewport' => $ignoreTopInShortViewport,
+        ], static fn ($value) => $value !== null && $value !== false) ?: true);
+    }
 
     public function setTitle(?string $title): static
     {
@@ -96,6 +203,8 @@ class DialogResponse extends AsyncResponse
 
     public function dialog(array $options = []): static
     {
+        $options = array_merge($this->options, $options);
+
         if ($this->content) {
             $this->call(
                 static::DIALOG_MODULE,

@@ -43,4 +43,64 @@ class DialogResponseTest extends TestCase
             '__ar' => 1,
         ]);
     }
+    public function testOptions(): void
+    {
+        $response = new DialogResponse();
+
+        $response->setBody('Body')
+            ->setBackdrop('static')
+            ->setKeyboard(false)
+            ->setAutoFocus(false)
+            ->setTrapFocus()
+            ->setRefocus()
+            ->setHideOnTransition(false)
+            ->setHideOnSuccess('form')
+            ->setCausalElement('opener')
+            ->setPosition(80)
+            ->setOption('transition', 300)
+            ->dialog();
+
+        $args = $response->getResponse()['jsmods']['require'][0][2];
+
+        $this->assertSame([
+            'backdrop' => 'static',
+            'keyboard' => false,
+            'autoFocus' => false,
+            'trapFocus' => true,
+            'refocus' => true,
+            'hideOnTransition' => false,
+            'hideOnSuccess' => 'form',
+            'causalElement' => ['__e' => 'opener'],
+            'position' => ['top' => 80],
+            'transition' => 300,
+            'title' => null,
+            'body' => 'Body',
+            'footer' => null,
+            'controller' => null,
+        ], $args[0]);
+    }
+
+    public function testPositionAndOptionsPassedToDialog(): void
+    {
+        $response = new DialogResponse();
+
+        $response->setBody('Body')
+            ->setPosition(null, true, true)
+            ->setHideOnSuccess()
+            ->dialog(['hideOnSuccess' => false]);
+
+        $options = $response->getResponse()['jsmods']['require'][0][2][0];
+
+        $this->assertSame(['centered' => true, 'ignoreTopInShortViewport' => true], $options['position']);
+        $this->assertFalse($options['hideOnSuccess']);
+    }
+
+    public function testDefaultPosition(): void
+    {
+        $response = new DialogResponse();
+
+        $response->setBody('Body')->setPosition()->dialog();
+
+        $this->assertTrue($response->getResponse()['jsmods']['require'][0][2][0]['position']);
+    }
 }
