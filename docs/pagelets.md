@@ -258,3 +258,29 @@ $response->refreshPagelet(new FeedPagelet());
 
 $response->send();
 ```
+
+## Streamed responses
+
+A request that accepts a streamed response, e.g. a [page transition](page_transitions.md) or an `AsyncRequest` with
+the `stream` option, sends the `__stream` parameter. `send()` then streams the response: the payload, the DOM
+operations and the defines first, every pagelet as soon as it is rendered, and the modules last. The browser applies
+every part when it arrives.
+
+`stream()` streams the response for a framework that sends it itself; it accepts a callback that gets every part, like
+`BigPipe::stream()`, and `AsyncResponse::isStreamRequested()` tells whether the request accepts it. In Laravel:
+
+```php
+use dobron\BigPipe\AsyncResponse;
+
+$response = (new AsyncResponse())->transition($content, 'Feed');
+
+if (AsyncResponse::isStreamRequested()) {
+    return response()->stream(fn () => $response->stream(), 200,
+        AsyncResponse::headers() + ['X-Accel-Buffering' => 'no']);
+}
+
+return response($response->buildResponseString())->withHeaders(AsyncResponse::headers());
+```
+
+Without a callback, `stream()` prints and flushes every part, and sends the headers unless they were sent already.
+Like for a streamed page, the output has to reach the browser unbuffered, see [streaming](#streaming).

@@ -60,6 +60,10 @@ echo BigPipe::render();
 The response carries the version of the configuration. When it differs from the version of the page in the browser,
 the page is loaded in full.
 
+A page transition accepts a [streamed response](pagelets.md#streamed-responses), so `send()` streams it: the content
+reaches the browser first, and every pagelet follows as soon as it is rendered. Give the slow pagelets
+[deferred content](pagelets.md#deferred-content) to profit from it.
+
 `transitionRedirect($url)` sends the browser to another URL instead, with a page transition, or in full with
 `transitionRedirect($url, force: true)`, e.g. to a login page with another layout.
 

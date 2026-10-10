@@ -22,6 +22,12 @@ class AsyncResponse
 
     public const CONTENT_TYPE = 'application/json; charset=utf-8';
 
+    /** The request parameter of a request that accepts a streamed response, see stream(). */
+    public const STREAM_PARAM = '__stream';
+
+    /** Separates the parts of a streamed response. */
+    public const STREAM_DELIMITER = '/*<!-- fetch-stream -->*/';
+
     protected array $domops = [];
 
     protected mixed $payload = [];
@@ -33,6 +39,9 @@ class AsyncResponse
     protected array $pagelets = [];
 
     private BigPipe $bigPipe;
+
+    /** Whether the pagelets of the context are sent too, see transition(). */
+    private bool $contextPagelets = false;
 
     public function __construct(?Context $context = null)
     {
@@ -403,10 +412,22 @@ class AsyncResponse
             "domops" => $this->domops,
         ];
 
+        if ($this->contextPagelets) {
+            $this->contextPagelets = false;
+            $pagelets = [];
+
+            while (($pagelet = $this->bigPipe->takeNextPagelet()) !== null) {
+                $pagelets[] = $pagelet->renderData();
+            }
+
+            if (!empty($pagelets)) {
+                $pagelets[array_key_last($pagelets)]['is_last'] = true;
+                array_push($this->pagelets, ...$pagelets);
+            }
+        }
+
         if (!empty($this->pagelets)) {
-            $pagelets = $this->pagelets;
-            usort($pagelets, static fn (array $a, array $b): int => ($a['phase'] ?? 0) <=> ($b['phase'] ?? 0));
-            $response["pagelets"] = $pagelets;
+            $response["pagelets"] = $this->sortedPagelets();
         }
 
         $jsmods = $this->bigPipe->getContext()->jsmods();
@@ -415,6 +436,17 @@ class AsyncResponse
             "jsmods" => $jsmods,
             "__ar" => 1,
         ] + ($this->error ?? []);
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    private function sortedPagelets(): array
+    {
+        $pagelets = $this->pagelets;
+        usort($pagelets, static fn (array $a, array $b): int => ($a['phase'] ?? 0) <=> ($b['phase'] ?? 0));
+
+        return $pagelets;
     }
 
     /**
@@ -453,15 +485,7 @@ class AsyncResponse
             'uri' => $this->requestUri(),
         ]);
 
-        $pagelets = [];
-        while (($pagelet = $this->bigPipe->takeNextPagelet()) !== null) {
-            $pagelets[] = $pagelet->renderData();
-        }
-
-        if (!empty($pagelets)) {
-            $pagelets[array_key_last($pagelets)]['is_last'] = true;
-            array_push($this->pagelets, ...$pagelets);
-        }
+        $this->contextPagelets = true;
 
         return $this;
     }
@@ -554,13 +578,100 @@ class AsyncResponse
     }
 
     /**
-     * Send response
+     * Whether the request accepts a streamed response, see stream().
+     */
+    public static function isStreamRequested(): bool
+    {
+        return isset($_REQUEST[static::STREAM_PARAM]);
+    }
+
+    /**
+     * Sends the response in parts, each as soon as it is ready: first the payload, the DOM
+     * operations and the defines, then every pagelet as soon as it is rendered, in the order of
+     * their phases, and last the modules. The browser shows every part when it arrives. Only for a
+     * request that accepts it, see isStreamRequested().
+     *
+     * @param null|callable(string): void $write gets every part; without it, the headers are sent
+     *                                      and every part is printed and flushed
+     * @throws \Throwable
+     */
+    public function stream(?callable $write = null): void
+    {
+        if ($write === null) {
+            if (!headers_sent()) {
+                foreach (static::headers() as $name => $value) {
+                    header("$name: $value");
+                }
+            }
+
+            $write = static function (string $part): void {
+                echo $part;
+
+                if (ob_get_level() > 0) {
+                    ob_flush();
+                }
+
+                flush();
+            };
+        }
+
+        $context = $this->bigPipe->getContext();
+        $part = static function (array $content, bool $finished) use ($write): void {
+            $write(json_encode(['content' => $content, 'finished' => $finished], JSON_THROW_ON_ERROR) . static::STREAM_DELIMITER);
+        };
+
+        try {
+            $first = ['payload' => $this->payload, 'domops' => $this->domops] + ($this->error ?? []);
+            if (!empty($context->jsmods['define'])) {
+                $first['jsmods'] = ['define' => $context->jsmods['define']];
+                unset($context->jsmods['define']);
+            }
+            $part($first, false);
+
+            $sent = false;
+            foreach ($this->sortedPagelets() as $data) {
+                unset($data['is_last']);
+                $part(['pagelets' => [$data]], false);
+                $sent = true;
+            }
+
+            while ($this->contextPagelets && ($pagelet = $this->bigPipe->takeNextPagelet()) !== null) {
+                $part(['pagelets' => [$pagelet->renderData()]], false);
+                $sent = true;
+            }
+
+            $last = [];
+            if ($sent) {
+                $last['pagelets'] = [[
+                    'id' => BigPipe::LAST_PAGELET_ID,
+                    'js' => [],
+                    'css' => [],
+                    'domops' => [],
+                    'jsmods' => ['require' => []],
+                    'is_last' => true,
+                ]];
+            }
+
+            $jsmods = $context->jsmods();
+            $part($last + Bootloader::dataFor([], $jsmods) + ['jsmods' => $jsmods], true);
+        } finally {
+            $this->contextPagelets = false;
+            $context->reset();
+        }
+    }
+
+    /**
+     * Sends the response, streamed when the request accepts it, and ends the script.
      *
      * @return mixed
      */
     public function send(): mixed
     {
-        $this->output();
+        if (static::isStreamRequested()) {
+            $this->stream();
+        } else {
+            $this->output();
+        }
 
         exit();
     }
