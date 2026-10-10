@@ -220,7 +220,8 @@ class WeatherPagelet extends Pagelet
   [phase](#display-order), which the browser would not wait for. Within a phase the first to finish goes first.
 - Everything else about a request is shared: do not use a database connection or a stream from two pagelets at the
   same time unless it supports that.
-- Pagelets of an `AsyncResponse` are rendered when they are added, so they are not rendered in parallel.
+- The pagelets printed in the content of an `AsyncResponse`, e.g. of a [page transition](page_transitions.md), are rendered
+  in parallel too, also when the response is streamed. A pagelet added with `pagelet()` is rendered when it is added.
 
 ## Without JavaScript
 

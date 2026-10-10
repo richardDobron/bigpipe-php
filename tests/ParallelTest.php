@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use dobron\BigPipe\AsyncResponse;
 use dobron\BigPipe\BigPipe;
 use dobron\BigPipe\Pagelet;
 use PHPUnit\Framework\TestCase;
@@ -296,5 +297,64 @@ class ParallelTest extends TestCase
 
         $this->assertGreaterThanOrEqual(0.2, $this->stream());
         $this->assertFalse(BigPipe::isParallel());
+    }
+
+    private function slowPagelets(): void
+    {
+        foreach (['a', 'b', 'c'] as $id) {
+            (new Pagelet($id))->defer(function () use ($id) {
+                Pagelet::sleep(0.2);
+
+                return $id;
+            });
+        }
+    }
+
+    public function testAResponseRendersItsPageletsWhileTheyWait(): void
+    {
+        $this->slowPagelets();
+        $response = (new AsyncResponse())->transition('<p>content</p>', 'Title');
+
+        $start = microtime(true);
+        $data = $response->getResponse();
+        $elapsed = microtime(true) - $start;
+
+        $this->assertLessThan(0.5, $elapsed);
+        $this->assertEqualsCanonicalizing(['a', 'b', 'c'], array_column($data['pagelets'], 'id'));
+        $this->assertTrue(end($data['pagelets'])['is_last']);
+    }
+
+    public function testAStreamedResponseSendsItsPageletsAsTheyAreRendered(): void
+    {
+        (new Pagelet('slow'))->defer(function () {
+            Pagelet::sleep(0.2);
+
+            return 'slow';
+        });
+        (new Pagelet('fast'))->defer(function () {
+            Pagelet::sleep(0.02);
+
+            return 'fast';
+        });
+        $this->slowPagelets();
+        $parts = [];
+        $response = (new AsyncResponse())->transition('<p>content</p>', 'Title');
+
+        $start = microtime(true);
+        $response->stream(function (string $part) use (&$parts): void {
+            $parts[] = json_decode(rtrim($part, AsyncResponse::STREAM_DELIMITER), true)['content'];
+        });
+        $elapsed = microtime(true) - $start;
+
+        $this->assertLessThan(0.55, $elapsed);
+        $ids = [];
+        foreach ($parts as $content) {
+            foreach ($content['pagelets'] ?? [] as $pagelet) {
+                $ids[] = $pagelet['id'];
+            }
+        }
+        $this->assertSame('fast', $ids[0]);
+        $this->assertSame(BigPipe::LAST_PAGELET_ID, end($ids));
+        $this->assertCount(6, $ids);
     }
 }

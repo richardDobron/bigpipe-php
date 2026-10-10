@@ -449,8 +449,17 @@ class AsyncResponse
             $this->contextPagelets = false;
             $pagelets = [];
 
-            while (($pagelet = $this->bigPipe->takeNextPagelet()) !== null) {
-                $pagelets[] = $pagelet->renderData();
+            if ($this->bigPipe->getContext()->parallel && Parallel::isAvailable()) {
+                Parallel::run(
+                    fn (): ?Pagelet => $this->bigPipe->takeNextPagelet(),
+                    static function (Pagelet $pagelet, array $data) use (&$pagelets): void {
+                        $pagelets[] = $data;
+                    }
+                );
+            } else {
+                while (($pagelet = $this->bigPipe->takeNextPagelet()) !== null) {
+                    $pagelets[] = $pagelet->renderData();
+                }
             }
 
             if (!empty($pagelets)) {
@@ -668,9 +677,19 @@ class AsyncResponse
                 $sent = true;
             }
 
-            while ($this->contextPagelets && ($pagelet = $this->bigPipe->takeNextPagelet()) !== null) {
-                $part(['pagelets' => [$pagelet->renderData()]], false);
-                $sent = true;
+            if ($this->contextPagelets && $context->parallel && Parallel::isAvailable()) {
+                Parallel::run(
+                    fn (): ?Pagelet => $this->bigPipe->takeNextPagelet(),
+                    static function (Pagelet $pagelet, array $data) use ($part, &$sent): void {
+                        $part(['pagelets' => [$data]], false);
+                        $sent = true;
+                    }
+                );
+            } else {
+                while ($this->contextPagelets && ($pagelet = $this->bigPipe->takeNextPagelet()) !== null) {
+                    $part(['pagelets' => [$pagelet->renderData()]], false);
+                    $sent = true;
+                }
             }
 
             $last = [];

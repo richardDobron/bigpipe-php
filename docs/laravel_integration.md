@@ -106,6 +106,11 @@ A page that stays open after the session expired sends a token Laravel rejects w
 get a new token and send the request again, once, so the user does not lose what they typed. There are two ways, use
 either or both.
 
+Laravel 13 accepts a same-origin request of a modern browser on its origin alone (`Sec-Fetch-Site`), whatever its token
+is, so an expired token mostly matters for other clients, older browsers, or an application that checks the token
+itself, as the [demo application](https://github.com/richardDobron/bigpipe-php/tree/main/demo-app) does to show the
+recovery.
+
 **Name a refresh URL.** On a `419` the browser requests the URL, which answers with a new token, and then repeats the
 request:
 

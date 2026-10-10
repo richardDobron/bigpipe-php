@@ -37,7 +37,7 @@ The pages extend one layout. The content is a section, so a page transition can 
     <main id="content">@yield('content')</main>
 
     @php(\dobron\BigPipe\Quickling::init('content'))
-    @unless ($streaming ?? false)
+    @unless ($partial ?? false)
         {!! \dobron\BigPipe\BigPipe::render() !!}
     </body>
     </html>
@@ -46,8 +46,15 @@ The pages extend one layout. The content is a section, so a page transition can 
 
 `@vite` loads the entrypoint as a deferred module, so BigPipe renders its inline script as a module script too, see
 `setScriptType()` in the middleware below. With Laravel Mix or webpack the entrypoint is a classic script and nothing
-needs to be set. A streamed page (the dashboard below) is rendered with `streaming` set: the layout then stops before the
-script, `BigPipe::stream()` sends the pagelets and the controller closes the page.
+needs to be set.
+
+A page transition replaces the class of `<body>` with the one of its response (`transition($content, $title, $bodyClass)`).
+Share the class of your layout, e.g. `View::share('bodyClass', 'bg-gray-50')` in a service provider, print it in the
+layout and give it to `transition()`, or the page loses its classes after the first transition.
+
+`$partial` is for a view that is rendered for its content only: a page transition, or a streamed page. The layout then
+leaves out the script of BigPipe and the closing tags. This matters: rendering a view runs its layout too, and
+`BigPipe::render()` would take the pagelets and the modules of the content before they are in the response.
 
 ### The entrypoint
 
@@ -429,24 +436,35 @@ class ActivityPagelet extends Pagelet
 ### Streaming the dashboard
 
 `render()` waits until the slowest pagelet is rendered. With `stream()` the page is flushed first and every pagelet is
-sent as soon as it is rendered. Render the view with `streaming` set, which makes the layout leave out the script and the
-closing tags, and return a streamed response:
+sent as soon as it is rendered. Render the view as a partial, which makes the layout leave out the script and the closing
+tags, and return a streamed response. A page transition to the dashboard streams its pagelets the same way:
 
 ```php title="app/Http/Controllers/DashboardController.php"
+use App\Arch\BigPipe\AsyncResponse;
 use dobron\BigPipe\BigPipe;
+use dobron\BigPipe\Quickling;
 
 public function __invoke()
 {
+    if (Quickling::isRequested()) {
+        $content = view('dashboard', ['partial' => true])->renderSections()['content'];
+        $response = (new AsyncResponse())->transition($content, 'Dashboard');
+
+        return AsyncResponse::isStreamRequested()
+            ? response()->stream(fn () => $response->stream(), 200, AsyncResponse::headers() + ['X-Accel-Buffering' => 'no'])
+            : $response->send();
+    }
+
     return response()->stream(function () {
-        echo view('dashboard', ['streaming' => true])->render();   // the page with the pagelet placeholders
-        BigPipe::stream();                                          // the pagelets, one by one
+        echo view('dashboard', ['partial' => true])->render();   // the page with the pagelet placeholders
+        BigPipe::stream();                                        // the pagelets, one by one
         echo '</body></html>';
-    }, 200, ['X-Accel-Buffering' => 'no']);
+    }, 200, ['Content-Type' => 'text/html; charset=utf-8', 'X-Accel-Buffering' => 'no']);
 }
 ```
 
-Turn off output buffering of the proxy too, see [Streaming](pagelets.md#streaming). A page transition to the dashboard
-streams the same way, see [Streamed responses](pagelets.md#streamed-responses).
+Turn off output buffering of the proxy too, see [Streaming](pagelets.md#streaming) and
+[Streamed responses](pagelets.md#streamed-responses).
 
 ### Rendering the slow pagelets at the same time
 
@@ -494,12 +512,16 @@ abstract class Controller extends BaseController
     protected function page(string $view, array $data = [], ?string $title = null)
     {
         $title ??= config('app.name');
-        $page = view($view, $data + ['title' => $title]);
+        $transition = Quickling::isRequested();
 
-        if (Quickling::isRequested()) {
+        // A partial layout leaves out the script of BigPipe, which would take the pagelets and the
+        // modules of the content before they are in the response.
+        $page = view($view, $data + ['title' => $title, 'partial' => $transition]);
+
+        if ($transition) {
             // Only the content: the layout, the scripts and what the page has loaded stay.
             return (new AsyncResponse())
-                ->transition($page->renderSections()['content'], $title, $data['bodyClass'] ?? '')
+                ->transition($page->renderSections()['content'], $title, view()->shared('bodyClass', ''))
                 ->send();
         }
 
@@ -601,7 +623,10 @@ the CSS variable `--upload-progress` is available to style a bar.
 
 ## Testing
 
-A response is JSON behind the `for (;;);` shield. Strip it, and assert on the DOM operations and modules:
+A response is JSON behind the `for (;;);` shield. Strip it, and assert on the DOM operations and modules.
+`Quickling::isRequested()` and `Poller::requestedId()` read the superglobals, which the test client does not fill: set
+`$_GET` and `$_REQUEST` from the query string of the request in a helper, as the
+[demo application](https://github.com/richardDobron/bigpipe-php/tree/main/demo-app) does in `tests/Feature/ShopTest.php`.
 
 ```php title="tests/Feature/CommentTest.php"
 private function bigpipe($response): array
