@@ -364,7 +364,10 @@ class Pagelet
             $data['display_dependency'] = $this->displayDependency;
         }
 
-        return $data;
+        return $data + Bootloader::dataFor(
+            array_merge($this->css, $this->js),
+            ['require' => array_merge($data['jsmods']['require'] ?? [], $this->onafterload['require'])]
+        );
     }
 
     protected function &jsmodsStore(): array

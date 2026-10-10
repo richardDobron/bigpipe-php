@@ -213,7 +213,9 @@ class BigPipe
                 'is_last' => true,
             ];
 
-            $write($tag(static::arriveScript($last) . static::handleScript($this->context->jsmods())));
+            $jsmods = $this->context->jsmods();
+
+            $write($tag(static::bootloadScript($jsmods) . static::arriveScript($last) . static::handleScript($jsmods)));
         } finally {
             $this->context->reset();
         }
@@ -245,6 +247,26 @@ class BigPipe
     protected static function arriveScript(array $data): string
     {
         return "(new (require(\"bigpipe-util/dist/BigPipe\"))).onPageletArrive(" . json_encode($data, JSON_THROW_ON_ERROR) . ");";
+    }
+
+    /**
+     * Sends the resource map and the bootloadable modules the modules of the page call, before
+     * the pagelets and the modules of the page.
+     */
+    protected static function bootloadScript(array $jsmods): string
+    {
+        $data = Bootloader::dataFor([], $jsmods);
+        $require = [];
+
+        if (isset($data['resource_map'])) {
+            $require[] = [Bootloader::MODULE, 'setResourceMap', [$data['resource_map']]];
+        }
+
+        if (isset($data['bootloadable'])) {
+            $require[] = [Bootloader::MODULE, 'enableBootload', [$data['bootloadable']]];
+        }
+
+        return empty($require) ? '' : static::handleScript(['require' => $require]) . "\n";
     }
 
     protected static function handleScript(array $jsmods): string
@@ -287,7 +309,8 @@ class BigPipe
 
             $defines = $this->takeDefines();
             $script = empty($defines) ? '' : static::handleScript(['define' => $defines]) . "\n";
-            $script .= $pageletsScript . static::handleScript($this->context->jsmods());
+            $jsmods = $this->context->jsmods();
+            $script .= static::bootloadScript($jsmods) . $pageletsScript . static::handleScript($jsmods);
         } finally {
             $this->context->reset();
         }

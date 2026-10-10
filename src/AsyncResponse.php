@@ -407,8 +407,10 @@ class AsyncResponse
             $response["pagelets"] = $pagelets;
         }
 
-        return $response + [
-            "jsmods" => $this->bigPipe->getContext()->jsmods(),
+        $jsmods = $this->bigPipe->getContext()->jsmods();
+
+        return $response + Bootloader::dataFor([], $jsmods) + [
+            "jsmods" => $jsmods,
             "__ar" => 1,
         ] + ($this->error ?? []);
     }
