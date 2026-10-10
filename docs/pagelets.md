@@ -168,6 +168,60 @@ return response()->stream(function () {
 The browser part shows each pagelet as soon as it arrives, as long as `require` exists by then: load the entrypoint
 with a classic `<script src>` in the `<head>`. A `<script type="module">` runs only after the whole page is parsed.
 
+## Parallel rendering
+
+Pagelets are rendered one after the other, so five pagelets that wait 200 ms for an API take a second. With
+`BigPipe::setParallel(true)` they are rendered concurrently, with Fibers (PHP 8.1, otherwise they are rendered one after
+the other): while one pagelet waits, the others go on, so the page takes as long as the slowest one. It applies to
+`BigPipe::render()` and `BigPipe::stream()`.
+
+PHP does not run code in parallel: a pagelet gives the way to the others only where it **waits**, with
+`Pagelet::await()`. The slow part has to be started without blocking, e.g. with `curl_multi`, an async query of
+`mysqli`, or a socket, and awaited:
+
+```php
+<?php
+use dobron\BigPipe\BigPipe;
+use dobron\BigPipe\Pagelet;
+
+BigPipe::setParallel(true);
+
+class WeatherPagelet extends Pagelet
+{
+    protected function content(): string
+    {
+        $handle = curl_init('https://api.example.com/weather');
+        curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
+
+        $multi = curl_multi_init();
+        curl_multi_add_handle($multi, $handle);
+
+        // Polled until it returns something else than null, while the other pagelets are rendered.
+        $body = Pagelet::await(function () use ($multi, $handle) {
+            curl_multi_exec($multi, $running);
+
+            return $running ? null : curl_multi_getcontent($handle);
+        });
+
+        return view('weather', ['forecast' => json_decode($body, true)])->render();
+    }
+}
+```
+
+- `Pagelet::await(callable $ready, array $streams = [], ?float $timeout = null)` returns what `$ready` returns once it
+  is not `null`. Pass the streams (sockets) it waits for, and the page sleeps in `stream_select()` until one of them
+  has data instead of polling on a timer. After `$timeout` seconds it throws a `RuntimeException`, which makes the
+  pagelet [fall back](#errors) like any other error.
+- `Pagelet::sleep($seconds)` waits without blocking the others.
+- A pagelet can wait only where its content is rendered, not inside of an output buffer such as a template or
+  `appendFile()`: wait first, then render the template. Waiting there throws a `LogicException`.
+- Outside of a page rendered in parallel `await()` just blocks, so the same code works with or without it.
+- A pagelet is still sent as soon as it is rendered, but never before the pagelets of a lower
+  [phase](#display-order), which the browser would not wait for. Within a phase the first to finish goes first.
+- Everything else about a request is shared: do not use a database connection or a stream from two pagelets at the
+  same time unless it supports that.
+- Pagelets of an `AsyncResponse` are rendered when they are added, so they are not rendered in parallel.
+
 ## Without JavaScript
 
 Crawlers and browsers without JavaScript would only see the empty placeholders. Turn pipelining off for them before

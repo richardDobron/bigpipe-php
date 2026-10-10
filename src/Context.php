@@ -32,6 +32,12 @@ class Context
     public bool $pipelining = true;
 
     /**
+     * Whether the pagelets of a page are rendered concurrently, see BigPipe::setParallel(). Like the
+     * nonce, reset() keeps it.
+     */
+    public bool $parallel = false;
+
+    /**
      * The last phase of the pagelets that make the page interactive, see BigPipe::setTtiPhase().
      * Like the nonce, reset() keeps it.
      */

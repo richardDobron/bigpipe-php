@@ -187,6 +187,22 @@ class BigPipe
     }
 
     /**
+     * Renders the pagelets of the page concurrently, in render() and stream(): while a pagelet waits
+     * in Pagelet::await() or Pagelet::sleep(), the others go on. It needs PHP 8.1 (Fibers), without
+     * it the pagelets are rendered one after the other. The slow part of a pagelet has to wait
+     * without blocking, the pagelets themselves are not run in parallel.
+     */
+    public static function setParallel(bool $enabled): void
+    {
+        static::context()->parallel = $enabled;
+    }
+
+    public static function isParallel(): bool
+    {
+        return static::context()->parallel && Parallel::isAvailable();
+    }
+
+    /**
      * Tells the browser which pagelets the user is waiting for: those of the phases up to $phase,
      * see Pagelet::setPhase(). The browser informs tti_bigpipe once they are displayed, and then
      * downloads the JS files of the pagelets of the later phases in the background.
@@ -253,9 +269,17 @@ class BigPipe
             $defines = $this->takeDefines();
             $write(empty($defines) ? '' : $tag(static::handleScript(['define' => $defines])));
 
-            while (($pagelet = $this->takeNextPagelet()) !== null) {
-
-                $write($tag(static::arriveScript($pagelet->renderData())));
+            if ($this->context->parallel && Parallel::isAvailable()) {
+                Parallel::run(
+                    fn (): ?Pagelet => $this->takeNextPagelet(),
+                    static function (Pagelet $pagelet, array $data) use ($write, $tag): void {
+                        $write($tag(static::arriveScript($data)));
+                    }
+                );
+            } else {
+                while (($pagelet = $this->takeNextPagelet()) !== null) {
+                    $write($tag(static::arriveScript($pagelet->renderData())));
+                }
             }
 
             $last = [
@@ -352,13 +376,30 @@ class BigPipe
             $pagelets = $this->context->pagelets;
             uasort($pagelets, static fn (Pagelet $a, Pagelet $b): int => $a->getPhase() <=> $b->getPhase());
 
-            foreach ($pagelets as $i => $pagelet) {
-                $data = $pagelet->renderData();
+            $rendered = [];
 
-                if (array_key_last($pagelets) === $i) {
-                    $data['is_last'] = true;
+            if ($this->context->parallel && Parallel::isAvailable()) {
+                $queue = $pagelets;
+
+                Parallel::run(
+                    static function () use (&$queue): ?Pagelet {
+                        return array_shift($queue);
+                    },
+                    static function (Pagelet $pagelet, array $data) use (&$rendered): void {
+                        $rendered[] = $data;
+                    }
+                );
+            } else {
+                foreach ($pagelets as $pagelet) {
+                    $rendered[] = $pagelet->renderData();
                 }
+            }
 
+            if ($rendered) {
+                $rendered[array_key_last($rendered)]['is_last'] = true;
+            }
+
+            foreach ($rendered as $data) {
                 $pageletsScript .= static::arriveScript($data) . "\n";
             }
 

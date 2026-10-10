@@ -123,6 +123,46 @@ class Pagelet
     }
 
     /**
+     * Waits until $ready returns something else than null and returns that, e.g. for a response of
+     * an HTTP request or a database query that was started before. In a page rendered in parallel,
+     * see BigPipe::setParallel(), the other pagelets are rendered meanwhile; without it, this blocks.
+     *
+     * Call it where the content of the pagelet is rendered, before the template is, not inside of an
+     * output buffer.
+     *
+     * @param callable(): mixed $ready
+     * @param resource[] $streams streams that become readable when $ready may have something, so
+     *                            it is polled then instead of on a timer
+     * @param null|float $timeout seconds, then a RuntimeException is thrown
+     * @throws \Throwable
+     */
+    public static function await(callable $ready, array $streams = [], ?float $timeout = null): mixed
+    {
+        return Parallel::await($ready, $streams, $timeout);
+    }
+
+    /**
+     * Waits like sleep(), but lets the other pagelets be rendered meanwhile.
+     */
+    public static function sleep(float $seconds): void
+    {
+        $until = microtime(true) + $seconds;
+
+        static::await(static fn () => microtime(true) >= $until ? true : null);
+    }
+
+    /**
+     * @internal replaces the stack of the pagelets being rendered, see Parallel
+     */
+    public static function swapRendering(array $stack): array
+    {
+        $previous = self::$rendering;
+        self::$rendering = $stack;
+
+        return $previous;
+    }
+
+    /**
      * @throws Exceptions\BigPipeInvalidArgumentException
      */
     public static function assertValidId(string $id): void
