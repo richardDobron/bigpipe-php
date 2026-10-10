@@ -2,11 +2,13 @@
 
 namespace dobron\BigPipe;
 
+/**
+ * Values that JSON can't express, replaced in the browser before a module gets them:
+ *
+ *     $response->call('Chart', 'render', [TransportMarker::element('chart'), TransportMarker::map($data)]);
+ */
 class TransportMarker
 {
-    /**
-     * Transport markers
-     */
     public const TRANSPORT_HTML = "__html";
     public const TRANSPORT_MODULE = "__m";
     public const TRANSPORT_ELEMENT = "__e";
@@ -14,77 +16,92 @@ class TransportMarker
     public const TRANSPORT_SET = "__set";
 
     /**
-     * Create transport marker
-     *
-     * @param mixed $data
-     * @param string $marker
+     * HTML content of a DOM operation.
      *
      * @return array<string, mixed>
      */
-    private static function createTransportMarker(mixed $data, string $marker): array
+    public static function html(?string $content): array
     {
-        return [
-            $marker => $data
-        ];
+        return [self::TRANSPORT_HTML => $content];
     }
 
     /**
-     * Create HTML transport marker
-     *
-     * @param null|string $content
+     * The element with this id.
      *
      * @return array<string, mixed>
+     */
+    public static function element(string $elementId): array
+    {
+        return [self::TRANSPORT_ELEMENT => $elementId];
+    }
+
+    /**
+     * The module, resolved like a module of require().
+     *
+     * @return array<string, mixed>
+     */
+    public static function module(string $module): array
+    {
+        return [self::TRANSPORT_MODULE => $module];
+    }
+
+    /**
+     * A Map created from the list of [key, value].
+     *
+     * @return array<string, mixed>
+     */
+    public static function map(array $data): array
+    {
+        return [self::TRANSPORT_MAP => $data];
+    }
+
+    /**
+     * A Set created from the list of values.
+     *
+     * @return array<string, mixed>
+     */
+    public static function set(array $data): array
+    {
+        return [self::TRANSPORT_SET => $data];
+    }
+
+    /**
+     * @deprecated use html()
      */
     public static function transportHtml(?string $content): array
     {
-        return self::createTransportMarker($content, self::TRANSPORT_HTML);
+        return static::html($content);
     }
 
     /**
-     * Create element transport marker
-     *
-     * @param string $elementId
-     *
-     * @return array<string, mixed>
+     * @deprecated use element()
      */
     public static function transportElement(string $elementId): array
     {
-        return self::createTransportMarker($elementId, self::TRANSPORT_ELEMENT);
+        return static::element($elementId);
     }
 
     /**
-     * Create module transport marker
-     *
-     * @param string $module
-     *
-     * @return array<string, mixed>
+     * @deprecated use module()
      */
     public static function transportModule(string $module): array
     {
-        return self::createTransportMarker($module, self::TRANSPORT_MODULE);
+        return static::module($module);
     }
 
     /**
-     * Create Map object transport marker
-     *
-     * @param array $data
-     *
-     * @return array<string, mixed>
+     * @deprecated use map()
      */
     public static function transportMap(array $data): array
     {
-        return self::createTransportMarker($data, self::TRANSPORT_MAP);
+        return static::map($data);
     }
 
     /**
-     * Create Set objects transport marker
-     *
-     * @param array $data
-     *
-     * @return array<string, mixed>
+     * @deprecated use set()
      */
     public static function transportSet(array $data): array
     {
-        return self::createTransportMarker($data, self::TRANSPORT_SET);
+        return static::set($data);
     }
 }

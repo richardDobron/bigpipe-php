@@ -4,7 +4,7 @@ namespace dobron\BigPipe;
 
 function array_trim(array $array): array
 {
-    while (empty(end($array))) {
+    while ($array !== [] && empty(end($array))) {
         array_pop($array);
     }
 
@@ -22,11 +22,5 @@ function array_trim(array $array): array
  */
 function generate_unique_node_id(): string
 {
-    static $unique = 0;
-
-    return implode('_', [
-        'u',
-        intval($_REQUEST['__req'] ?? 0),
-        $unique++,
-    ]);
+    return BigPipe::context()->nextNodeId();
 }

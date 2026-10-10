@@ -16,7 +16,7 @@ use dobron\BigPipe\Pagelet;
 
 $sidebar = (new Pagelet('sidebar'))
     ->appendContent('<h2>Friends</h2>')
-    ->appendContent(__DIR__ . '/views/friends.php', true) // a file is included and its output appended
+    ->appendFile(__DIR__ . '/views/friends.php')  // the file is included and its output appended
     ->addCss('/css/sidebar.css')
     ->addJs('/js/sidebar.js')
     ->require(['Sidebar', 'init']);

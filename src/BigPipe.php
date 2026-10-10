@@ -88,9 +88,21 @@ class BigPipe
         return $this->context->priorities;
     }
 
+    /**
+     * @deprecated a pagelet adds itself to the page, see Context::addPagelet().
+     */
     public static function addPagelet($id, Pagelet $pagelet): void
     {
         static::context()->addPagelet($id, $pagelet);
+    }
+
+    /**
+     * The page of the current request, e.g. to call a JavaScript module once the page is loaded:
+     * `BigPipe::page()->call('Page', 'init')`.
+     */
+    public static function page(): static
+    {
+        return new static();
     }
 
     public static function jsmods(): array

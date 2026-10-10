@@ -41,7 +41,7 @@ echo (new LazyPagelet('stats', '/pagelets/stats'))
 
 The call of `UIPagelet` is sent with the page, or with the response or pagelet that prints the placeholder, so it
 runs once the placeholder is on the page. Print placeholders inside a pagelet in its `content()`, in `defer()`, or
-in a file appended with `appendContent($file, true)`.
+in a file appended with `appendFile($file)`.
 
 ## Responding
 

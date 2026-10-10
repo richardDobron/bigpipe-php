@@ -12,25 +12,23 @@ trait JsMods
     abstract protected function &prioritiesStore(): array;
 
     /**
-     * Check if require call is valid
-     *
+     * @internal
      * @param string|array{0: string, 1?: string} $fragment
-     *
-     * @return bool
      */
     public static function isValidRequireCall(string|array $fragment): bool
     {
         if (is_array($fragment)) {
             $fragments = count($fragment);
-            return $fragments === 1 || $fragments === 2;
+            $module = $fragment[0] ?? null;
+
+            return ($fragments === 1 || $fragments === 2) && is_string($module) && $module !== '';
         }
 
         return !!preg_match(static::$JAVASCRIPT_REQUIRE_REGEX, $fragment);
     }
 
     /**
-     * Parse JavaScript fragment or array like [module, method]
-     *
+     * @internal
      * @param string|array{0: string, 1?: string} $fragment
      *
      * @return array{module: null|string, method: null|string}
@@ -53,6 +51,25 @@ trait JsMods
     }
 
     /**
+     * Calls a JavaScript module in the browser: `$module.$method(...$args)`, or without a method
+     * `new $module(...$args)` for a class. The modules are called by their priority, then in the
+     * order of the calls.
+     *
+     *     $response->call('Chart', 'render', [TransportMarker::element('chart'), $data]);
+     *
+     * @throws \Throwable
+     */
+    public function call(string $module, ?string $method = null, array $args = [], ?int $priority = null): static
+    {
+        return $this->require($method === null ? [$module] : [$module, $method], $args, $priority);
+    }
+
+    /**
+     * Calls a JavaScript module, see call(). The fragment is [module, method] or [module]; without
+     * one, it returns a RequireProxy: `$response->require()->Chart()->render([$element])`.
+     *
+     * @deprecated as a string like "require('Module').method()", use call() instead.
+     *
      * @param string|array{0: string, 1?: string}|null $fragment
      * @param array $args
      * @param int|null $priority

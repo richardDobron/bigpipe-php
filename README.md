@@ -90,19 +90,18 @@ $response->send();
 ```
 
 ## 🛠️ BigPipe API
-- **require**: Call JavaScript module method. You can call a specific class method or a regular function with the custom arguments.
+- **call**: Call JavaScript module method. You can call a specific class method or a regular function with the custom arguments.
 
 Example PHP code:
 ```php
 $asyncResponse = new \dobron\BigPipe\AsyncResponse();
 
-$asyncResponse->bigPipe()->require("require('SecretModule').run()", [
+$asyncResponse->call('SecretModule', 'run', [
     'first argument',
     'second argument',
     ...
 ]);
-// is same as $asyncResponse->bigPipe()->require(["SecretModule", "run"], ...)
-// is same as $asyncResponse->bigPipe()->require()->SecretModule()->run(...)
+// without a method, a class is created: $asyncResponse->call('UserLoggedInAlert', null, ['Marvin'])
 $asyncResponse->send();
 ```
 Example JavaScript code:
@@ -118,9 +117,9 @@ class SecretModule {
 Example PHP code:
 ```php
 $asyncResponse = new \dobron\BigPipe\AsyncResponse();
-$asyncResponse->bigPipe()->require("require('Chart').setup()", [
-    'element' => \dobron\BigPipe\TransportMarker::transportElement('chart-div'),
-    'dataPoints' => $asyncResponse->transport()->transportSet([
+$asyncResponse->call('Chart', 'setup', [
+    'element' => \dobron\BigPipe\TransportMarker::element('chart-div'),
+    'dataPoints' => \dobron\BigPipe\TransportMarker::set([
         ['x' => 10, 'y' => 71],
         ['x' => 20, 'y' => 55],
         ['x' => 30, 'y' => 50],
@@ -169,10 +168,18 @@ The purpose of this library is to rapidly reduce the continuously repetitive cod
 
 ## 📑 Version Guidance
 
-| Version | Released   | Status     | Repo                   | PHP Version |
-|---------|------------|------------|------------------------|-------------|
-| 0.x     | 2022-03-27 | Maintained | [v0.x][bigpipe-0-repo] | >=7.1       |
-| 1.x     | 2022-07-29 | Latest     | [v1.x][bigpipe-1-repo] |  ^8.0       |
+| Version | Released   | Status     | Repo                   | PHP Version | bigpipe-util |
+|---------|------------|------------|------------------------|-------------|--------------|
+| 0.x     | 2022-03-27 | Maintained | [v0.x][bigpipe-0-repo] | >=7.1       | 0.x          |
+| 1.x     | 2022-07-29 | Maintained | [v1.x][bigpipe-1-repo] |  ^8.0       | 0.2.x        |
+| 2.x     | unreleased | Next       | main                   |  ^8.0       | 2.x          |
+
+From 2.0, `richarddobron/bigpipe` and `bigpipe-util` share the major and minor version: a release that changes what the
+server sends comes out in both, e.g. 2.1.0 of this library works with 2.1.x of `bigpipe-util`. Fixes are released on
+their own as patch versions. Every response carries the version of its format (`"__ar": 2`), and `bigpipe-util` warns
+in development about a response newer than it understands.
+
+Deprecated methods keep working until the next major version and are marked with `@deprecated`.
 
 ## 🤝 Contributing
 

@@ -61,7 +61,7 @@ call it using:
 <?php
 $asyncResponse = new \dobron\BigPipe\AsyncResponse();
 
-$asyncResponse->bigPipe()->require("require('MyModule').init()", [
+$asyncResponse->call('MyModule', 'init', [
     'first argument',
     'second argument',
     ...

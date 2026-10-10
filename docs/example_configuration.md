@@ -36,8 +36,9 @@ On the backend, you can define and initialize this configuration with specific v
 
 ```php
 $asyncResponse = new \dobron\BigPipe\AsyncResponse();
-$asyncResponse->bigPipe()->require(
-    ['PageConfig', 'set'],
+$asyncResponse->call(
+    'PageConfig',
+    'set',
     [
         [
             'pageId' => 1234567890,

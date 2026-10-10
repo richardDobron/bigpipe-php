@@ -65,7 +65,7 @@ $response = new \dobron\BigPipe\DialogResponse();
 $response
     ->setController("require('ModalRenderer')", [
         [
-            'component' => \dobron\BigPipe\TransportMarker::transportModule('ConfirmationModal'),
+            'component' => \dobron\BigPipe\TransportMarker::module('ConfirmationModal'),
             'props' => [
                 'message' => 'Are you sure you want to continue?',
                 'submitURI' => '/delete.php',

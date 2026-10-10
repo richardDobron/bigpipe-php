@@ -6,6 +6,8 @@ use dobron\BigPipe\Exceptions\BigPipeInvalidArgumentException;
 
 class DialogResponse extends AsyncResponse
 {
+    public const DIALOG_MODULE = 'bigpipe-util/dist/core/Dialog';
+
     protected ?string $controller = null;
     protected array $controllerArgs = [];
     protected ?string $title = null;
@@ -50,6 +52,9 @@ class DialogResponse extends AsyncResponse
     }
 
     /**
+     * The module created with the dialog and the arguments, e.g. setController('PostEditor', [$post]).
+     * The module can also be written as "require('PostEditor')" or ['PostEditor'].
+     *
      * @param array{0: string, 1?: string}|string $fragment
      * @param array $args
      * @return static
@@ -57,6 +62,10 @@ class DialogResponse extends AsyncResponse
      */
     public function setController(string|array $fragment, array $args = []): static
     {
+        if (is_string($fragment) && preg_match('/^[\w\/.@-]+$/', $fragment)) {
+            $fragment = [$fragment];
+        }
+
         if (!BigPipe::isValidRequireCall($fragment)) {
             throw new BigPipeInvalidArgumentException("Invalid fragment.");
         }
@@ -77,25 +86,20 @@ class DialogResponse extends AsyncResponse
 
     public function closeDialogs(int $limit = -1): static
     {
-        $this->bigPipe()->require("require('bigpipe-util/dist/core/Dialog').close()", [
-            $limit
-        ]);
-
-        return $this;
+        return $this->call(static::DIALOG_MODULE, 'close', [$limit]);
     }
 
     public function closeDialog(): static
     {
-        $this->bigPipe()->require("require('bigpipe-util/dist/core/Dialog').closeCurrent()");
-
-        return $this;
+        return $this->call(static::DIALOG_MODULE, 'closeCurrent');
     }
 
     public function dialog(array $options = []): static
     {
         if ($this->content) {
-            $this->bigPipe()->require(
-                "require('bigpipe-util/dist/core/Dialog').render()",
+            $this->call(
+                static::DIALOG_MODULE,
+                'render',
                 [
                     array_merge($options, [
                         'content' => $this->content,
@@ -112,8 +116,9 @@ class DialogResponse extends AsyncResponse
                 'controller' => $this->controller,
             ]);
 
-            $this->bigPipe()->require(
-                "require('bigpipe-util/dist/core/Dialog').showFromModel()",
+            $this->call(
+                static::DIALOG_MODULE,
+                'showFromModel',
                 [
                     $options,
                     $this->controllerArgs,

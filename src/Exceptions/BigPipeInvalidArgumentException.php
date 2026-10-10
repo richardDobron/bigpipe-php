@@ -2,6 +2,6 @@
 
 namespace dobron\BigPipe\Exceptions;
 
-class BigPipeInvalidArgumentException extends \Exception
+class BigPipeInvalidArgumentException extends \InvalidArgumentException
 {
 }

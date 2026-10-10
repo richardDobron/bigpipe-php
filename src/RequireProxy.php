@@ -2,6 +2,9 @@
 
 namespace dobron\BigPipe;
 
+/**
+ * @deprecated it adds the call when PHP destroys the proxy, use call() instead.
+ */
 class RequireProxy
 {
     protected BigPipe|Pagelet $parent;

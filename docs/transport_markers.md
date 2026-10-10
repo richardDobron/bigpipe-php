@@ -8,32 +8,35 @@ The Transport Markers enables you to send HTML content while also facilitating t
 
 ## Methods
 
-### **transportHtml**
+The methods are static. The older names, `transportHtml()`, `transportModule()`, `transportElement()`, `transportMap()`
+and `transportSet()`, and `$response->transport()` still work, but are deprecated.
+
+### **html**
 - This method allows you to send HTML (or text) content using the `__html` marker.
 
     ```php
-    $content = dobron\BigPipe\TransportMarker::transportHtml('new content');
+    $content = dobron\BigPipe\TransportMarker::html('new content');
     ```
 
-### **transportModule**
+### **module**
 - Transport a module via the `__m` marker.
 
     ```php
-    $module = dobron\BigPipe\TransportMarker::transportModule('ChartRenderer');
+    $module = dobron\BigPipe\TransportMarker::module('ChartRenderer');
     ```
 
-### **transportElement**
+### **element**
 - If you provide an element ID, the `__e` marker represents the element with a matching id property.
 
     ```php
-    $element = dobron\BigPipe\TransportMarker::transportElement('chart-div');
+    $element = dobron\BigPipe\TransportMarker::element('chart-div');
     ```
 
-### **transportMap**
+### **map**
 - The `__map` marker creates a Map object that stores key-value pairs while preserving their original insertion order.
 
     ```php
-    $itemsMap = dobron\BigPipe\TransportMarker::transportMap([
+    $itemsMap = dobron\BigPipe\TransportMarker::map([
         ['Jack', 20],
         ['Alan', 34],
         ['Bill', 10],
@@ -41,11 +44,11 @@ The Transport Markers enables you to send HTML content while also facilitating t
     ]);
     ```
 
-### **transportSet**
+### **set**
 - The `__set` marker generates a Set object that stores unique values.
 
     ```php
-    $itemsSet = dobron\BigPipe\TransportMarker::transportSet([
+    $itemsSet = dobron\BigPipe\TransportMarker::set([
         ['x' => 10, 'y' => 71],
         ['x' => 20, 'y' => 55],
         ['x' => 30, 'y' => 50],
@@ -63,15 +66,15 @@ You can observe this API in action in the [demo page](http://bigpipe.xf.cz/tutor
 $response = new \dobron\BigPipe\AsyncResponse();
 
 $response
-    ->bigPipe()->require("require('tutorial/Collections').setup()", [
-        TransportMarker::transportElement('data-box'),
-        TransportMarker::transportMap([
+    ->call('tutorial/Collections', 'setup', [
+        TransportMarker::element('data-box'),
+        TransportMarker::map([
             ['Jack', 20],
             ['Alan', 34],
             ['Bill', 10],
             ['Sam', 9]
         ]),
-        $response->transport()->transportSet([
+        TransportMarker::set([
             'a', 'b',
             'c', 'c', 'c',
         ]),

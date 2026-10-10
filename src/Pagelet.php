@@ -55,7 +55,7 @@ class Pagelet
         $this->element = static::rootId($this->id);
         $this->deferred[] = fn () => $this->content();
 
-        BigPipe::addPagelet($this->id, $this);
+        BigPipe::context()->addPagelet($this->id, $this);
     }
 
     public function getId(): string
@@ -134,6 +134,9 @@ class Pagelet
         return strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $name));
     }
 
+    /**
+     * @internal the modules of the pagelet, sorted by priority
+     */
     public function jsmods(): array
     {
         array_multisort($this->priorities, $this->jsmods['require']);
@@ -141,21 +144,36 @@ class Pagelet
         return $this->jsmods;
     }
 
+    /**
+     * Appends HTML to the content.
+     *
+     * @param bool $isFile deprecated, use appendFile()
+     */
     public function appendContent(string $stringOrFile, bool $isFile = false): static
     {
         if ($isFile) {
-            self::$rendering[] = $this;
-            ob_start();
+            return $this->appendFile($stringOrFile);
+        }
 
-            try {
-                require $stringOrFile;
-                $this->content .= ob_get_contents();
-            } finally {
-                ob_end_clean();
-                array_pop(self::$rendering);
-            }
-        } else {
-            $this->content .= $stringOrFile;
+        $this->content .= $stringOrFile;
+
+        return $this;
+    }
+
+    /**
+     * Includes the PHP file and appends what it prints to the content.
+     */
+    public function appendFile(string $path): static
+    {
+        self::$rendering[] = $this;
+        ob_start();
+
+        try {
+            require $path;
+            $this->content .= ob_get_contents();
+        } finally {
+            ob_end_clean();
+            array_pop(self::$rendering);
         }
 
         return $this;
@@ -262,6 +280,9 @@ class Pagelet
         return $this;
     }
 
+    /**
+     * @internal the data BigPipe sends to the browser
+     */
     public function renderData(): array
     {
         $domops = [
@@ -309,9 +330,20 @@ class Pagelet
         return $this->priorities;
     }
 
+    /**
+     * The placeholder of the pagelet, its root element.
+     */
+    public function placeholder(): string
+    {
+        return (string) $this;
+    }
+
+    /**
+     * @deprecated use placeholder(), the content is rendered by content()
+     */
     public function render(): string
     {
-        return $this;
+        return $this->placeholder();
     }
 
     public function __toString(): string

@@ -20,9 +20,9 @@ class AsyncResponse
     public const DOM_MORPH = "morph";
     public const DOM_MORPH_CONTENT = "morphContent";
 
-    public array $domops = [];
+    protected array $domops = [];
 
-    public mixed $payload = [];
+    protected mixed $payload = [];
 
     /** @var null|array{error: int, errorSummary: string, errorDescription: string, errorIsWarning: bool, isTransient: bool} */
     protected ?array $error = null;
@@ -32,12 +32,9 @@ class AsyncResponse
 
     private BigPipe $bigPipe;
 
-    private TransportMarker $transport;
-
     public function __construct(?Context $context = null)
     {
         $this->bigPipe = new BigPipe($context);
-        $this->transport = new TransportMarker();
     }
 
     /**
@@ -70,7 +67,7 @@ class AsyncResponse
         if ($method === self::DOM_EVAL) {
             $transport = $html;
         } elseif (!in_array($method, [self::DOM_HIDE, self::DOM_SHOW, self::DOM_REMOVE], true)) {
-            $transport = $this->transport->transportHtml($html);
+            $transport = TransportMarker::html($html);
         }
 
         $this->domops[] = [
@@ -88,9 +85,59 @@ class AsyncResponse
         return $this->bigPipe;
     }
 
+    /**
+     * @deprecated the methods of TransportMarker are static, e.g. TransportMarker::element().
+     */
     public function transport(): TransportMarker
     {
-        return $this->transport;
+        return new TransportMarker();
+    }
+
+    /**
+     * Calls a JavaScript module in the browser, see BigPipe::call().
+     *
+     * @throws \Throwable
+     */
+    public function call(string $module, ?string $method = null, array $args = [], ?int $priority = null): static
+    {
+        $this->bigPipe->call($module, $method, $args, $priority);
+
+        return $this;
+    }
+
+    /**
+     * @deprecated as a string like "require('Module').method()", use call() instead.
+     *
+     * @param string|array{0: string, 1?: string} $fragment
+     * @throws \Throwable
+     */
+    public function require(string|array $fragment, array $args = [], ?int $priority = null): static
+    {
+        $this->bigPipe->require($fragment, $args, $priority);
+
+        return $this;
+    }
+
+    /**
+     * Sends data the browser can require as a module, see BigPipe::define().
+     *
+     * @throws \Throwable
+     */
+    public function define(string $module, mixed $exports): static
+    {
+        $this->bigPipe->define($module, $exports);
+
+        return $this;
+    }
+
+    /**
+     * Defines an object the browser creates once and shares, see BigPipe::instance().
+     *
+     * @throws \Throwable
+     */
+    public function instance(string $module, array $args = []): Instance
+    {
+        return $this->bigPipe->instance($module, $args);
     }
 
     /**
@@ -151,21 +198,21 @@ class AsyncResponse
      * Define eval script to evaluate
      *
      * @deprecated A Content Security Policy without 'unsafe-eval' blocks it in the browser,
-     *             call a JavaScript module with $response->bigPipe()->require() instead.
+     *             call a JavaScript module with $response->call() instead.
      *
-     * @param string $context
+     * @param string $selector
      * @param string $code
      *
      * @return static
      */
-    public function eval(string $context, string $code): static
+    public function eval(string $selector, string $code): static
     {
         trigger_error(
-            __METHOD__ . "() is deprecated, call a JavaScript module with bigPipe()->require() instead.",
+            __METHOD__ . "() is deprecated, call a JavaScript module with call() instead.",
             E_USER_DEPRECATED
         );
 
-        return $this->defineDomOp($context, $code, self::DOM_EVAL);
+        return $this->defineDomOp($selector, $code, self::DOM_EVAL);
     }
 
     /**
@@ -320,14 +367,10 @@ class AsyncResponse
     public function reload(int $delay = 0): static
     {
         if ($delay > 0) {
-            $this->bigPipe()->require("require('bigpipe-util/dist/core/ReloadPage').delay()", [
-                $delay,
-            ]);
-        } else {
-            $this->bigPipe()->require("require('bigpipe-util/dist/core/ReloadPage').now()");
+            return $this->call('bigpipe-util/dist/core/ReloadPage', 'delay', [$delay]);
         }
 
-        return $this;
+        return $this->call('bigpipe-util/dist/core/ReloadPage', 'now');
     }
 
     /**
@@ -341,10 +384,7 @@ class AsyncResponse
      */
     public function redirect(string $url, int $delay = 0): static
     {
-        $this->bigPipe()->require("require('bigpipe-util/dist/core/ServerRedirect').redirectPageTo()", [
-            $url,
-            $delay,
-        ]);
+        $this->call('bigpipe-util/dist/core/ServerRedirect', 'redirectPageTo', [$url, $delay]);
 
         return $this;
     }

@@ -25,6 +25,17 @@ class Context
      */
     public ?string $nonce = null;
 
+    protected int $nodeIds = 0;
+
+    /**
+     * Returns an element id unique for the page, also across its AsyncRequests, which send the
+     * __req counter. Unlike the pagelets and jsmods, reset() keeps the counter.
+     */
+    public function nextNodeId(): string
+    {
+        return 'u_' . intval($_REQUEST['__req'] ?? 0) . '_' . $this->nodeIds++;
+    }
+
     public function addPagelet(string $id, Pagelet $pagelet): void
     {
         $this->pagelets[$id] = $pagelet;

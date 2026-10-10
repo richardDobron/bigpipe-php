@@ -28,7 +28,7 @@ Here's a step-by-step example of how to use BigPipe to display an alert with the
     <?php
     $asyncResponse = new \dobron\BigPipe\AsyncResponse();
     
-    $asyncResponse->bigPipe()->require("require('UserLoggedInAlert')", [
+    $asyncResponse->call('UserLoggedInAlert', null, [
         'Marvin', // username argument
     ]);
 
@@ -48,7 +48,7 @@ it between all later uses, also in the following responses:
 ```php
 <?php
 $chart = $asyncResponse->bigPipe()->instance('ChartRenderer', [
-    \dobron\BigPipe\TransportMarker::transportElement('chart'),
+    \dobron\BigPipe\TransportMarker::element('chart'),
     [10, 20, 30],
 ]);
 
@@ -56,7 +56,7 @@ $chart->call('render');
 $chart->call('highlight', [2]);
 
 // Passed as an argument, the module receives the object itself.
-$asyncResponse->bigPipe()->require("require('Dashboard').add()", [$chart]);
+$asyncResponse->call('Dashboard', 'add', [$chart]);
 ```
 
 Pagelets define instances the same way, with `$pagelet->instance()`.
@@ -73,8 +73,8 @@ $asyncResponse->bigPipe()->define('SiteData', [
 ]);
 
 // Passed to another module with a module transport marker.
-$asyncResponse->bigPipe()->require("require('Dashboard').init()", [
-    \dobron\BigPipe\TransportMarker::transportModule('SiteData'),
+$asyncResponse->call('Dashboard', 'init', [
+    \dobron\BigPipe\TransportMarker::module('SiteData'),
 ]);
 ```
 
