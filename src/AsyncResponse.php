@@ -435,6 +435,67 @@ class AsyncResponse
     }
 
     /**
+     * Answers a page transition, see Quickling: the content fills the canvas, and the pagelets
+     * printed in it are sent in the order of their phases. The payload has the version of the
+     * pages, the title and the class of `<body>`.
+     *
+     * @throws \Throwable
+     */
+    public function transition(string $content, ?string $title = null, string $bodyClass = ''): static
+    {
+        $this->setContent('', $content);
+        $this->setTransitionPayload([
+            'title' => $title,
+            'body_class' => $bodyClass,
+            'version' => Quickling::version(),
+            'uri' => $this->requestUri(),
+        ]);
+
+        $pagelets = [];
+        while (($pagelet = $this->bigPipe->takeNextPagelet()) !== null) {
+            $pagelets[] = $pagelet->renderData();
+        }
+
+        if (!empty($pagelets)) {
+            $pagelets[array_key_last($pagelets)]['is_last'] = true;
+            array_push($this->pagelets, ...$pagelets);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Sends a page transition to another URL instead, e.g. after a login. The browser loads it with
+     * a page transition, or in full when it must not handle it or with `$force`.
+     */
+    public function transitionRedirect(string $url, bool $force = false): static
+    {
+        return $this->setTransitionPayload(array_filter(['redirect' => $url, 'force' => $force]));
+    }
+
+    private function setTransitionPayload(array $data): static
+    {
+        $this->payload = array_merge(is_array($this->payload) ? $this->payload : [], $data);
+
+        return $this;
+    }
+
+    private function requestUri(): ?string
+    {
+        $uri = $_SERVER['REQUEST_URI'] ?? null;
+
+        if (!is_string($uri)) {
+            return null;
+        }
+
+        $parts = parse_url($uri) ?: [];
+        parse_str($parts['query'] ?? '', $query);
+        unset($query[Quickling::PARAM], $query['__req']);
+
+        return ($parts['path'] ?? '/') . (empty($query) ? '' : '?' . http_build_query($query));
+    }
+
+    /**
      * Renders a pagelet that is on the page again, e.g. new FeedPagelet() after a post was added:
      * it replaces the root element of the pagelet with the same id.
      *

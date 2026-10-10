@@ -237,9 +237,10 @@ class BigPipe
     }
 
     /**
-     * Takes the first pagelet of the lowest phase, also one created while another was rendered.
+     * @internal takes the first pagelet of the lowest phase, also one created while another was
+     *           rendered
      */
-    protected function takeNextPagelet(): ?Pagelet
+    public function takeNextPagelet(): ?Pagelet
     {
         $next = null;
 
