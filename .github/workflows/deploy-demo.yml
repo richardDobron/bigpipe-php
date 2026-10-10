@@ -63,15 +63,15 @@ jobs:
           cp .env.example .env
           php artisan key:generate
 
-      - name: Run tests
-        run: php artisan test
-
       - name: NPM install
         run: |
           npm install
 
       - name: Build assets
         run: npm run build
+
+      - name: Run tests
+        run: php artisan test
 
       - name: Production dependencies
         run: composer install --no-interaction --prefer-dist --no-dev --optimize-autoloader

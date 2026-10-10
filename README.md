@@ -373,11 +373,11 @@ The purpose of this library is to rapidly reduce the continuously repetitive cod
 
 ## 📑 Version Guidance
 
-| Version | Released   | Status     | Repo                   | PHP Version | bigpipe-util |
-|---------|------------|------------|------------------------|-------------|--------------|
-| 0.x     | 2022-03-27 | Maintained | [v0.x][bigpipe-0-repo] | >=7.1       | 0.x          |
-| 1.x     | 2022-07-29 | Maintained | [v1.x][bigpipe-1-repo] |  ^8.0       | 0.2.x        |
-| 2.x     | unreleased | Next       | main                   |  ^8.0       | 2.x          |
+| Version | Released   | Status      | Repo                   | PHP Version | bigpipe-util |
+|---------|------------|-------------|------------------------|-------------|--------------|
+| 0.x     | 2022-03-27 | Unsupported | [v0.x][bigpipe-0-repo] | >=7.1       | 0.x          |
+| 1.x     | 2022-07-29 | Unsupported | [v1.x][bigpipe-1-repo] | ^8.0        | 0.2.x        |
+| 2.x     | 2026-10-10 | Maintained  | main                   | ^8.0        | 2.x          |
 
 From 2.0, `richarddobron/bigpipe` and `bigpipe-util` share the major and minor version: a release that changes what the
 server sends comes out in both, e.g. 2.1.0 of this library works with 2.1.x of `bigpipe-util`. Fixes are released on
