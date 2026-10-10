@@ -176,8 +176,7 @@ The purpose of this library is to rapidly reduce the continuously repetitive cod
 
 From 2.0, `richarddobron/bigpipe` and `bigpipe-util` share the major and minor version: a release that changes what the
 server sends comes out in both, e.g. 2.1.0 of this library works with 2.1.x of `bigpipe-util`. Fixes are released on
-their own as patch versions. Every response carries the version of its format (`"__ar": 2`), and `bigpipe-util` warns
-in development about a response newer than it understands.
+their own as patch versions.
 
 Deprecated methods keep working until the next major version and are marked with `@deprecated`.
 

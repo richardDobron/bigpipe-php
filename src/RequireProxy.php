@@ -3,7 +3,9 @@
 namespace dobron\BigPipe;
 
 /**
- * @deprecated it adds the call when PHP destroys the proxy, use call() instead.
+ * Calls a module through require() without a fragment, e.g.
+ * `$response->require()->Chart()->render([$element])`. The call is added when the proxy is
+ * destroyed, at the end of the statement.
  */
 class RequireProxy
 {
