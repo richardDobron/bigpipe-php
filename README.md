@@ -1,6 +1,6 @@
 <img src="bigpipe.svg" alt="BigPipe logo" />
 
-This library currently implements small part of [Facebook BigPipe][blog] so far, but the advantage is to efficiently insert/replace content and work with the DOM. It is also possible to easily call JavaScript modules from PHP.
+A microframework for PHP and JavaScript. Send a page in independent parts (pagelets) that reach the browser as soon as they are ready, update the page with DOM operations, open dialogs and call JavaScript modules, all from PHP. The browser part is the npm package [bigpipe-util](https://github.com/richardDobron/bigpipe-util).
 
 ## 👀 Demo App
 Try the app with [live demo](http://bigpipe.xf.cz) or check how to [install](demo-app/README.md).
@@ -9,8 +9,8 @@ Try the app with [live demo](http://bigpipe.xf.cz) or check how to [install](dem
 https://richarddobron.github.io/bigpipe-php/
 
 ## ℹ️ Requirements
-* PHP 7.1 or higher
-* Webpack
+* PHP 8.0 or higher
+* A bundler: [webpack](https://webpack.js.org/), [Vite](https://vite.dev/) or similar
 
 ## 📦 Installation
 Follow these steps to install and set up:
@@ -28,21 +28,105 @@ $ npm install bigpipe-util
 ### 3. Add the following to `/path/to/resources/js/app.js`:
 ```javascript
 import Primer from 'bigpipe-util/dist/Primer';
+import { setModuleLoader } from 'bigpipe-util/dist/ModuleRegistry';
 
 Primer();
-
-window.require = (modulePath) => {
-    return modulePath.startsWith('bigpipe-util/')
-        ? require('bigpipe-util/dist/' + modulePath.replace(/^bigpipe-util\/(src|dist)\//, '') + '.js').default
-        : require('./' + modulePath).default;
-};
 ```
+
+Then tell BigPipe how to load your modules by name (PHP calls e.g. `$response->call('UserLoggedInAlert')`):
+
+**webpack**
+```javascript
+setModuleLoader(modulePath => require('./' + modulePath).default);
+```
+
+**Vite**
+```javascript
+const modules = import.meta.glob(['./**/*.js', '!./app.js'], { eager: true });
+
+setModuleLoader(modulePath => modules[`./${modulePath}.js`]?.default);
+```
+
+> Vite needs an alias for the `events` module used by dialogs, see the
+> [documentation](https://richarddobron.github.io/bigpipe-php/docs/getting_started).
 
 ### 4. Add this line to the page footer:
 ```html
 <?= \dobron\BigPipe\BigPipe::render() ?>
 ```
+It prints the script that sends the pagelets and the modules of the page to the browser, so load the entrypoint with a classic `<script src>` before it. See the [documentation](https://richarddobron.github.io/bigpipe-php/docs/getting_started) for module scripts and a Content Security Policy.
 
+## 🚀 Quick start
+
+Call a JavaScript module from PHP:
+
+```javascript
+// resources/js/UserLoggedInAlert.js
+export default function UserLoggedInAlert(username) {
+    alert(`Welcome, ${username}!`);
+}
+```
+
+```php
+$response = new \dobron\BigPipe\AsyncResponse();
+
+$response->call('UserLoggedInAlert', null, ['Marvin']);
+$response->send();
+```
+
+Update the page when a link is clicked or a form is submitted:
+
+```html
+<a href="#" ajaxify="/ajax/remove.php?id=123" rel="async">Remove</a>
+```
+
+```php
+$response = new \dobron\BigPipe\AsyncResponse();
+
+$response->remove('#item-' . (int) $_GET['id']);
+$response->send();
+```
+
+Send a part of the page as soon as it is ready:
+
+```php
+use dobron\BigPipe\BigPipe;
+use dobron\BigPipe\Pagelet;
+
+$feed = (new Pagelet('feed'))->defer(fn () => renderFeed(loadPosts()));
+?>
+<main><?= $feed ?></main>
+
+<?php BigPipe::stream(); ?>
+```
+
+## 🧩 Pagelets
+A page made of independent parts, each with its own content, CSS and JavaScript. The page is sent with their placeholders and the pagelets follow, one by one while they are rendered with `BigPipe::stream()`, or at the end of the page with `BigPipe::render()`.
+
+- [Pagelets](https://richarddobron.github.io/bigpipe-php/docs/pagelets): classes, deferred content, streaming, errors with fallbacks, display order and a version of the page without JavaScript.
+- [Lazy pagelets](https://richarddobron.github.io/bigpipe-php/docs/lazy_pagelets): load a pagelet when it becomes visible, and infinite scroll.
+- [Page transitions](https://richarddobron.github.io/bigpipe-php/docs/page_transitions): load the next page into the layout instead of in full.
+- [Bootloader](https://richarddobron.github.io/bigpipe-php/docs/bootloader): a resource map, and modules loaded only when they are called.
+- [Poller](https://richarddobron.github.io/bigpipe-php/docs/poller): request a URL again and again, controlled by the server.
+
+```php
+use dobron\BigPipe\Pagelet;
+
+class FeedPagelet extends Pagelet
+{
+    protected array $css = ['/css/feed.css'];
+
+    protected function content(): string
+    {
+        $this->call('Feed', 'init');
+
+        return renderFeed(loadPosts());
+    }
+}
+
+echo new FeedPagelet();          // <div id="pagelet_feed"></div>
+echo FeedPagelet::lazy('/pagelets/feed'); // loaded when it becomes visible
+```
 
 ## 🪄 DOMOPS API
 - **setContent**: Sets the content of an element.
@@ -54,7 +138,7 @@ window.require = (modulePath) => {
 - **replace**: Replace specified element with content.
 - **morph**: Update specified element to match content, keeping focus and form values.
 - **morphContent**: Like morph, for the children of specified element only.
-- **eval**: Evaluates JavaScript code represented as a string.
+- **hide**, **show**: Hide or show specified element.
 
 ```php
 $response = new \dobron\BigPipe\AsyncResponse();
@@ -75,7 +159,7 @@ $response->redirect('/onboarding', 500); // redirect with 500ms delay
 $response->send();
 ```
 
-## ℹ️ Payload
+## ℹ️ Payload & errors
 
 ```php
 $response = new \dobron\BigPipe\AsyncResponse();
@@ -85,6 +169,18 @@ $response->setPayload([
     'status' => 'unavailable',
     'message' => 'Username is unavailable.',
 ]);
+
+$response->send();
+```
+
+`setError()` marks a response as failed, so the browser calls the error handler of the request instead of its handler:
+
+```php
+$response = new \dobron\BigPipe\AsyncResponse();
+
+$response
+    ->setContent('#title-error', 'At most 80 characters.')
+    ->setError('Could not save the post', 'The title is too long.');
 
 $response->send();
 ```
@@ -99,7 +195,6 @@ $asyncResponse = new \dobron\BigPipe\AsyncResponse();
 $asyncResponse->call('SecretModule', 'run', [
     'first argument',
     'second argument',
-    ...
 ]);
 // without a method, a class is created: $asyncResponse->call('UserLoggedInAlert', null, ['Marvin'])
 $asyncResponse->send();
@@ -111,6 +206,15 @@ class SecretModule {
         // ...
     }
 }
+```
+- **instance**: Keep one object in the browser and talk to it from more calls, also in the following responses.
+- **define**: Send data the browser can require as a module, e.g. the configuration of the page.
+
+```php
+$chart = $asyncResponse->instance('ChartRenderer', [\dobron\BigPipe\TransportMarker::element('chart'), [10, 20, 30]]);
+$chart->call('render');
+
+$asyncResponse->define('SiteData', ['locale' => 'sk_SK']);
 ```
 - **transport**: Through transport markers you can send HTML content but also transform the content into JavaScript objects (such as Map, Set or Element).
 

@@ -114,8 +114,9 @@ $response->send();`,
     server: `<?php
 $response = new \\dobron\\BigPipe\\AsyncResponse();
 
-$response->bigPipe()->require(
-    "require('UserLoggedInAlert')",
+$response->call(
+    'UserLoggedInAlert',
+    null,
     ['Marvin']
 );
 
@@ -124,6 +125,51 @@ $response->send();`,
       <>
         Call any JavaScript module straight from PHP and pass it arguments. With{" "}
         <Link to="/docs/transport_markers">transport markers</Link> they can even be elements, maps or sets.
+      </>
+    ),
+  },
+  {
+    id: "pagelets",
+    label: "Pagelets",
+    client: {
+      language: "php",
+      title: "page.php",
+      code: `<?php
+use dobron\\BigPipe\\BigPipe;
+use dobron\\BigPipe\\Pagelet;
+
+$feed = (new Pagelet('feed'))
+    ->defer(fn () => renderFeed(loadPosts()));
+?>
+<article><?= renderArticle() ?></article>
+<main><?= $feed ?></main>
+
+<?php BigPipe::stream(); ?>`,
+    },
+    server: `<?php
+use dobron\\BigPipe\\Pagelet;
+
+class FeedPagelet extends Pagelet
+{
+    protected array $css = ['/css/feed.css'];
+
+    protected function content(): string
+    {
+        $this->call('Feed', 'init');
+
+        return renderFeed(loadPosts());
+    }
+}
+
+// the endpoint of a lazy pagelet
+(new \\dobron\\BigPipe\\AsyncResponse())
+    ->pagelet(new FeedPagelet())
+    ->send();`,
+    note: (
+      <>
+        The page reaches the browser first, and every <Link to="/docs/pagelets">pagelet</Link> follows as soon as it
+        is rendered, with its own CSS, JavaScript and modules. A <Link to="/docs/lazy_pagelets">lazy pagelet</Link>{" "}
+        loads when it becomes visible.
       </>
     ),
   },
@@ -157,6 +203,26 @@ const features = [
       <>
         Require your own modules from PHP and pass them arguments. Keep the logic on the server and the behaviour
         in small, reusable modules.
+      </>
+    ),
+  },
+  {
+    icon: "🚰",
+    title: "Pagelets and streaming",
+    description: (
+      <>
+        Send the page in independent <Link to="/docs/pagelets">pagelets</Link> that arrive as soon as they are ready,
+        with fallbacks for the ones that fail and a version of the page without JavaScript.
+      </>
+    ),
+  },
+  {
+    icon: "🔀",
+    title: "Page transitions",
+    description: (
+      <>
+        Load the next page into the layout with <Link to="/docs/page_transitions">page transitions</Link>, and keep
+        pages fresh with the <Link to="/docs/poller">Poller</Link>.
       </>
     ),
   },
@@ -322,18 +388,13 @@ function GetStarted() {
         <CodeBlock language="bash" title="Terminal">
           {installCommands}
         </CodeBlock>
-        <CodeBlock language="javascript" title="resources/js/app.js">{`import Primer from 'bigpipe-util/dist/Primer';
+        <CodeBlock language="javascript" title="resources/js/app.js (webpack)">{`import Primer from 'bigpipe-util/dist/Primer';
+import { setModuleLoader } from 'bigpipe-util/dist/ModuleRegistry';
 
 Primer();
 
-window.require = (modulePath) => {
-  return modulePath.startsWith('bigpipe-util/')
-    ? require('bigpipe-util/dist/' + modulePath.replace(/^bigpipe-util\\/(src|dist)\\//, '') + '.js').default
-    : require('./' + modulePath).default;
-};`}</CodeBlock>
-        <CodeBlock language="php" title="Page footer">{`<script>
-    (new (require("bigpipe-util/dist/ServerJS"))).handle(<?=json_encode(\\dobron\\BigPipe\\BigPipe::jsmods())?>);
-</script>`}</CodeBlock>
+setModuleLoader(modulePath => require('./' + modulePath).default);`}</CodeBlock>
+        <CodeBlock language="php" title="Page footer">{`<?= \\dobron\\BigPipe\\BigPipe::render() ?>`}</CodeBlock>
         <p className={styles.center}>
           <Link to="/docs/getting_started">Read the full guide →</Link>
         </p>

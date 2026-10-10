@@ -4,14 +4,48 @@ title: Configuration
 sidebar_label: Configuration
 ---
 
-This section introduces a dynamic configuration method that simplifies defining and accessing application settings. With this approach, you can easily set and retrieve various configuration parameters based on your application's requirements.
+Send the configuration of the page from PHP and read it anywhere in your JavaScript. `define()` makes data available as
+a module, on the page or in any response. A module defined again, also in a later response, replaces the previous one.
 
-Here's the code example illustrating how to use this dynamic configuration:
+```php
+<?php
+use dobron\BigPipe\BigPipe;
+
+BigPipe::page()->define('PageConfig', [
+    'pageId' => 1234567890,
+    'category' => 'IT',
+]);
+```
+
+Require it in the browser by its name:
 
 ```javascript
-let config = {};
+import { requireModule } from 'bigpipe-util/dist/ModuleRegistry';
 
-class PageConfig {
+console.log(requireModule('PageConfig').pageId);
+```
+
+Pass it to another module with a module transport marker, so the module doesn't have to know where it comes from:
+
+```php
+<?php
+$response = new \dobron\BigPipe\AsyncResponse();
+
+$response->call('Dashboard', 'init', [
+    \dobron\BigPipe\TransportMarker::module('PageConfig'),
+]);
+
+$response->send();
+```
+
+## Settings changed at runtime
+
+For a configuration that changes over time, write a module that keeps the values and let responses update it:
+
+```javascript title="resources/js/Settings.js"
+const config = {};
+
+export default class Settings {
     get(key, defaultValue) {
         return key in config ? config[key] : defaultValue;
     }
@@ -23,37 +57,20 @@ class PageConfig {
             config[key] = value;
         }
     }
-
-    getDebugInfo() {
-        return config;
-    }
 }
-
-export default PageConfig;
 ```
-
-On the backend, you can define and initialize this configuration with specific values, like this:
 
 ```php
-$asyncResponse = new \dobron\BigPipe\AsyncResponse();
-$asyncResponse->call(
-    'PageConfig',
-    'set',
-    [
-        [
-            'pageId' => 1234567890,
-            'category' => 'IT',
-        ],
-    ]
-);
+<?php
+$response = new \dobron\BigPipe\AsyncResponse();
+
+$response->call('Settings', 'set', [['category' => 'Sport']]);
+
+$response->send();
 ```
 
-This example provides a clear overview of how dynamic configuration simplifies setting and retrieving application settings.
-
 ```javascript
-import PageConfig from './PageConfig';
+import Settings from './Settings';
 
-new PageConfig().set('title', 'Hello World!')
-
-console.log(new PageConfig().get('pageId'));
+console.log(new Settings().get('category'));
 ```

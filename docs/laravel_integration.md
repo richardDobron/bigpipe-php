@@ -4,7 +4,7 @@ title: Laravel Integration
 sidebar_label: Laravel Integration
 ---
 
-To integrate BigPipe into your existing Laravel application, follow the [Installation instructions](getting_started#-installing).
+To integrate BigPipe into your existing Laravel application, follow the [Installation instructions](getting_started).
 
 However, we recommend creating your own class that extends the basic class definitions and includes an overridden `send()` method for processing the response:
 
