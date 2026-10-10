@@ -25,7 +25,7 @@ However, we recommend creating your own class that extends the basic class defin
         public function send(int $status = 200): Response
         {
             return response($this->buildResponseString(), $status)
-                ->header('Content-Type', 'application/javascript');
+                ->withHeaders(static::headers());
         }
     }
     
@@ -48,7 +48,7 @@ However, we recommend creating your own class that extends the basic class defin
         public function send(int $status = 200): Response
         {
             return response($this->buildResponseString(), $status)
-                ->header('Content-Type', 'application/javascript');
+                ->withHeaders(static::headers());
         }
     }
     

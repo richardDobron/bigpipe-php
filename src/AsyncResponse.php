@@ -20,6 +20,8 @@ class AsyncResponse
     public const DOM_MORPH = "morph";
     public const DOM_MORPH_CONTENT = "morphContent";
 
+    public const CONTENT_TYPE = 'application/json; charset=utf-8';
+
     protected array $domops = [];
 
     protected mixed $payload = [];
@@ -523,13 +525,29 @@ class AsyncResponse
     }
 
     /**
-     * Sends the content type header and prints the response, but unlike send(), it doesn't end
-     * the script, so a framework or a middleware can finish the request.
+     * The headers of a response: JSON (behind the for (;;); shield), which the browser must not
+     * run as a script.
+     *
+     * @return array<string, string>
+     */
+    public static function headers(): array
+    {
+        return [
+            'Content-Type' => static::CONTENT_TYPE,
+            'X-Content-Type-Options' => 'nosniff',
+        ];
+    }
+
+    /**
+     * Sends the headers and prints the response, but unlike send(), it doesn't end the script, so
+     * a framework or a middleware can finish the request.
      */
     public function output(): void
     {
         if (!headers_sent()) {
-            header("content-type: text/javascript");
+            foreach (static::headers() as $name => $value) {
+                header("$name: $value");
+            }
         }
 
         echo $this->buildResponseString();

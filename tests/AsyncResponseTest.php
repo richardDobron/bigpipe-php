@@ -408,4 +408,13 @@ class AsyncResponseTest extends TestCase
 
         $response->bigPipe()->require("InvalidUsage.method()");
     }
+
+    public function testSendsTheResponseAsJsonThatIsNotRunAsAScript(): void
+    {
+        $this->assertSame(
+            ['Content-Type' => 'application/json; charset=utf-8', 'X-Content-Type-Options' => 'nosniff'],
+            AsyncResponse::headers()
+        );
+        $this->assertSame(AsyncResponse::headers(), DialogResponse::headers());
+    }
 }
