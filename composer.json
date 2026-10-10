@@ -35,13 +35,24 @@
     "require-dev": {
         "friendsofphp/php-cs-fixer": ">=v3.0.0",
         "phpunit/phpunit": ">=7.5.0",
-        "spatie/phpunit-snapshot-assertions": "^2.0|^3.0|^4.0"
+        "spatie/phpunit-snapshot-assertions": "^2.0|^3.0|^4.0",
+        "laravel/framework": "^9.0 || ^10.0 || ^11.0 || ^12.0 || ^13.0"
+    },
+    "suggest": {
+        "laravel/framework": "For the Laravel integration: responses, middleware and Blade directives (^9.0)."
     },
     "scripts": {
         "post-merge": "composer install",
         "check-style": "php-cs-fixer fix --using-cache=no --diff --dry-run --ansi",
         "fix-style": "php-cs-fixer fix --using-cache=no --ansi",
         "test": "vendor/bin/phpunit --colors=always --testdox"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "dobron\\BigPipe\\Laravel\\BigPipeServiceProvider"
+            ]
+        }
     },
     "scripts-descriptions": {
         "check-style": "Run style checks (only dry run - no fixing!).",

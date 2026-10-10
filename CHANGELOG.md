@@ -6,6 +6,14 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 
 ## Unreleased
 
+### Added
+
+- Laravel integration, discovered by Laravel 9 or later: `dobron\BigPipe\Laravel\BigPipeServiceProvider` binds the
+  context to the request (Octane), sends the CSRF token with the `SetUpBigPipe` middleware, registers the route for a
+  new token and answers an expired token so the browser sends the request again, and adds the `@bigpipe`, `@jsmod`,
+  `@jsmodIf` and `@define` Blade directives. `dobron\BigPipe\Laravel\AsyncResponse` and `DialogResponse` are
+  `Responsable` and streamed when the browser asks for it.
+
 ### Fixed
 
 - The URL of a streamed page transition (`AsyncResponse::transition()`) no longer keeps the `__stream` parameter,
