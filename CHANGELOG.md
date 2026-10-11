@@ -23,11 +23,35 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
   view helper.
 - PSR-15 integration (Slim, Mezzio): `BigPipeMiddleware` handles a request with a fresh context and sends a CSRF token,
   and `ResponseFactory` turns an `AsyncResponse` into a PSR-7 response.
+- Recovery of an expired CSRF token in the Symfony, CakePHP and PSR-15 integrations, like in Laravel:
+  - Symfony: the bundle answers `csrf.refresh_uri` (default `/bigpipe/csrf-token`) with a new token, and answers a
+    request of BigPipe that ends with a 419 `HttpException` with the new token (`csrf.retry`).
+  - CakePHP: `CsrfRecoveryMiddleware`, added before `CsrfProtectionMiddleware`, answers `/bigpipe/csrf-token` with a
+    new token and its cookie, and a request of BigPipe rejected with `InvalidCsrfTokenException` with the new token
+    (options `csrf.refresh_uri`, `csrf.retry`).
+  - PSR-15: `BigPipeMiddleware` takes `csrfRefreshUri`, `responses` and `csrfRetry`. With a `ResponseFactory` it
+    answers the refresh URL, and answers a request of BigPipe rejected with 419 with the new token.
+- `redirect()` takes `$replace`, to replace the history entry, and `$transition`, to load the page with a page
+  transition.
+- `TransportMarker::relative()`: the element that sent the request, e.g. the link of the Primer.
+
+### Changed
+
+- A dialog gives the focus back to the element that sent its request by default, see `setCausalElement()`.
+- `transition()` without `$bodyClass` keeps the class of `<body>` instead of emptying it.
+- A pagelet created while another one is rendered is displayed after it.
 
 ### Fixed
 
-- The URL of a streamed page transition (`AsyncResponse::transition()`) no longer keeps the `__stream` parameter,
-  so the browser's address bar shows the URL of the page.
+- The URL of a page transition (`AsyncResponse::transition()`) no longer keeps the `__stream` parameter, so a page
+  of another version that the browser loads in full has the URL of the page.
+- The URL of a page transition keeps its query parameters as they were sent, e.g. `filter.type` is no longer renamed.
+- `stream()` sends `csrf_refresh`, so `retryWithCSRFToken()` also makes the browser send a streamed request again.
+- `BigPipe::render()` sends the pagelets created while another one is rendered.
+- `stream()` sends what the page defines while a pagelet is rendered before that pagelet.
+- The bootloadable modules of instances and of module markers in arguments are sent with the response.
+- Calls of the same priority keep their order instead of being sorted by module name.
+- A Quickling version `"0"` is sent to the browser.
 
 ## v2.0.0 - 2026-10-10
 
