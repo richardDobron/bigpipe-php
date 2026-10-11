@@ -494,7 +494,18 @@ class AsyncResponse
         return $response + Bootloader::dataFor([], $jsmods) + [
             "jsmods" => $jsmods,
             "__ar" => 1,
-        ] + ($this->csrfRefresh ? ['csrf_refresh' => 1] : []) + ($this->error ?? []);
+        ] + ($this->csrfRefresh ? ['csrf_refresh' => 1] : []) + static::revisionData() + ($this->error ?? []);
+    }
+
+    /**
+     * The revision of the deploy, which the browser compares with the one of the page, see
+     * BigPipe::setRevision().
+     *
+     * @return array{revision?: string}
+     */
+    private static function revisionData(): array
+    {
+        return BigPipe::revision() === null ? [] : ['revision' => BigPipe::revision()];
     }
 
     /**
@@ -696,6 +707,8 @@ class AsyncResponse
             if ($this->csrfRefresh) {
                 $first['csrf_refresh'] = 1;
             }
+
+            $first += static::revisionData();
 
             $first += $this->error ?? [];
 

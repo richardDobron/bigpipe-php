@@ -70,6 +70,23 @@ reaches the browser first, and every pagelet follows as soon as it is rendered. 
 `transitionRedirect($url)` sends the browser to another URL instead, with a page transition, or in full with
 `transitionRedirect($url, force: true)`, e.g. to a login page with another layout.
 
+## A new deploy
+
+A page that stays open keeps the scripts it was loaded with. Tell BigPipe the revision of the deploy, e.g. the
+commit or the version of the build:
+
+```php
+<?php
+use dobronBigPipeBigPipe;
+
+BigPipe::setRevision(getenv('APP_VERSION'));
+```
+
+The page defines it as the `BigPipeRevision` module, and every `AsyncResponse` carries it. The first response of a
+newer deploy informs `BigPipe/newRevision` in the browser, e.g. to offer to reload the page, and the next page
+transition loads the page in full, with the new scripts, without asking the server for the transition first.
+`Quickling` uses the revision as the version of the pages unless it is configured with its own.
+
 ## Leaving a page
 
 The pagelets in the canvas are destroyed when the next page arrives, and the timers of the page started with the

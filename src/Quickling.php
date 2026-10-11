@@ -46,11 +46,12 @@ class Quickling
     }
 
     /**
-     * The version of the pages set with configure(), sent with every page transition.
+     * The version of the pages set with configure(), or else the revision of the deploy, see
+     * BigPipe::setRevision(), sent with every page transition.
      */
     public static function version(): ?string
     {
-        return static::$version;
+        return static::$version ?? BigPipe::revision();
     }
 
     /**
@@ -69,7 +70,7 @@ class Quickling
         BigPipe::page()->call(static::MODULE, 'init', [
             TransportMarker::element($canvasId),
             array_filter([
-                'version' => static::$version,
+                'version' => static::version(),
                 'inactivePageRegex' => static::$inactivePageRegex,
                 'badRequestKeys' => static::$badRequestKeys,
                 'sessionLength' => static::$sessionLength,

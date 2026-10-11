@@ -10,6 +10,11 @@ class BigPipe
 
     public const CSP_NONCE_MODULE = 'CSPNonce';
 
+    /** The module with the revision of the deploy, see setRevision(). */
+    public const REVISION_MODULE = 'BigPipeRevision';
+
+    protected static ?string $revision = null;
+
     /** Marks the end of a streamed page: the browser starts loading the JS of the pagelets. */
     public const LAST_PAGELET_ID = '__bigpipe_last';
 
@@ -186,6 +191,22 @@ class BigPipe
             'header' => $header,
             'param' => $param,
         ] + ($refreshUri === null ? [] : ['refresh' => $refreshUri]);
+    }
+
+    /**
+     * The revision of the deploy, e.g. the commit or the version of the build. The page defines it
+     * and every AsyncResponse carries it, so the browser notices a new deploy: it informs
+     * `BigPipe/newRevision` and loads the next page transition in full, with the new scripts.
+     * Quickling uses it as the version of the pages unless it is configured with its own.
+     */
+    public static function setRevision(?string $revision): void
+    {
+        static::$revision = $revision === '' ? null : $revision;
+    }
+
+    public static function revision(): ?string
+    {
+        return static::$revision;
     }
 
     /**
@@ -539,6 +560,11 @@ class BigPipe
     {
         $defines = $this->context->jsmods['define'] ?? [];
         unset($this->context->jsmods['define']);
+
+        // The modules of the page itself, which only its first script defines.
+        if ($withNonce && static::$revision !== null) {
+            array_unshift($defines, [static::REVISION_MODULE, static::$revision]);
+        }
 
         if ($withNonce && $this->context->nonce !== null) {
             array_unshift($defines, [static::CSP_NONCE_MODULE, $this->context->nonce]);
