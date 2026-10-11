@@ -7,6 +7,14 @@ use Tests\TestCase;
 
 class DocsTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // A page transition test sets the request of BigPipe, see Quickling::isRequested().
+        $_GET = $_REQUEST = [];
+    }
+
     public function test_the_index_leads_to_the_first_page(): void
     {
         $this->get('/docs')->assertRedirect('/docs/getting_started');
@@ -74,5 +82,41 @@ class DocsTest extends TestCase
         $this->assertSame('Pagelets API · Docs · BigPipe', $data['payload']['title']);
         $this->assertStringContainsString('doc-prose', $data['domops'][0][3]['__html']);
         $this->assertStringNotContainsString('<html', $data['domops'][0][3]['__html']);
+    }
+
+    public function test_every_page_of_an_older_version_renders_with_its_links(): void
+    {
+        $docs = new Docs('2.0');
+
+        foreach ($docs->slugs() as $slug) {
+            if ($docs->exists($slug)) {
+                $this->get("/docs/2.0/{$slug}")->assertOk()->assertSee('docs-outdated', false);
+            }
+        }
+
+        $this->get('/docs/2.0/getting_started')
+            ->assertSee('href="/docs/2.0/pagelets"', false)
+            ->assertSee('blob/2.0.0/docs/getting_started.md', false)
+            ->assertSee('href="/docs/getting_started"', false);
+    }
+
+    public function test_an_older_version_shows_only_the_pages_it_has(): void
+    {
+        $this->get('/docs/2.0/getting_started')->assertDontSee('/docs/2.0/symfony_integration', false);
+        $this->get('/docs/2.0/symfony_integration')->assertNotFound();
+    }
+
+    public function test_the_latest_version_is_not_outdated_and_links_to_the_older_one(): void
+    {
+        $this->get('/docs/pagelets')
+            ->assertDontSee('docs-outdated', false)
+            ->assertSee('href="/docs/2.0/pagelets"', false);
+    }
+
+    public function test_the_versions_lead_to_their_pages(): void
+    {
+        $this->get('/docs/2.0')->assertRedirect('/docs/2.0/getting_started');
+        $this->get('/docs/2.1/pagelets')->assertRedirect('/docs/pagelets');
+        $this->get('/docs/9.9/pagelets')->assertNotFound();
     }
 }

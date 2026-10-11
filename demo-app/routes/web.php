@@ -28,9 +28,14 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', ViewController::class)->defaults('view', 'welcome');
 
-// The documentation, rendered from the markdown files of the repository.
+// The documentation, rendered from the markdown files of the repository: the latest version, and the
+// older ones at /docs/<version>.
 Route::get('/docs', [DocsController::class, 'index'])->name('docs');
 Route::get('/docs/{slug}', [DocsController::class, 'show'])->where('slug', '[a-z_]+')->name('docs.show');
+Route::get('/docs/{version}', [DocsController::class, 'versionIndex'])->where('version', '\d+\.\d+')->name('docs.version');
+Route::get('/docs/{version}/{slug}', [DocsController::class, 'versionShow'])
+    ->where(['version' => '\d+\.\d+', 'slug' => '[a-z_]+'])
+    ->name('docs.version.show');
 
 // An expired CSRF token: the browser gets a new one from here and sends the request again.
 Route::get('/csrf-token', function () {

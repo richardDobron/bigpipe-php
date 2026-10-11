@@ -15,17 +15,61 @@ use League\CommonMark\Node\Inline\Text;
 use League\CommonMark\Node\Node;
 
 /**
- * The documentation: the markdown files of the repository, rendered the way Docusaurus does. A file has a
- * front matter (id, title, sidebar_label), headings with anchors, tables, and code blocks with a title.
+ * The documentation of a version: the markdown files of the repository, rendered the way Docusaurus does. A
+ * file has a front matter (id, title, sidebar_label), headings with anchors, tables, and code blocks with a
+ * title.
  */
 class Docs
 {
     /** @var array<string, array{title: string, label: string}> */
     private array $meta = [];
 
+    private string $version;
+
+    public function __construct(?string $version = null)
+    {
+        $this->version = $version ?? static::latest();
+    }
+
+    public static function latest(): string
+    {
+        return config('docs.latest');
+    }
+
+    /**
+     * @return list<string> the versions, the latest first
+     */
+    public static function versions(): array
+    {
+        return array_keys(config('docs.versions'));
+    }
+
+    public static function hasVersion(string $version): bool
+    {
+        return array_key_exists($version, config('docs.versions'));
+    }
+
+    public function version(): string
+    {
+        return $this->version;
+    }
+
+    public function isLatest(): bool
+    {
+        return $this->version === static::latest();
+    }
+
+    /**
+     * The URL of a page of this version: /docs/<page> for the latest, /docs/<version>/<page> for the others.
+     */
+    public function url(string $slug): string
+    {
+        return $this->isLatest() ? '/docs/'.$slug : '/docs/'.$this->version.'/'.$slug;
+    }
+
     public function directory(): ?string
     {
-        foreach (config('docs.paths') as $path) {
+        foreach ($this->config()['paths'] as $path) {
             if (is_dir($path)) {
                 return $path;
             }
@@ -48,7 +92,7 @@ class Docs
     }
 
     /**
-     * @return array<string, list<array{slug: string, label: string}>> the groups of the sidebar
+     * @return array<string, list<array{slug: string, label: string, url: string}>> the groups of the sidebar
      */
     public function sidebar(): array
     {
@@ -57,7 +101,7 @@ class Docs
         foreach (config('docs.sidebar') as $group => $slugs) {
             foreach ($slugs as $slug) {
                 if ($this->exists($slug)) {
-                    $sidebar[$group][] = ['slug' => $slug, 'label' => $this->meta($slug)['label']];
+                    $sidebar[$group][] = ['slug' => $slug, 'label' => $this->meta($slug)['label'], 'url' => $this->url($slug)];
                 }
             }
         }
@@ -74,7 +118,7 @@ class Docs
         $result = $this->converter()->convert($this->body($slug));
         $slugs = array_values(array_filter($this->slugs(), fn (string $other) => $this->exists($other)));
         $index = array_search($slug, $slugs, true);
-        $link = fn (?string $other) => $other === null ? null : ['slug' => $other, 'label' => $this->meta($other)['label']];
+        $link = fn (?string $other) => $other === null ? null : ['slug' => $other, 'label' => $this->meta($other)['label'], 'url' => $this->url($other)];
 
         return [
             'slug' => $slug,
@@ -86,8 +130,16 @@ class Docs
             'toc' => $result->getDocument()->data->get('toc'),
             'previous' => $link($slugs[$index - 1] ?? null),
             'next' => $link($slugs[$index + 1] ?? null),
-            'edit' => config('docs.edit_url').$slug.'.md',
+            'edit' => $this->config()['edit_url'].$slug.'.md',
         ];
+    }
+
+    /**
+     * @return array{paths: list<string>, edit_url: string}
+     */
+    private function config(): array
+    {
+        return config('docs.versions')[$this->version];
     }
 
     private function file(string $slug): string
@@ -200,7 +252,7 @@ class Docs
 
         // "pagelets", "pagelets.md" and "pagelets#errors": a page of the documentation.
         if (preg_match('/^([a-z_]+)(?:\.md)?(#.*)?$/', $url, $match) && in_array($match[1], $this->slugs(), true)) {
-            $link->setUrl('/docs/'.$match[1].($match[2] ?? ''));
+            $link->setUrl($this->url($match[1]).($match[2] ?? ''));
 
             return;
         }

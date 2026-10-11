@@ -1706,6 +1706,11 @@ body.theme .prose {
 .docs-nav a, .docs-toc a { display: block; padding: 5px 10px; border-radius: 8px; color: var(--muted); text-decoration: none; }
 .docs-nav a:hover, .docs-toc a:hover { color: var(--ink); background: var(--tint); }
 .docs-nav a.active { color: var(--ink); background: var(--tint); font-weight: 500; }
+.docs-versions { display: flex; gap: 4px; margin-bottom: 24px; }
+.docs-versions a { display: inline-block; padding: 4px 10px; border: 1px solid var(--line); font-size: 13px; }
+.docs-versions a.active { border-color: var(--line-2); }
+.docs-outdated { margin-bottom: 24px; padding: 12px 16px; border: 1px solid var(--line-2); border-radius: 8px; background: var(--tint); color: var(--text); font-size: 14px; }
+.docs-outdated a { color: var(--blue); text-decoration: underline; text-underline-offset: 3px; }
 .docs-toc { font-size: 13px; margin-left: -10px; }
 .docs-toc .label { margin-bottom: 8px; padding-left: 10px; }
 .docs-toc a.l3 { padding-left: 22px; }
