@@ -6,9 +6,15 @@
         ['Shop', route('products.index'), '^/app/(shop|cart)'],
         ['Dashboard', route('dashboard'), '^/app/dashboard'],
         ['Profile', route('profile.show'), '^/app/profile'],
-        ['Docs', url('/docs'), '^/docs'],
     ];
     $path = '/'.ltrim(request()->path(), '/');
+
+    $docsVersions = array_map(fn (string $version) => [
+        'label' => 'v'.$version,
+        'href' => (new \App\Docs\Docs($version))->url(config('docs.default')),
+        'match' => $version === \App\Docs\Docs::latest() ? '^/docs(/[a-z_]+)?$' : '^/docs/'.preg_quote($version, '#').'(/|$)',
+        'latest' => $version === \App\Docs\Docs::latest(),
+    ], \App\Docs\Docs::versions());
 @endphp
 <header class="topbar">
     <a href="{{ url('/') }}" class="brand" aria-label="BigPipe">
@@ -19,6 +25,18 @@
             <a href="{{ $href }}" @if ($match) data-match="{{ $match }}" @endif
                class="link {{ $match && preg_match('#'.$match.'#', $path) ? 'active' : '' }}">{{ $name }}</a>
         @endforeach
+        <div class="menu">
+            <a href="{{ url('/docs') }}" data-match="^/docs" class="link {{ preg_match('#^/docs#', $path) ? 'active' : '' }}">Docs</a>
+            <button type="button" class="menu-toggle" aria-label="Versions of the documentation" aria-haspopup="true"></button>
+            <div class="menu-panel">
+                @foreach ($docsVersions as $version)
+                    <a href="{{ $version['href'] }}" data-match="{{ $version['match'] }}"
+                       class="link {{ preg_match('#'.$version['match'].'#', $path) ? 'active' : '' }}">
+                        {{ $version['label'] }}@if ($version['latest'])<span class="tag">latest</span>@endif
+                    </a>
+                @endforeach
+            </div>
+        </div>
     </nav>
     <div class="end">
         @auth

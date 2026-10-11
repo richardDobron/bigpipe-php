@@ -121,7 +121,7 @@ body.theme {
     backdrop-filter: blur(12px) saturate(1.6);
 }
 .topbar .brand { display: flex; align-items: center; margin-right: 20px; text-decoration: none; }
-.topbar .links { display: flex; align-items: center; gap: 2px; flex: 1; overflow-x: auto; scrollbar-width: none; }
+.topbar .links { display: flex; align-items: center; gap: 2px; flex: 1; }
 .topbar .spacer { flex: 1; }
 .topbar a.link {
     padding: 7px 11px;
@@ -135,6 +135,45 @@ body.theme {
 }
 .topbar a.link:hover { color: var(--ink); background: var(--tint); }
 body.theme .topbar a.link.active { color: var(--ink); background: var(--tint); }
+.topbar .menu { position: relative; display: flex; align-items: center; }
+.topbar .menu-toggle {
+    width: 22px;
+    height: 30px;
+    margin-left: -8px;
+    padding: 0;
+    border: 0;
+    border-radius: 6px;
+    background: none;
+    color: var(--muted);
+    cursor: pointer;
+}
+.topbar .menu-toggle::after {
+    content: "";
+    display: block;
+    width: 6px;
+    height: 6px;
+    margin: -3px auto 0;
+    border-right: 1.6px solid currentColor;
+    border-bottom: 1.6px solid currentColor;
+    transform: rotate(45deg);
+}
+.topbar .menu-toggle:hover { color: var(--ink); }
+.topbar .menu-panel {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 40;
+    min-width: 150px;
+    padding: 6px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--card);
+    box-shadow: var(--shadow);
+}
+.topbar .menu:hover .menu-panel, .topbar .menu:focus-within .menu-panel { display: grid; gap: 2px; }
+.topbar .menu-panel a.link { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.topbar .menu-panel .tag { font-size: 11px; font-weight: 400; color: var(--muted); }
 .topbar .end { display: flex; align-items: center; gap: 6px; }
 .topbar .end a.link { display: inline-flex; align-items: center; gap: 7px; }
 .pill {
