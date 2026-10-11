@@ -165,8 +165,9 @@ return response()->stream(function () {
 }, 200, ['X-Accel-Buffering' => 'no']);
 ```
 
-The browser part shows each pagelet as soon as it arrives, as long as `require` exists by then: load the entrypoint
-with a classic `<script src>` in the `<head>`. A `<script type="module">` runs only after the whole page is parsed.
+The scripts of the pagelets queue their calls in `window.__bigpipe`, so the entrypoint can be loaded any way. With a
+classic `<script src>` in the `<head>`, each pagelet is displayed as soon as it arrives, while the page streams. A
+deferred or module entrypoint runs only after the whole page is parsed, and displays the pagelets then.
 
 ## HTML containers
 
@@ -180,12 +181,12 @@ only names the container:
 ```
 
 The HTML is not escaped in JSON, so the page is smaller, and the browser does not parse it until the pagelet is
-displayed. In the comment, `` and `-` are escaped with a backslash, so the HTML can contain anything. A pagelet of
+displayed. In the comment, `\` and `-` are escaped with a backslash, so the HTML can contain anything. A pagelet of
 an `AsyncResponse` is JSON, and keeps its HTML in it.
 
 ```php
 <?php
-use dobronBigPipeBigPipe;
+use dobron\BigPipe\BigPipe;
 
 BigPipe::setHtmlContainers(true);
 ```

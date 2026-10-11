@@ -412,10 +412,6 @@ class Pagelet
     }
 
     /**
-     * The browser loads the JS files of the pagelet and runs its onload modules right after the
-     * pagelet is displayed, instead of after every pagelet of the page is displayed.
-     */
-    /**
      * Adds resources the browser loads as soon as the pagelet arrives, names from the resource map
      * of the Bootloader or URLs, e.g. for what the user is likely to need next.
      */

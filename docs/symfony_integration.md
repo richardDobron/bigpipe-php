@@ -4,7 +4,7 @@ title: Symfony Integration
 sidebar_label: Symfony Integration
 ---
 
-Follow the [Installation instructions](getting_started) first, then enable the bundle (Symfony 6.4 or later):
+Follow the [Installation instructions](getting_started.md) first, then enable the bundle (Symfony 6.4 or later):
 
 ```php
 // config/bundles.php
@@ -66,7 +66,7 @@ class UserController extends AbstractController
 ```
 
 The arguments are those of `call()` and `define()`. For a Content Security Policy, set the nonce of the request with
-`BigPipe::setNonce()` before `bigpipe()`, see [Getting started](getting_started).
+`BigPipe::setNonce()` before `bigpipe()`, see [Getting started](getting_started.md).
 
 ## CSRF protection
 

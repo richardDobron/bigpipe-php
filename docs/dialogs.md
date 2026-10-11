@@ -12,8 +12,11 @@ The Dialogs API utilizes the _Modal Vanilla dependency_ to facilitate the displa
 - This method sets the JavaScript controller (module) for the dialog, allowing you to register additional event listeners (such as show, shown, hide, hidden) or other logic related to the dialog.
 
     ```php
-    $response->setController("require('ModalMonitor')");
+    $response->setController('ModalMonitor');
     ```
+
+  The arguments given after the name are passed to the controller after the dialog, e.g.
+  `setController('PostEditor', [$post])`.
 
 ### **setTitle**
 - Use this method to set the title of a dialog.
@@ -44,10 +47,11 @@ The Dialogs API utilizes the _Modal Vanilla dependency_ to facilitate the displa
     ```
 
 ### **closeDialogs**
-- This method closes all opened dialogs.
+- This method closes the open dialogs: all of them, or only the `$limit` most recent ones.
 
     ```php
-    $response->closeDialogs();
+    $response->closeDialogs();  // all of them
+    $response->closeDialogs(2); // the last two
     ```
 
 ### **closeDialog**
@@ -81,7 +85,7 @@ $response->setTitle('Delete the post?')
 
 | Setter                                    | Default | Description                                                                       |
 |-------------------------------------------|---------|-----------------------------------------------------------------------------------|
-| `setBackdrop(bool|string)`               | `true`  | `false` for no backdrop, `'static'` for one that doesn't close the dialog.         |
+| `setBackdrop(bool\|string)`              | `true`  | `false` for no backdrop, `'static'` for one that doesn't close the dialog.         |
 | `setKeyboard(bool)`                      | `true`  | Close the dialog with <kbd>Esc</kbd>.                                              |
 | `setAnimate(bool)`                       | `false` | Animate showing and hiding.                                                        |
 | `setTimeout(int)`                        |         | Show the dialog after this many milliseconds.                                      |
@@ -90,7 +94,7 @@ $response->setTitle('Delete the post?')
 | `setRefocus(bool)`                       | `true`  | Give the focus back to the element that opened the dialog when it closes.          |
 | `setCausalElement(string $elementId)`    |         | The element to give the focus back to, by its id. By default the element that sent the request, e.g. the link, or the focused element inside of it, e.g. the button of a form. |
 | `setHideOnTransition(bool)`              | `true`  | Close the dialog before a [page transition](page_transitions.md).                  |
-| `setHideOnSuccess(bool|string $selector)` | `false` | Close the dialog when a request sent from inside of it succeeds, from any element or only those that match the selector. |
+| `setHideOnSuccess(bool\|string $selector)` | `false` | Close the dialog when a request sent from inside of it succeeds, from any element or only those that match the selector. |
 | `setPosition(?int $top, bool $centered, bool $ignoreTopInShortViewport)` | | Set the top margin: `$top` pixels, or else a third of the free height of the window (half when centered). Without arguments, the default margin. |
 
 `setOption($name, $value)`, `setOptions($array)` and the array given to `dialog($options)` set any option of the
@@ -111,7 +115,7 @@ If you want to trigger a dialog from the backend:
 $response = new \dobron\BigPipe\DialogResponse();
 
 $response->setTitle('Dialog title')
-    ->setController("require('ModalLogger')")
+    ->setController('ModalLogger')
     ->setBody('html <strong>content</strong>')
     ->setFooter('<button>close</button>')
     ->dialog();

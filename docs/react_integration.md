@@ -6,7 +6,7 @@ sidebar_label: React Integration
 
 To integrate BigPipe with React, follow these steps:
 
-1. To integrate BigPipe with React, follow these steps:
+1. Install React and the Babel preset for JSX:
 ```shell
 $ npm install react react-dom @babel/preset-react
 # or
@@ -20,7 +20,8 @@ Create a `.babelrc` or `babel.config.js` file to add the transformation plugins 
 }
 ```
 
-2. Create a file named `ModalRenderer.js` that renders dialogs using React:
+2. Create a file named `ModalRenderer.js` that renders dialogs using React. The component gets the dialog in its
+   props, e.g. to close it:
 
 ```javascript
 import ReactRenderer from "./ReactRenderer";
@@ -29,11 +30,13 @@ export default class ModalRenderer {
     constructor(dialog, {component, props = {}}) {
         const container = dialog.el.querySelector('.modal-content');
 
-        (new ReactRenderer).constructAndRenderComponent(
+        const root = (new ReactRenderer).constructAndRenderComponent(
             component,
-            props,
+            {...props, dialog},
             container
         );
+
+        dialog.on('hidden', () => root.unmount());
     }
 }
 ```
@@ -42,16 +45,19 @@ export default class ModalRenderer {
 
 ```javascript
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 export default class ReactRenderer {
-    createComponent(element, container, callback) {
-        ReactDOM.render(element, container, callback);
+    createComponent(element, container) {
+        const root = createRoot(container);
+        root.render(element);
+
+        return root;
     }
 
-    constructAndRenderComponent(component, props, container, callback) {
+    constructAndRenderComponent(component, props, container) {
         const element = React.createElement(component, props);
-        return this.createComponent(element, container, callback)
+        return this.createComponent(element, container);
     }
 }
 ```
@@ -63,14 +69,13 @@ Here's an example of how to integrate BigPipe with React in your PHP code:
 $response = new \dobron\BigPipe\DialogResponse();
 
 $response
-    ->setController("require('ModalRenderer')", [
+    ->setController('ModalRenderer', [
         [
             'component' => \dobron\BigPipe\TransportMarker::module('ConfirmationModal'),
             'props' => [
                 'message' => 'Are you sure you want to continue?',
                 'submitURI' => '/delete.php',
             ],
-            'modalSize' => 'modal-md',
         ],
     ])
     ->dialog([

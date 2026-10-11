@@ -150,7 +150,7 @@ $asyncResponse->send();
 In your frontend JavaScript, you can use the `AsyncRequest` class to send XHR requests.
 
 ```javascript
-import AsyncRequest from 'bigpipe-util/dist/AsyncRequest';
+import AsyncRequest from 'bigpipe-util/dist/async/AsyncRequest';
 
 const request = (new AsyncRequest('/ajax/remove.php'))
   // or .setURI('/ajax/remove.php')

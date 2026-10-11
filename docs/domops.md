@@ -14,7 +14,7 @@ These methods offer a robust toolkit for dynamic manipulation of the DOM element
 
     ```php
     <?php
-    $response = new \dobron\BigPipe\DialogResponse();
+    $response = new \dobron\BigPipe\AsyncResponse();
 
     $response->setContent(
         'span.current-date', // selector
@@ -27,7 +27,7 @@ These methods offer a robust toolkit for dynamic manipulation of the DOM element
     ```javascript
     import DOM from "bigpipe-util/dist/core/DOM";
 
-    DOM.prependContent(
+    DOM.setContent(
         document.querySelector('span.current-date'), // element
         new Date().toLocaleString()
     );
@@ -94,14 +94,14 @@ These methods offer a robust toolkit for dynamic manipulation of the DOM element
     ```
 
     ```javascript
-    DOM.insertAfter(
+    DOM.insertBefore(
         document.querySelector('div.card'),
         '<div class="card">content</div>'
     );
     ```
 
 ### **remove**
-- This method inserts content before a specified element.
+- This method removes a specified element.
 
     ```php
     $response->remove(
@@ -113,6 +113,14 @@ These methods offer a robust toolkit for dynamic manipulation of the DOM element
     DOM.remove(
         document.querySelector('#content[post-id="123"]')
     );
+    ```
+
+### **hide** and **show**
+- These methods hide a specified element with `display: none`, and show it again. `DOM` of the browser part has no such methods, set `style.display` there.
+
+    ```php
+    $response->hide('#loading');
+    $response->show('#results');
     ```
 
 ### **replace**
@@ -179,13 +187,6 @@ These methods offer a robust toolkit for dynamic manipulation of the DOM element
     $response->eval(
         'body',
         'alert("Hello World!");',
-    );
-    ```
-
-    ```javascript
-    DOM.eval(
-        document.querySelector('body'),
-        'alert("Hello World!");'
     );
     ```
 

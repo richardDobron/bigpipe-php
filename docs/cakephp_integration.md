@@ -4,7 +4,7 @@ title: CakePHP Integration
 sidebar_label: CakePHP Integration
 ---
 
-Follow the [Installation instructions](getting_started) first, then add the plugin (CakePHP 5) in
+Follow the [Installation instructions](getting_started.md) first, then add the plugin (CakePHP 5) in
 `Application::bootstrap()`:
 
 ```php

@@ -159,6 +159,19 @@ class AsyncResponse
     }
 
     /**
+     * Makes a module stand for the one the server chose, or turns it off with null, see
+     * JsMods::defineCond().
+     *
+     * @throws Exceptions\BigPipeInvalidArgumentException
+     */
+    public function defineCond(string $module, ?string $target): static
+    {
+        $this->bigPipe->defineCond($module, $target);
+
+        return $this;
+    }
+
+    /**
      * Defines an object the browser creates once and shares, see BigPipe::instance().
      *
      * @throws \Throwable

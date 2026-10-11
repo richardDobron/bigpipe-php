@@ -77,7 +77,7 @@ commit or the version of the build:
 
 ```php
 <?php
-use dobronBigPipeBigPipe;
+use dobron\BigPipe\BigPipe;
 
 BigPipe::setRevision(getenv('APP_VERSION'));
 ```

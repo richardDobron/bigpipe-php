@@ -4,7 +4,7 @@ title: Laravel Integration
 sidebar_label: Laravel Integration
 ---
 
-Follow the [Installation instructions](getting_started) first. Laravel 9 or later discovers
+Follow the [Installation instructions](getting_started.md) first. Laravel 9 or later discovers
 `dobron\BigPipe\Laravel\BigPipeServiceProvider` on its own. The provider:
 
 - keeps the pagelets and modules of every request in a [context of that request](#long-running-servers-octane-frankenphp-roadrunner-swoole),
@@ -19,6 +19,15 @@ To change the defaults, publish the configuration:
 ```shell
 $ php artisan vendor:publish --tag=bigpipe-config
 ```
+
+| Key                | Default               | Description                                                                         |
+|--------------------|-----------------------|-------------------------------------------------------------------------------------|
+| `middleware`       | `true`                | Add `SetUpBigPipe` to the `web` group. Turn it off to add it yourself, e.g. to a single route group. |
+| `csrf.enabled`     | `true`                | Send the CSRF token to the browser, register the refresh route and answer expired tokens. Turn it off to do it yourself. |
+| `csrf.header`      | `'X-CSRF-TOKEN'`      | The header the browser sends the token in, `null` for none.                          |
+| `csrf.param`       | `null`                | The field of the data the browser sends the token in, e.g. `'_token'`.               |
+| `csrf.refresh_uri` | `'/bigpipe/csrf-token'` | The URL the browser gets a new token from, see [Expired tokens](#expired-tokens). `null` registers no route. |
+| `csrf.retry`       | `true`                | Answer a request of BigPipe rejected with `419` with the new token.                  |
 
 ## Responses
 

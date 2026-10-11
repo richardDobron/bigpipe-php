@@ -33,6 +33,12 @@ and send the request again, once, so the user does not lose what they typed. Giv
 [Responses](#responses)) and the URL of the token:
 
 ```php
+use dobron\BigPipe\Psr\BigPipeMiddleware;
+use dobron\BigPipe\Psr\ResponseFactory;
+use Nyholm\Psr7\Factory\Psr17Factory;
+
+$factory = new Psr17Factory(); // any PSR-17 factory of responses and streams
+
 $app->add(new BigPipeMiddleware(
     fn ($request) => $request->getAttribute('csrf_token'),
     csrfRefreshUri: '/bigpipe/csrf-token',

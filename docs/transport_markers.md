@@ -63,6 +63,8 @@ and `transportSet()`, and `$response->transport()` still work, but are deprecate
   for the modules of a page.
 
     ```php
+    use dobron\BigPipe\TransportMarker;
+
     $response->call('Tooltip', 'show', [TransportMarker::relative(), 'Copied']);
     ```
 
@@ -73,7 +75,10 @@ You can observe this API in action in the [demo page](http://bigpipe.etexweb.sk/
 
 ```php
 <?php
-$response = new \dobron\BigPipe\AsyncResponse();
+use dobron\BigPipe\AsyncResponse;
+use dobron\BigPipe\TransportMarker;
+
+$response = new AsyncResponse();
 
 $response
     ->call('tutorial/Collections', 'setup', [

@@ -122,6 +122,18 @@ class DefineTest extends TestCase
         ], $response->getResponse()['jsmods']['define']);
     }
 
+    public function testTheResponseDefinesTheModuleTheServerChoseToo(): void
+    {
+        $response = (new AsyncResponse())
+            ->defineCond('Editor', 'EditorNext')
+            ->defineCond('Chat', null);
+
+        $this->assertSame([
+            ['Editor', ['__rc' => 'EditorNext']],
+            ['Chat', ['__rc' => null]],
+        ], $response->getResponse()['jsmods']['define']);
+    }
+
     public function testSendsTheResourcesOfTheModuleTheServerChose(): void
     {
         Bootloader::setResourceMap(['editor-next.js' => ['type' => 'js', 'src' => '/static/editor-next.js']]);

@@ -4,7 +4,7 @@ title: Nette Integration
 sidebar_label: Nette Integration
 ---
 
-Follow the [Installation instructions](getting_started) first, then register the extension (Nette Application 3.1 or
+Follow the [Installation instructions](getting_started.md) first, then register the extension (Nette Application 3.1 or
 later with Latte 3):
 
 ```neon
@@ -56,4 +56,4 @@ The arguments are those of `call()` and `define()`. Without the DI extension, ad
 ## CSRF protection
 
 Nette protects forms and signals with their own tokens. To protect the requests of `AsyncRequest` too, send a token
-with `BigPipe::setCSRFToken()` in the `startup()` of a base presenter and check it, see [Getting started](getting_started).
+with `BigPipe::setCSRFToken()` in the `startup()` of a base presenter and check it, see [Getting started](getting_started.md).
