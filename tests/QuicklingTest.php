@@ -81,6 +81,15 @@ class QuicklingTest extends TestCase
         $this->assertArrayNotHasKey('is_last', $response['pagelets'][0]);
     }
 
+    public function testKeepsTheParametersOfTheURLAsTheyAre(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/search?q=big+pipe&filter.type=post&tags[]=php&__req=4&quickling%5Bversion%5D=v1&__stream=1&sort=';
+
+        $payload = (new AsyncResponse())->transition('<main></main>')->getResponse()['payload'];
+
+        $this->assertSame('/search?q=big+pipe&filter.type=post&tags[]=php&sort=', $payload['uri']);
+    }
+
     public function testKeepsTheTitleAndTheBodyClassWithoutThem(): void
     {
         $_SERVER['REQUEST_URI'] = '/feed';

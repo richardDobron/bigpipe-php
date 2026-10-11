@@ -564,10 +564,18 @@ class AsyncResponse
         }
 
         $parts = parse_url($uri) ?: [];
-        parse_str($parts['query'] ?? '', $query);
-        unset($query[Quickling::PARAM], $query['__req'], $query[static::STREAM_PARAM]);
 
-        return ($parts['path'] ?? '/') . (empty($query) ? '' : '?' . http_build_query($query));
+        // The parameters are filtered as they are: parse_str() would rename "a.b" to "a_b".
+        $query = array_filter(
+            explode('&', $parts['query'] ?? ''),
+            static function (string $pair): bool {
+                $name = strtok(urldecode(explode('=', $pair, 2)[0]), '[');
+
+                return $pair !== '' && !in_array($name, [Quickling::PARAM, '__req', static::STREAM_PARAM], true);
+            }
+        );
+
+        return ($parts['path'] ?? '/') . (empty($query) ? '' : '?' . implode('&', $query));
     }
 
     /**
