@@ -184,12 +184,12 @@ class AsyncResponse
     /**
      * Marks the response as failed: the browser calls the error handler of the request instead of
      * its handler. The DOM operations and modules of the response are applied anyway, e.g. to mark
-     * an invalid field.
+     * an invalid field. A warning is not a failure: the handler gets the response with the error.
      *
      * @param string $summary a short title of the error
      * @param string $description a sentence for the user
      * @param int $code an application specific code, not 0
-     * @param bool $isWarning the error is only a warning
+     * @param bool $isWarning the error is only a warning, the request did not fail
      * @param bool $isTransient trying again may help
      *
      * @return static
