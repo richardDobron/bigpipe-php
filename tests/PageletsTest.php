@@ -35,6 +35,21 @@ class PageletsTest extends TestCase
         $this->assertEquals('<div id="pagelet_content"></div>', (string) $pagelet);
     }
 
+    public function testRendersPageletsCreatedWhileRenderingAnother(): void
+    {
+        (new Pagelet('content'))->defer(function () {
+            $sidebar = (new Pagelet('sidebar'))->appendContent('friends');
+
+            return "<aside>$sidebar</aside>";
+        });
+
+        $output = BigPipe::render();
+
+        preg_match_all('/onPageletArrive\(\{"id":"([^"]+)"/', $output, $matches);
+        $this->assertSame(['content', 'sidebar'], $matches[1]);
+        $this->assertMatchesRegularExpression('/"id":"sidebar".*"is_last":true/', $output);
+    }
+
     public function testOnAfterLoad(): void
     {
         $pagelet = new Pagelet('content');

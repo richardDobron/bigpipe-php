@@ -87,7 +87,7 @@ class AsyncResponseTest extends TestCase
 
         $response->bigPipe()->require()->someFunction(['abc']);
 
-        $response->bigPipe()->require(priority: 0)->Composer()->init([123, 321]);
+        $response->bigPipe()->require(priority: -1)->Composer()->init([123, 321]);
 
         $response->bigPipe()->require()->someFunctionWithoutArgs();
 

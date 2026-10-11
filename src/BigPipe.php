@@ -434,24 +434,18 @@ class BigPipe
     {
         try {
             $pageletsScript = '';
-            $pagelets = $this->context->pagelets;
-            uasort($pagelets, static fn (Pagelet $a, Pagelet $b): int => $a->getPhase() <=> $b->getPhase());
-
             $rendered = [];
 
+            // Like stream(): also the pagelets created while another one is rendered.
             if ($this->context->parallel && Parallel::isAvailable()) {
-                $queue = $pagelets;
-
                 Parallel::run(
-                    static function () use (&$queue): ?Pagelet {
-                        return array_shift($queue);
-                    },
+                    fn (): ?Pagelet => $this->takeNextPagelet(),
                     static function (Pagelet $pagelet, array $data) use (&$rendered): void {
                         $rendered[] = $data;
                     }
                 );
             } else {
-                foreach ($pagelets as $pagelet) {
+                while (($pagelet = $this->takeNextPagelet()) !== null) {
                     $rendered[] = $pagelet->renderData();
                 }
             }
