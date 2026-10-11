@@ -93,9 +93,23 @@ class Bootloader
 
             if ($module === static::MODULE && ($require[1] ?? null) === 'preloadModules') {
                 array_push($modules, ...array_values($require[2][0] ?? []));
-            } elseif (is_string($module)) {
+                continue;
+            }
+
+            if (is_string($module)) {
                 $modules[] = $module;
             }
+
+            static::collectModules($require[2] ?? [], $modules);
+        }
+
+        // The browser creates an instance with its class, and loads it first when it is bootloadable.
+        foreach ($jsmods['instances'] ?? [] as $instance) {
+            if (is_string($instance[1] ?? null)) {
+                $modules[] = $instance[1];
+            }
+
+            static::collectModules($instance[2] ?? [], $modules);
         }
 
         if ($preload) {
@@ -130,5 +144,31 @@ class Bootloader
         }
 
         return $data;
+    }
+
+    /**
+     * Adds the modules of the module transport markers in the arguments, e.g. of an Instance.
+     *
+     * @param list<string> $modules
+     */
+    private static function collectModules(mixed $value, array &$modules): void
+    {
+        if ($value instanceof \JsonSerializable) {
+            $value = $value->jsonSerialize();
+        }
+
+        if (!is_array($value)) {
+            return;
+        }
+
+        if (is_string($value[TransportMarker::TRANSPORT_MODULE] ?? null)) {
+            $modules[] = $value[TransportMarker::TRANSPORT_MODULE];
+
+            return;
+        }
+
+        foreach ($value as $item) {
+            static::collectModules($item, $modules);
+        }
     }
 }

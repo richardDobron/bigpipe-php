@@ -7,6 +7,7 @@ use dobron\BigPipe\BigPipe;
 use dobron\BigPipe\Bootloader;
 use dobron\BigPipe\Exceptions\BigPipeInvalidArgumentException;
 use dobron\BigPipe\Pagelet;
+use dobron\BigPipe\TransportMarker;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -82,6 +83,30 @@ class BootloaderTest extends TestCase
 
         $this->assertSame(['Editor' => ['editor.css', 'editor.js']], $response['bootloadable']);
         $this->assertSame(['editor.css', 'editor.js'], array_keys($response['resource_map']));
+    }
+
+    public function testAResponseSendsTheBootloadableClassesOfItsInstances(): void
+    {
+        $response = new AsyncResponse();
+        $response->instance('Editor')->call('open');
+
+        $data = $response->getResponse();
+
+        $this->assertSame(['Editor' => ['editor.css', 'editor.js']], $data['bootloadable']);
+        $this->assertSame(['editor.css', 'editor.js'], array_keys($data['resource_map']));
+    }
+
+    public function testAResponseSendsTheBootloadableModulesOfTheArguments(): void
+    {
+        Bootloader::setResourceMap(['chat.js' => ['type' => 'js', 'src' => '/static/chat.js']]);
+        Bootloader::enableBootload(['Chat' => ['chat.js']]);
+        $response = new AsyncResponse();
+        $chat = $response->instance('Chat');
+        $response->call('Page', 'init', [['editor' => TransportMarker::module('Editor')], $chat]);
+
+        $data = $response->getResponse();
+
+        $this->assertSame(['Editor', 'Chat'], array_keys($data['bootloadable']));
     }
 
     public function testThePageEnablesItsBootloadableModulesBeforeCallingThem(): void
