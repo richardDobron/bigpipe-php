@@ -68,4 +68,19 @@ class PageletsTest extends TestCase
             ['Users', 'setup', ['abc']],
         ], $pagelet->jsmods()['require']);
     }
+
+    public function testCallsOfTheSamePriorityKeepTheirOrder(): void
+    {
+        $pagelet = new Pagelet('content');
+
+        $pagelet->call('Alfa', 'init', [], 5);
+        $pagelet->call('Bravo', 'init', [], 5);
+        $pagelet->call('Charlie', 'init', [], 1);
+
+        $this->assertSame([
+            ['Alfa', 'init'],
+            ['Bravo', 'init'],
+            ['Charlie', 'init'],
+        ], $pagelet->jsmods()['require']);
+    }
 }

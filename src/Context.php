@@ -67,7 +67,8 @@ class Context
 
     public function jsmods(): array
     {
-        array_multisort($this->priorities, $this->jsmods['require']);
+        $order = array_keys($this->jsmods['require']);
+        array_multisort($this->priorities, SORT_NUMERIC, $order, SORT_NUMERIC, $this->jsmods['require']);
 
         return $this->jsmods;
     }
