@@ -287,6 +287,12 @@ $chat = (new Pagelet('chat'))->setPhase(1)->displayAfter($feed);
 
 The JS files of the pagelets still load only when all of them are displayed.
 
+The last pagelet of every phase is sent with `last_in_phase`, also while streaming and rendering in parallel, once no
+other pagelet of the phase is left to render. The browser then knows that the phase is complete without waiting for
+the next one, which may take longer to render: the time to interactive does not wait for it, and the browser informs
+`BigPipe/phaseDisplayed` with every phase that is displayed (see [phases in
+`bigpipe-util`](https://github.com/richardDobron/bigpipe-util/blob/main/docs/pagelets.md#phases)).
+
 ## Time to interactive
 
 Tell the browser which phases are the content the user is waiting for, e.g. the feed in phase 0 and the sidebar and ads

@@ -8,6 +8,8 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 
 ### Added
 
+- The last pagelet of every phase is sent with `last_in_phase`, also when streaming and rendering in parallel, so
+  the browser knows the phase is complete without waiting for the next one, e.g. for the time to interactive.
 - The inline scripts of `BigPipe::render()` and `stream()` queue their calls in `window.__bigpipe` until the
   entrypoint has run, so it can be a classic, `async`, `defer` or module script, loaded before or after them. Needs
   `bigpipe-util` with `BigPipeQueue`.

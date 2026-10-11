@@ -39,6 +39,7 @@ class AsyncResponsePageletTest extends TestCase
             'domops' => [['setContent', '#pagelet_feed', false, ['__html' => '<ul class="posts"></ul>']]],
             'jsmods' => ['require' => [['Feed', 'init']]],
             'is_last' => true,
+            'last_in_phase' => true,
         ]], $data['pagelets']);
     }
 

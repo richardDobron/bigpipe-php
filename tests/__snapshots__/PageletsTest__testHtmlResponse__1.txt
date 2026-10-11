@@ -1,6 +1,6 @@
 <script>
 (window.__bigpipe=window.__bigpipe||[]).push(["arrive",{"id":"content","js":[".\/scripts\/app.js"],"css":[".\/styles\/content.css"],"domops":[["setContent","#pagelet_content",false,{"__html":"<header><div><div id=\"pagelet_header\"><\/div><\/div><\/header>\nMain page content<footer><div><div id=\"pagelet_footer\"><\/div><\/div><\/footer>\n"}]],"jsmods":{"require":[["Users","setup"]]}}]);
 (window.__bigpipe=window.__bigpipe||[]).push(["arrive",{"id":"header","js":[],"css":[],"domops":[["setContent","#pagelet_header",false,{"__html":"Header content"}]],"jsmods":{"require":[["Header","init"]]},"display_dependency":["content"]}]);
-(window.__bigpipe=window.__bigpipe||[]).push(["arrive",{"id":"footer","js":[],"css":[],"domops":[["setContent","#pagelet_footer",false,{"__html":"Footer content"}]],"jsmods":{"require":[["Footer","setYear"]]},"onafterload":{"require":[["Footer","loaded"]]},"display_dependency":["content"],"is_last":true}]);
+(window.__bigpipe=window.__bigpipe||[]).push(["arrive",{"id":"footer","js":[],"css":[],"domops":[["setContent","#pagelet_footer",false,{"__html":"Footer content"}]],"jsmods":{"require":[["Footer","setYear"]]},"onafterload":{"require":[["Footer","loaded"]]},"display_dependency":["content"],"last_in_phase":true,"is_last":true}]);
 (window.__bigpipe=window.__bigpipe||[]).push(["handle",{"require":[["Page","setup"]]}]);
 </script>

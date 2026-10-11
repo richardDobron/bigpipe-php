@@ -21,10 +21,11 @@ final class Parallel
     /**
      * Renders the pagelets that $take returns, until it returns null and all are rendered, and calls
      * $emit with each pagelet and its data. $take is asked again after every round, for the pagelets
-     * created while others were rendered.
+     * created while others were rendered. The third argument of $emit tells whether no other pagelet of
+     * the same phase is being rendered; $take may still have one.
      *
      * @param callable(): ?Pagelet $take
-     * @param callable(Pagelet, array): void $emit
+     * @param callable(Pagelet, array, bool): void $emit
      * @throws \Throwable
      */
     public static function run(callable $take, callable $emit): void
@@ -61,7 +62,7 @@ final class Parallel
             foreach ($tasks as $key => $task) {
                 if ($task->done && $task->phase <= $blocking) {
                     unset($tasks[$key]);
-                    $emit($task->pagelet, $task->data);
+                    $emit($task->pagelet, $task->data, self::isLastOfPhase($task, $tasks));
                     $progressed = true;
                 }
             }
@@ -70,6 +71,20 @@ final class Parallel
                 self::pause(self::streamsOf($tasks));
             }
         }
+    }
+
+    /**
+     * @param ParallelTask[] $tasks the tasks that are not emitted yet
+     */
+    private static function isLastOfPhase(ParallelTask $task, array $tasks): bool
+    {
+        foreach ($tasks as $other) {
+            if ($other->phase === $task->phase) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

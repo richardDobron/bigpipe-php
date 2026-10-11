@@ -486,7 +486,7 @@ class AsyncResponse
         }
 
         if (!empty($this->pagelets)) {
-            $response["pagelets"] = $this->sortedPagelets();
+            $response["pagelets"] = BigPipe::markLastOfPhases($this->sortedPagelets());
         }
 
         $jsmods = $this->bigPipe->getContext()->jsmods();
@@ -706,8 +706,15 @@ class AsyncResponse
             $part($first, false);
 
             $sent = false;
-            foreach ($this->sortedPagelets() as $data) {
+            foreach (BigPipe::markLastOfPhases($this->sortedPagelets()) as $data) {
                 unset($data['is_last']);
+
+                // The pagelets of the page that follow may have the same phase.
+                if ($this->contextPagelets && isset($data['last_in_phase'])) {
+                    unset($data['last_in_phase']);
+                    $data = $this->bigPipe->markLastInPhase($data);
+                }
+
                 $part(['pagelets' => [$data]], false);
                 $sent = true;
             }
@@ -715,14 +722,14 @@ class AsyncResponse
             if ($this->contextPagelets && $context->parallel && Parallel::isAvailable()) {
                 Parallel::run(
                     fn (): ?Pagelet => $this->bigPipe->takeNextPagelet(),
-                    static function (Pagelet $pagelet, array $data) use ($part, &$sent): void {
-                        $part(['pagelets' => [$data]], false);
+                    function (Pagelet $pagelet, array $data, bool $lastRendering) use ($part, &$sent): void {
+                        $part(['pagelets' => [$this->bigPipe->markLastInPhase($data, $lastRendering)]], false);
                         $sent = true;
                     }
                 );
             } else {
                 while ($this->contextPagelets && ($pagelet = $this->bigPipe->takeNextPagelet()) !== null) {
-                    $part(['pagelets' => [$pagelet->renderData()]], false);
+                    $part(['pagelets' => [$this->bigPipe->markLastInPhase($pagelet->renderData())]], false);
                     $sent = true;
                 }
             }

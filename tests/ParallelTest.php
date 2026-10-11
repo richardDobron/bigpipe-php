@@ -116,6 +116,25 @@ class ParallelTest extends TestCase
         $this->assertSame(['feed', 'sidebar', BigPipe::LAST_PAGELET_ID], array_keys($this->sent()));
     }
 
+    public function testMarksTheLastPageletOfEveryPhaseOnceTheOthersAreRendered(): void
+    {
+        (new Pagelet('fast'))->defer(fn () => 'fast');
+        (new Pagelet('slow'))->defer(function () {
+            Pagelet::sleep(0.05);
+
+            return 'slow';
+        });
+        (new Pagelet('sidebar'))->setPhase(1)->defer(fn () => 'sidebar');
+
+        $this->stream();
+        $sent = $this->sent();
+
+        $this->assertSame(['fast', 'slow', 'sidebar', BigPipe::LAST_PAGELET_ID], array_keys($sent));
+        $this->assertArrayNotHasKey('last_in_phase', $sent['fast']);
+        $this->assertTrue($sent['slow']['last_in_phase']);
+        $this->assertTrue($sent['sidebar']['last_in_phase']);
+    }
+
     public function testKeepsTheOutputOfEveryPageletApart(): void
     {
         foreach (['a' => 0.1, 'b' => 0.02] as $id => $delay) {

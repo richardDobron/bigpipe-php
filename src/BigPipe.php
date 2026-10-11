@@ -343,13 +343,13 @@ class BigPipe
             if ($this->context->parallel && Parallel::isAvailable()) {
                 Parallel::run(
                     fn (): ?Pagelet => $this->takeNextPagelet(),
-                    static function (Pagelet $pagelet, array $data) use ($arrive): void {
-                        $arrive($data);
+                    function (Pagelet $pagelet, array $data, bool $lastRendering) use ($arrive): void {
+                        $arrive($this->markLastInPhase($data, $lastRendering));
                     }
                 );
             } else {
                 while (($pagelet = $this->takeNextPagelet()) !== null) {
-                    $arrive($pagelet->renderData());
+                    $arrive($this->markLastInPhase($pagelet->renderData()));
                 }
             }
 
@@ -368,6 +368,51 @@ class BigPipe
         } finally {
             $this->context->reset();
         }
+    }
+
+    /**
+     * @internal marks the data of a pagelet as the last of its phase when no other pagelet of the
+     *           phase is left to render, see BigPipe::stream(): the browser knows the phase is
+     *           complete without waiting for the next one
+     */
+    public function markLastInPhase(array $data, bool $lastRendering = true): array
+    {
+        $phase = $data['phase'] ?? 0;
+
+        if (!$lastRendering) {
+            return $data;
+        }
+
+        foreach ($this->context->pagelets as $pagelet) {
+            if ($pagelet->getPhase() === $phase) {
+                return $data;
+            }
+        }
+
+        $data['last_in_phase'] = true;
+
+        return $data;
+    }
+
+    /**
+     * @internal marks the last pagelet of every phase in the data of the pagelets of a page or a
+     *           response, sent at once
+     *
+     * @param list<array> $pagelets
+     * @return list<array>
+     */
+    public static function markLastOfPhases(array $pagelets): array
+    {
+        $last = [];
+        foreach ($pagelets as $index => $data) {
+            $last[$data['phase'] ?? 0] = $index;
+        }
+
+        foreach ($last as $index) {
+            $pagelets[$index]['last_in_phase'] = true;
+        }
+
+        return $pagelets;
     }
 
     /**
@@ -471,6 +516,7 @@ class BigPipe
             }
 
             if ($rendered) {
+                $rendered = static::markLastOfPhases($rendered);
                 $rendered[array_key_last($rendered)]['is_last'] = true;
             }
 
