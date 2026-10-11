@@ -24,7 +24,7 @@ AsyncRequest.setDefaultErrorHandler((xhr, error) => {
 const arbiter = new Arbiter();
 let timer;
 
-arbiter.subscribe('ajaxpipe/send', () => {
+arbiter.subscribe('Quickling/send', () => {
     const bar = document.getElementById('progress');
     clearTimeout(timer);
     bar.classList.add('on');
@@ -32,7 +32,7 @@ arbiter.subscribe('ajaxpipe/send', () => {
     timer = setTimeout(() => (bar.style.width = '70%'), 400);
 });
 
-arbiter.subscribe('quickling/response', () => {
+arbiter.subscribe('Quickling/response', () => {
     const bar = document.getElementById('progress');
     clearTimeout(timer);
     bar.style.width = '100%';
@@ -48,10 +48,10 @@ function markActiveLink(path) {
     });
 }
 
-arbiter.subscribe('ajaxpipe/first_response', ({ uri }) => markActiveLink(new URL(uri, location.href).pathname));
+arbiter.subscribe('Quickling/firstResponse', ({ uri }) => markActiveLink(new URL(uri, location.href).pathname));
 
 // A link to a part of another page, e.g. /#tutorials: scroll to it once that page is shown.
-arbiter.subscribe('quickling/response', ({ response }) => {
+arbiter.subscribe('Quickling/response', ({ response }) => {
     if (response.is_last && location.hash) {
         setTimeout(() => document.getElementById(decodeURIComponent(location.hash.slice(1)))?.scrollIntoView());
     }

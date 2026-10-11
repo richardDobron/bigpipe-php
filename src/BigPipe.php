@@ -238,7 +238,7 @@ class BigPipe
 
     /**
      * Tells the browser which pagelets the user is waiting for: those of the phases up to $phase,
-     * see Pagelet::setPhase(). The browser informs tti_bigpipe once they are displayed, and then
+     * see Pagelet::setPhase(). The browser informs BigPipe/tti once they are displayed, and then
      * downloads the JS files of the pagelets of the later phases in the background.
      */
     public static function setTtiPhase(?int $phase): void

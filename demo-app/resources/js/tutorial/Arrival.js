@@ -4,7 +4,7 @@ import Arbiter from 'bigpipe-util/dist/core/Arbiter';
 // loading, or since the page transition that brought it was sent.
 let start = 0;
 
-new Arbiter().subscribe('ajaxpipe/send', () => {
+new Arbiter().subscribe('Quickling/send', () => {
     start = performance.now();
 });
 

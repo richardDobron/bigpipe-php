@@ -305,7 +305,7 @@ use dobron\BigPipe\BigPipe;
 BigPipe::setTtiPhase(0);   // the pagelets of the phases up to this one
 ```
 
-The browser informs `tti_bigpipe` once those pagelets are displayed (see the [time to interactive in
+The browser informs `BigPipe/tti` once those pagelets are displayed (see the [time to interactive in
 `bigpipe-util`](https://github.com/richardDobron/bigpipe-util/blob/main/docs/pagelets.md#time-to-interactive)), e.g. to
 measure it, and then downloads the JS files of the pagelets of the later phases in the background, without running them.
 They are in the cache when the pagelets load their JS after all of them are displayed, and they never compete with the
