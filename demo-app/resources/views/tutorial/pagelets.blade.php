@@ -15,6 +15,7 @@
         <li><div><h3>setFallback()</h3><p>A pagelet that throws is replaced by its fallback, the page goes on.</p></div></li>
         <li><div><h3>setPhase()</h3><p>A pagelet of a later phase is shown after the earlier ones.</p></div></li>
         <li><div><h3>refreshPagelet()</h3><p>A response renders a pagelet again and replaces it.</p></div></li>
+        <li><div><h3>BigPipe::setHtmlContainers(true)</h3><p>The HTML of a pagelet goes into a hidden &lt;code&gt; container before its script, instead of the JSON. See <a href="/docs/pagelets#html-containers">HTML containers</a>.</p></div></li>
     </ul>
 @endsection
 
@@ -34,6 +35,7 @@ class FeedPagelet extends Pagelet
 
 // The controller
 BigPipe::setParallel(true);
+BigPipe::setHtmlContainers(true); // the HTML outside of the JSON
 
 return response()->stream(function () {
     echo view('page', ['feed' => new FeedPagelet()])->render();
@@ -46,11 +48,15 @@ CODE
 @php(\dobron\BigPipe\BigPipe::page()->call('tutorial/Arrival', 'done'))
 
 @section('examples')
-    <x-example class="wide" title="Five pagelets, one response" caption="The layout was flushed first, then every pagelet as soon as it was rendered; the bars end where each one was. Suggestions is in phase 1: rendered early, it is sent after the others. Shown at is when the browser displayed it (with the Vite dev server, once the page is parsed); a phase is shown once its last pagelet is, without waiting for the next phase. Switch to one after another and compare.">
+    <x-example class="wide" title="Five pagelets, one response" caption="The layout was flushed first, then every pagelet as soon as it was rendered; the bars end where each one was. Suggestions is in phase 1: rendered early, it is sent after the others. Shown at is when the browser displayed it (with the Vite dev server, once the page is parsed); a phase is shown once its last pagelet is, without waiting for the next phase. Switch to one after another and compare. HTML containers: view the source of the page, every pagelet has its HTML in a hidden &lt;code&gt; before its script, which only names the container; a page transition is JSON, so these links load the page in full.">
         <div class="pl-toolbar">
             <div class="segmented">
-                <a href="?parallel=1" class="{{ $parallel ? 'on' : '' }}">Parallel</a>
-                <a href="?parallel=0" class="{{ $parallel ? '' : 'on' }}">One after another</a>
+                <a href="?parallel=1{{ $containers ? '&containers=1' : '' }}" class="{{ $parallel ? 'on' : '' }}">Parallel</a>
+                <a href="?parallel=0{{ $containers ? '&containers=1' : '' }}" class="{{ $parallel ? '' : 'on' }}">One after another</a>
+            </div>
+            <div class="segmented" aria-label="Where the HTML of a pagelet is sent">
+                <a href="?parallel={{ $parallel ? 1 : 0 }}" rel="external" class="{{ $containers ? '' : 'on' }}">HTML in the JSON</a>
+                <a href="?parallel={{ $parallel ? 1 : 0 }}&containers=1" rel="external" class="{{ $containers ? 'on' : '' }}">HTML containers</a>
             </div>
             <dl class="pl-summary">
                 <div><dt>layout flushed at</dt><dd>{{ \App\Pagelets\Tutorial\SlowPagelet::elapsed() }} ms</dd></div>

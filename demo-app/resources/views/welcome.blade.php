@@ -123,21 +123,23 @@
 
         <div class="index-grid" style="margin-top:32px">
             @foreach ([
-                ['Streaming pagelets', '/tutorial/pagelets', 'Parts of a page rendered in parallel and flushed as they are ready, with fallbacks, phases and a refresh.'],
+                ['Streaming pagelets', '/tutorial/pagelets', 'Parts of a page rendered in parallel and flushed as they are ready, with fallbacks, phases, a refresh and HTML containers.'],
                 ['Lazy pagelets', '/tutorial/lazy-pagelets', 'A pagelet loaded when it scrolls into view, or once the browser is idle.'],
                 ['Poller', '/tutorial/poller', 'A deploy that reports its progress; the server stops the poller when it is done.'],
                 ['Morph', '/tutorial/morph', 'A form rendered on the server with every keystroke, and the focus stays where it was.'],
                 ['Bootloader', '/tutorial/bootloader', 'A module that is not in the bundle, loaded with its CSS the first time the server calls it.'],
                 ['Events', '/tutorial/events', 'One event informed from PHP, and independent widgets that react to it.'],
+                ['Feature flags', '/tutorial/feature-flags', 'The server chooses which module a name stands for, or turns it off.'],
                 ['Dialogs', '/tutorial/dialogs', 'Open dialogs from the server, stack several of them and close them all at once.'],
+                ['Layers', '/tutorial/layers', 'A menu the server creates with its behaviors, next to the button that was clicked.'],
                 ['Basic usages', '/tutorial/basic-example', 'The DOM operations: set, append, prepend, replace and remove content by a selector.'],
-                ['Forms', '/tutorial/forms', 'A form that is sent in the background, and its validation errors.'],
+                ['Forms', '/tutorial/forms', 'A form that is sent in the background, and its validation errors answered with 422.'],
                 ['Payload', '/tutorial/payload', 'Data for your JavaScript next to the DOM operations: a live username check.'],
                 ['Transport markers', '/tutorial/transport-markers', 'Send HTML, but also Map, Set and Element values to a module.'],
                 ['Custom configuration', '/tutorial/configuration', 'Define the configuration of the page as a module and change it with any response.'],
                 ['DOM references', '/tutorial/dom-references', 'Define an element of the page as a module that any module can require by name.'],
                 ['Expired CSRF tokens', '/tutorial/csrf', 'The browser gets a new token and sends the request again.'],
-                ['Refresh & redirecting', '/tutorial/redirecting', 'Reload the page or redirect, with a delay.'],
+                ['Refresh & redirecting', '/tutorial/redirecting', 'Reload the page or redirect, with a delay, in place of the page in the history or with a page transition.'],
             ] as $i => [$name, $href, $text])
                 <a href="{{ $href }}" class="index-card">
                     <span class="num">{{ sprintf('%02d', $i + 1) }}</span>

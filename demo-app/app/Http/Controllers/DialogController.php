@@ -76,6 +76,62 @@ HTML)
             ->send();
     }
 
+    /**
+     * A dialog with one of its behaviors changed, see the setters of DialogResponse.
+     */
+    public function behaviorDialog(string $behavior)
+    {
+        $close = '<button type="button" data-dismiss="modal" class="btn ghost sm">Close</button>';
+
+        $response = (new DialogResponse())->setController('tutorial/ModalLogger');
+
+        match ($behavior) {
+            'static' => $response
+                ->setTitle('Static backdrop')
+                ->setBody('<p>A click on the backdrop or <kbd>Esc</kbd> doesn\'t close this dialog, only the button does.</p>')
+                ->setBackdrop('static')
+                ->setKeyboard(false),
+            'hide-on-success' => $response
+                ->setTitle('Hide on success')
+                ->setBody(sprintf(
+                    '<p>Save sends a request from inside of the dialog: when it succeeds, the dialog closes itself.</p>'
+                    .'<p style="margin-top:16px"><a href="%s" ajaxify="%s" rel="async-post" class="btn sm">Save</a></p>',
+                    url('/tutorial/dialogs'),
+                    route('dialog.behavior-save'),
+                ))
+                ->setHideOnSuccess(),
+            'centered' => $response
+                ->setTitle('Animated and centered')
+                ->setBody('<p>The dialog fades in and out, in the middle of the window instead of a third from its top.</p>')
+                ->setAnimate(true)
+                ->setPosition(centered: true),
+            'delayed' => $response
+                ->setTitle('Delayed')
+                ->setBody('<p>The response came right away, and the dialog was shown a second later.</p>')
+                ->setTimeout(1000),
+            'free-focus' => $response
+                ->setTitle('Free focus')
+                ->setBody('<p>The focus stays on the page: <kbd>Tab</kbd> goes past the dialog, and when it closes the focus doesn\'t return to the button.</p>'
+                    .'<p style="margin-top:16px"><input type="text" placeholder="Not focused when the dialog opens" autocomplete="off"></p>')
+                ->setAutoFocus(false)
+                ->setTrapFocus(false)
+                ->setRefocus(false),
+            default => abort(404),
+        };
+
+        return $response
+            ->setFooter($close)
+            ->dialog()
+            ->send();
+    }
+
+    public function behaviorSave()
+    {
+        return (new AsyncResponse())
+            ->call('Toastr', 'success', ['Saved: the request succeeded, and the dialog closed itself.'])
+            ->send();
+    }
+
     public function closeDialogs()
     {
         return (new DialogResponse())

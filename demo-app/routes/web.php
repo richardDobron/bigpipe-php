@@ -12,7 +12,9 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DialogController;
 use App\Http\Controllers\DocsController;
 use App\Http\Controllers\EventsController;
+use App\Http\Controllers\FeatureFlagController;
 use App\Http\Controllers\FormController;
+use App\Http\Controllers\LayerController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PageletController;
 use App\Http\Controllers\PostController;
@@ -81,6 +83,8 @@ Route::group(['prefix' => 'tutorial'], function () {
         Route::post('/reload-delay', [RedirectController::class, 'reloadDelay'])->name('reload-delay');
         Route::post('/redirect', [RedirectController::class, 'redirect'])->name('redirect');
         Route::post('/redirect-delay', [RedirectController::class, 'redirectDelay'])->name('redirect-delay');
+        Route::post('/redirect-replace', [RedirectController::class, 'redirectReplace'])->name('redirect-replace');
+        Route::post('/redirect-transition', [RedirectController::class, 'redirectTransition'])->name('redirect-transition');
     });
 
     Route::group(['prefix' => 'dialogs', 'as' => 'dialog.'], function () {
@@ -93,6 +97,8 @@ Route::group(['prefix' => 'tutorial'], function () {
         Route::post('/delete-dialog', [DialogController::class, 'deleteDialog'])->name('delete-dialog');
         Route::post('/confirm-dialog', [DialogController::class, 'confirmDialog'])->name('confirm-dialog');
         Route::post('/close-dialogs', [DialogController::class, 'closeDialogs'])->name('close-dialogs');
+        Route::post('/behavior/{behavior}', [DialogController::class, 'behaviorDialog'])->name('behavior');
+        Route::post('/behavior-save', [DialogController::class, 'behaviorSave'])->name('behavior-save');
     });
 
     Route::group(['prefix' => 'basic-example', 'as' => 'basic-example.'], function () {
@@ -137,6 +143,19 @@ Route::group(['prefix' => 'tutorial'], function () {
         Route::get('/', ViewController::class)->defaults('view', 'tutorial.payload');
 
         Route::post('/check-username', [UsersController::class, 'checkUsername'])->name('check.username');
+    });
+
+    Route::group(['prefix' => 'feature-flags', 'as' => 'feature-flags.'], function () {
+        Route::get('/', [FeatureFlagController::class, 'show']);
+        Route::post('/variant/{variant}', [FeatureFlagController::class, 'change'])->name('change');
+        Route::post('/greet', [FeatureFlagController::class, 'greet'])->name('greet');
+    });
+
+    Route::group(['prefix' => 'layers', 'as' => 'layers.'], function () {
+        Route::get('/', ViewController::class)->defaults('view', 'tutorial.layers');
+
+        Route::post('/menu/{position}', [LayerController::class, 'menu'])->name('menu');
+        Route::post('/pick/{item}', [LayerController::class, 'pick'])->name('pick');
     });
 
     Route::group(['prefix' => 'pagelets', 'as' => 'pagelets.'], function () {

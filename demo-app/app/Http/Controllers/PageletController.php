@@ -14,12 +14,15 @@ class PageletController extends Controller
     public function pagelets(Request $request)
     {
         $parallel = $request->query('parallel') !== '0';
+        // The HTML of every pagelet in a hidden <code> container before its script, instead of in the JSON.
+        $containers = $request->query('containers') === '1';
 
         BigPipe::setParallel($parallel);
+        BigPipe::setHtmlContainers($containers);
         // The failing pagelet is part of the example: its exception is not an error of the demo.
         BigPipe::setErrorHandler(fn () => null);
 
-        return $this->streamedPage('tutorial.pagelets', ['parallel' => $parallel]);
+        return $this->streamedPage('tutorial.pagelets', ['parallel' => $parallel, 'containers' => $containers]);
     }
 
     public function refresh(string $id)

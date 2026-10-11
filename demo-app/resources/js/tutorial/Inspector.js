@@ -62,7 +62,17 @@ function lines(data, transition = false) {
         rows.push(['dom', operation, selector || (transition ? 'the canvas' : 'the clicked element'), htmlPreview(content)]);
     });
 
-    (data.jsmods?.define || []).forEach(([name]) => rows.push(['define', name, '', '']));
+    (data.jsmods?.define || []).forEach(([name, exports]) => {
+        // {"__rc": target}: the module the server chose for it, see defineCond(); null turns it off.
+        const chosen = exports && typeof exports === 'object' && '__rc' in exports;
+
+        rows.push(['define', name, '', chosen ? `→ ${exports.__rc ?? 'null (off)'}` : '']);
+    });
+
+    // The objects the browser creates once, see instance(): their calls name them by the id.
+    (data.jsmods?.instances || []).forEach(([id, module, args]) => {
+        rows.push(['instance', `new ${module.replace(/^bigpipe-util\/dist\//, '')}()`, id, args?.length ? preview(args, 48) : '']);
+    });
 
     (data.jsmods?.require || []).forEach(([module, method, args]) => {
         const name = module.replace(/^bigpipe-util\/dist\//, '');

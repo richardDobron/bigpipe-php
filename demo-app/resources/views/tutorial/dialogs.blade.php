@@ -3,57 +3,21 @@
 @section('header', 'Dialogs')
 
 @section('description')
-    This example illustrates dynamic opening of a dialog but also working with multiple dialogs at once.
+    A dialog the server opens: a <code>DialogResponse</code> built in PHP, a Blade view or a React component, also several
+    of them stacked on each other. Every dialog behaves the same by default, and each behavior can be changed per dialog.
+    See <a href="/docs/dialogs#options-and-behaviors">Dialogs</a> in the docs.
+@endsection
 
-    <ul role="list" class="text-base text-gray-300">
-        <li class="relative flex flex-col">
-            <div class="mt-8 text-left">
-                <h3 class="pointer-events-none mt-2 block truncate font-bold">setController</h3>
-                <p class="pointer-events-none mt-1 block text-color-800">Sets the JavaScript class controller - if you need to register an extra event listeners (show, shown, hide, hidden) or logic.</p>
-            </div>
-        </li>
-        <li class="relative flex flex-col">
-            <div class="mt-8 text-left">
-                <h3 class="pointer-events-none mt-2 block truncate font-bold">setTitle</h3>
-                <p class="pointer-events-none mt-1 block text-color-800">Sets the title of a dialog.</p>
-            </div>
-        </li>
-        <li class="relative flex flex-col">
-            <div class="mt-8 text-left">
-                <h3 class="pointer-events-none mt-2 block truncate font-bold">setBody</h3>
-                <p class="pointer-events-none mt-1 block text-color-800">Sets the body of a dialog.</p>
-            </div>
-        </li>
-        <li class="relative flex flex-col">
-            <div class="mt-8 text-left">
-                <h3 class="pointer-events-none mt-2 block truncate font-bold">setFooter</h3>
-                <p class="pointer-events-none mt-1 block text-color-800">Sets the footer of a dialog.</p>
-            </div>
-        </li>
-        <li class="relative flex flex-col">
-            <div class="mt-8 text-left">
-                <h3 class="pointer-events-none mt-2 block truncate font-bold">setDialog</h3>
-                <p class="pointer-events-none mt-1 block text-color-800">Sets the whole content of a dialog.</p>
-            </div>
-        </li>
-        <li class="relative flex flex-col">
-            <div class="mt-8 text-left">
-                <h3 class="pointer-events-none mt-2 block truncate font-bold">closeDialogs</h3>
-                <p class="pointer-events-none mt-1 block text-color-800">Close all opened dialogs.</p>
-            </div>
-        </li>
-        <li class="relative flex flex-col">
-            <div class="mt-8 text-left">
-                <h3 class="pointer-events-none mt-2 block truncate font-bold">closeDialog</h3>
-                <p class="pointer-events-none mt-1 block text-color-800">Close only current dialog.</p>
-            </div>
-        </li>
-        <li class="relative flex flex-col">
-            <div class="mt-8 text-left">
-                <h3 class="pointer-events-none mt-2 block truncate font-bold">dialog</h3>
-                <p class="pointer-events-none mt-1 block text-color-800">Render defined dialog.</p>
-            </div>
-        </li>
+@section('bullet-description')
+    <ul role="list">
+        <li><div><h3>setTitle / setBody / setFooter</h3><p>The parts of a dialog; a button with data-dismiss="modal" closes it.</p></div></li>
+        <li><div><h3>setDialog</h3><p>The whole content of a dialog, e.g. a Blade view.</p></div></li>
+        <li><div><h3>setController</h3><p>A JavaScript class created with the dialog, for its events (show, shown, hide, hidden) or logic.</p></div></li>
+        <li><div><h3>closeDialog / closeDialogs</h3><p>Close the most recent dialog, or all of them.</p></div></li>
+        <li><div><h3>setBackdrop / setKeyboard</h3><p>'static' for a backdrop that doesn't close the dialog, false for Esc that doesn't.</p></div></li>
+        <li><div><h3>setHideOnSuccess</h3><p>Close the dialog when a request sent from inside of it succeeds.</p></div></li>
+        <li><div><h3>setAutoFocus / setTrapFocus / setRefocus</h3><p>Focus the dialog when shown, keep Tab inside, give the focus back when closed. All on by default.</p></div></li>
+        <li><div><h3>setAnimate / setPosition / setTimeout</h3><p>Fade in and out, the top margin or centered, show after a delay.</p></div></li>
     </ul>
 @endsection
 
@@ -70,7 +34,6 @@ class DialogController extends Controller
             ->setTitle('Dialog title')
             ->setBody('HTML body')
             ->setFooter('HTML footer')
-            ->setBackdrop('static')
             ->dialog()
             ->send();
 
@@ -81,12 +44,26 @@ class DialogController extends Controller
             ->dialog()
             ->send();
     }
+
+    public function showStaticModal()
+    {
+        // each behavior can be changed per dialog
+        return (new DialogResponse())
+            ->setTitle('Static backdrop')
+            ->setBody('HTML body')
+            ->setBackdrop('static')  // the backdrop doesn't close it
+            ->setKeyboard(false)     // neither does Esc
+            ->setHideOnSuccess()     // a request from inside does
+            ->setPosition(centered: true)
+            ->dialog()
+            ->send();
+    }
 }
 CODE
 )
 
 @section('examples')
-    <x-example title="Dialogs from the server" caption="Each button asks the server for a dialog: a DialogResponse built in PHP, a Blade view, a React component, or several dialogs stacked on each other.">
+    <x-example title="Dialogs from the server" caption="Each button asks the server for a dialog: a DialogResponse built in PHP, a Blade view, a React component, or several dialogs stacked on each other. When a dialog closes, the focus goes back to the link that opened it (its causal element), so a keyboard user continues where they were.">
         <div class="surface stack">
             @foreach ([
                 ['Dialog from a model', 'DialogResponse', 'dialog.model-dialog'],
@@ -98,6 +75,24 @@ CODE
                     <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2.25" y="3.25" width="11.5" height="9.5" rx="2"/><path d="M2.5 6h11"/></svg>
                     {{ $label }}
                     <span class="kbd">{{ $kind }}</span>
+                </a>
+            @endforeach
+        </div>
+    </x-example>
+
+    <x-example title="Behaviors" caption="Each button opens a dialog with one of its behaviors changed. The others stay the defaults: the focus moves into the dialog, Tab stays inside of it, Esc and a click on the backdrop close it, and the focus goes back to the button.">
+        <div class="surface stack">
+            @foreach ([
+                ['Static backdrop', 'setBackdrop', 'static'],
+                ['Hide on success', 'setHideOnSuccess', 'hide-on-success'],
+                ['Animated and centered', 'setPosition', 'centered'],
+                ['Delayed', 'setTimeout', 'delayed'],
+                ['Focus stays on the page', 'setTrapFocus', 'free-focus'],
+            ] as [$label, $setters, $behavior])
+                <a class="btn ghost block" href="{{ url()->current() }}" ajaxify="{{ route('dialog.behavior', $behavior) }}" rel="async-post">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2.25" y="3.25" width="11.5" height="9.5" rx="2"/><path d="M2.5 6h11"/></svg>
+                    {{ $label }}
+                    <span class="kbd">{{ $setters }}</span>
                 </a>
             @endforeach
         </div>

@@ -1174,6 +1174,8 @@ body.theme progress { width: 100%; height: 6px; accent-color: var(--blue); }
 .tut-intro ul li > div { margin: 0 !important; padding: 10px 0; border-top: 1px solid var(--line); }
 .tut-intro ul h3 { margin: 0 !important; font-family: var(--mono); font-size: 13px; font-weight: 500; color: var(--ink); }
 .tut-intro ul p { margin-top: 2px !important; font-size: 14px; color: var(--muted); }
+.tut-intro a { color: var(--blue); text-decoration: underline; text-underline-offset: 3px; }
+.tut-intro a:hover { color: var(--ink); }
 
 .playground-grid { display: grid; gap: 24px; align-items: start; }
 @media (min-width: 1000px) { .playground-grid { grid-template-columns: minmax(0, 1fr) 380px; } }
@@ -1340,6 +1342,18 @@ body.theme .input-wrap[data-state='unavailable'] input { border-color: var(--red
 .segmented a.on { color: var(--ink); background: var(--card); box-shadow: var(--shadow-sm); }
 .output { margin-top: 12px; padding: 12px 14px; font-family: var(--mono); font-size: 12.5px; color: var(--ink); background: var(--tint); border-radius: 9px; }
 
+/* Feature flags: the greeting of the variant that ran */
+.greeting { margin-top: 14px; padding: 18px 16px; font-size: 15px; color: var(--faint); text-align: center; border: 1px dashed var(--line); border-radius: 10px; }
+.greeting[data-variant] { color: var(--ink); border-style: solid; }
+.greeting[data-variant='next'] { font-weight: 600; border-color: var(--violet); box-shadow: 0 0 0 3px color-mix(in srgb, var(--violet) 15%, transparent); }
+
+/* Layers: a menu the server created, in the body next to the button */
+.layer-menu { z-index: 50; display: grid; min-width: 168px; padding: 4px; background: var(--card); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); }
+.layer-menu a { padding: 7px 10px; font-size: 13.5px; color: var(--ink); text-decoration: none; border-radius: 7px; }
+.layer-menu a:hover,
+.layer-menu a:focus-visible { background: var(--tint); outline: none; }
+.layer-menu a.async-saving { opacity: 0.6; }
+
 /* DOM references */
 .targets { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 .target { display: grid; gap: 10px; padding: 12px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; text-align: center; }
@@ -1421,7 +1435,8 @@ body.theme .input-wrap[data-state='unavailable'] input { border-color: var(--red
 .op .name { color: #e7eaf5; word-break: break-word; }
 .op .name em { font-style: normal; color: #9fd0a6; }
 .op .detail { grid-column: 2; color: #8b93b5; word-break: break-word; }
-.op-call .name { color: #8fb3ff; }
+.op-call .name,
+.op-instance .name { color: #8fb3ff; }
 .op-define .name { color: #f3c37a; }
 .op-payload .name { color: #e6a3dc; }
 .op-retry .name,

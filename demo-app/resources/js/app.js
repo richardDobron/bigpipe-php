@@ -21,9 +21,12 @@ new Arbiter().subscribe('BigPipe/newRevision', () => {
     new Toastr().info('The next page you open loads it.', 'A new version of the demo is out');
 });
 
-// The errors of links and forms (rel="async"): show the message the server gave.
+// The errors of links and forms (rel="async"): show the message the server gave, with the status of an error the
+// server sent with one, e.g. send(422) of the forms tutorial.
 AsyncRequest.setDefaultErrorHandler((xhr, error) => {
-    new Toastr().error(error.description || error.summary, error.description ? error.summary : undefined);
+    const summary = error.type === 'server' && error.status >= 400 ? `${error.summary} (${error.status})` : error.summary;
+
+    new Toastr().error(error.description || summary, error.description ? summary : undefined);
 });
 
 const arbiter = new Arbiter();
