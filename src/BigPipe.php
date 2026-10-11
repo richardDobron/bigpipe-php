@@ -13,6 +13,9 @@ class BigPipe
     /** Marks the end of a streamed page: the browser starts loading the JS of the pagelets. */
     public const LAST_PAGELET_ID = '__bigpipe_last';
 
+    /** The global the inline scripts queue their calls in until the entrypoint has run. */
+    public const QUEUE = '__bigpipe';
+
     protected static ?Context $defaultContext = null;
 
     /** @var null|callable(): Context */
@@ -252,11 +255,11 @@ class BigPipe
     }
 
     /**
-     * Renders the inline scripts of the page as module scripts, which a bundler such as Vite
-     * loads its entrypoint with: module scripts run in the order of the document, after the
-     * entrypoint, so `require` exists when they run. The pagelets are then displayed once the
-     * whole page has been parsed, not while it streams. Null renders classic scripts.
+     * Renders the inline scripts of the page as module scripts. Null renders classic scripts.
      *
+     * @deprecated not needed: the inline scripts queue their calls until the entrypoint has run, so
+     *             they work with a module entrypoint too, and classic scripts display the pagelets
+     *             while the page streams
      * @throws Exceptions\BigPipeInvalidArgumentException
      */
     public static function setScriptType(?string $type): void
@@ -281,8 +284,8 @@ class BigPipe
 
     /**
      * The script that sends the pagelets and the modules of the page to the browser, all at once at
-     * the end of the request. Print it at the end of the page, after the entrypoint is loaded; stream()
-     * sends every pagelet as soon as it is rendered instead.
+     * the end of the request. Print it at the end of the page; the entrypoint can be loaded before or
+     * after it. stream() sends every pagelet as soon as it is rendered instead.
      *
      * @throws \Throwable
      */
@@ -391,9 +394,19 @@ class BigPipe
         return $pagelet;
     }
 
+    /**
+     * A call the browser runs once the entrypoint has run, see BigPipeQueue of bigpipe-util: the
+     * inline scripts do not depend on when the entrypoint is loaded.
+     */
+    protected static function queueScript(string $call, array $payload): string
+    {
+        return "(window." . static::QUEUE . "=window." . static::QUEUE . "||[]).push("
+            . json_encode([$call, $payload], JSON_THROW_ON_ERROR) . ");";
+    }
+
     protected static function arriveScript(array $data): string
     {
-        return "(new (require(\"bigpipe-util/dist/BigPipe\"))).onPageletArrive(" . json_encode($data, JSON_THROW_ON_ERROR) . ");";
+        return static::queueScript('arrive', $data);
     }
 
     /**
@@ -418,7 +431,7 @@ class BigPipe
 
     protected static function handleScript(array $jsmods): string
     {
-        return "(new (require(\"bigpipe-util/dist/ServerJS\"))).handle(" . json_encode($jsmods, JSON_THROW_ON_ERROR) . ");";
+        return static::queueScript('handle', $jsmods);
     }
 
     /**

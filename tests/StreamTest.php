@@ -23,7 +23,7 @@ class StreamTest extends TestCase
 
     private function pageletIds(): array
     {
-        preg_match_all('/onPageletArrive\(\{"id":"([^"]+)"/', implode('', $this->chunks), $matches);
+        preg_match_all('/\["arrive",\{"id":"([^"]+)"/', implode('', $this->chunks), $matches);
 
         return $matches[1];
     }
@@ -77,8 +77,8 @@ class StreamTest extends TestCase
 
         $last = end($this->chunks);
         $this->assertSame(
-            '<script>(new (require("bigpipe-util/dist/BigPipe"))).onPageletArrive({"id":"__bigpipe_last","js":[],"css":[],"domops":[],"jsmods":{"require":[]},"is_last":true});'
-            . '(new (require("bigpipe-util/dist/ServerJS"))).handle({"require":[["Page","init"]]});</script>' . "\n",
+            '<script>(window.__bigpipe=window.__bigpipe||[]).push(["arrive",{"id":"__bigpipe_last","js":[],"css":[],"domops":[],"jsmods":{"require":[]},"is_last":true}]);'
+            . '(window.__bigpipe=window.__bigpipe||[]).push(["handle",{"require":[["Page","init"]]}]);</script>' . "\n",
             $last
         );
         $this->assertStringNotContainsString('is_last', $this->chunks[1]);
@@ -93,7 +93,7 @@ class StreamTest extends TestCase
         $this->stream();
 
         $this->assertSame(
-            '<script nonce="r4nd0m">(new (require("bigpipe-util/dist/ServerJS"))).handle({"define":[["CSPNonce","r4nd0m"],["SiteData",{"locale":"sk_SK"}]]});</script>' . "\n",
+            '<script nonce="r4nd0m">(window.__bigpipe=window.__bigpipe||[]).push(["handle",{"define":[["CSPNonce","r4nd0m"],["SiteData",{"locale":"sk_SK"}]]}]);</script>' . "\n",
             $this->chunks[0]
         );
         foreach ($this->chunks as $chunk) {
@@ -113,8 +113,8 @@ class StreamTest extends TestCase
         $this->stream();
 
         $this->assertStringStartsWith(
-            '<script>(new (require("bigpipe-util/dist/ServerJS"))).handle({"define":[["FeedConfig",{"limit":10}]]});'
-            . '(new (require("bigpipe-util/dist/BigPipe"))).onPageletArrive({"id":"feed",',
+            '<script>(window.__bigpipe=window.__bigpipe||[]).push(["handle",{"define":[["FeedConfig",{"limit":10}]]}]);'
+            . '(window.__bigpipe=window.__bigpipe||[]).push(["arrive",{"id":"feed",',
             $this->chunks[1]
         );
         $this->assertStringNotContainsString('"define"', end($this->chunks));

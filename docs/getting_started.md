@@ -69,28 +69,16 @@ to the browser:
 <?= \dobron\BigPipe\BigPipe::render() ?>
 ```
 
-The script runs where it is printed and needs the entrypoint to be loaded by then: add the entrypoint with a classic
-`<script src>` before it, in the `<head>` or at the end of the `<body>`. A `<script type="module">`, which is what Vite
-adds by default, is deferred until the whole page is parsed. If your entrypoint is a module, render the inline scripts of
-BigPipe as module scripts too. They run in the order of the document, after the entrypoint:
+The entrypoint can be loaded any way: a classic `<script src>`, `async`, `defer`, or a `<script type="module">` as Vite
+adds it, before or after this script. The script queues its calls in `window.__bigpipe` until the entrypoint has run:
 
-```php title="layout.php"
-<?php \dobron\BigPipe\BigPipe::setScriptType('module'); ?>
-<script type="module" src="/build/app.js"></script>
-...
-<?= \dobron\BigPipe\BigPipe::render() ?>
+```html
+<script>(window.__bigpipe=window.__bigpipe||[]).push(["arrive",{"id":"feed",…}]);</script>
 ```
 
-Pagelets are then displayed once the page has been parsed instead of while it streams. Without pagelets you can also
-print only the modules, once the page is parsed:
-
-```php title="layout.php"
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        (new (require("bigpipe-util/dist/ServerJS"))).handle(<?=json_encode(\dobron\BigPipe\BigPipe::jsmods())?>);
-    });
-</script>
-```
+With an entrypoint loaded before the pagelets, e.g. a classic script in the `<head>`, every pagelet is displayed as
+soon as it arrives. A deferred or module entrypoint displays the pagelets that arrived before it once it runs.
+`BigPipe::setScriptType('module')` is no longer needed.
 
 With a nonce-based Content Security Policy, set the nonce of the request before rendering. `nonceAttribute()` and
 `BigPipe::render()` add it to the inline scripts, and `BigPipe::render()` also defines it as the `CSPNonce` module, from

@@ -52,10 +52,10 @@ class NonceTest extends TestCase
         $lines = explode("\n", trim(strip_tags(BigPipe::render())));
 
         $this->assertSame(
-            '(new (require("bigpipe-util/dist/ServerJS"))).handle({"define":[["CSPNonce","r4nd0m"],["SiteData",[]]]});',
+            '(window.__bigpipe=window.__bigpipe||[]).push(["handle",{"define":[["CSPNonce","r4nd0m"],["SiteData",[]]]}]);',
             trim($lines[0])
         );
-        $this->assertStringContainsString('onPageletArrive', $lines[1]);
+        $this->assertStringContainsString('["arrive",', $lines[1]);
     }
 
     public function testDoesNotDefineTheNonceInAsyncResponses(): void

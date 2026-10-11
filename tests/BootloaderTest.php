@@ -119,7 +119,7 @@ class BootloaderTest extends TestCase
         $enable = strpos($output, '["bigpipe-util\/dist\/Bootloader","enableBootload",[{"Editor":["editor.css","editor.js"]}]]');
         $this->assertNotFalse($enable);
         $this->assertStringContainsString('["bigpipe-util\/dist\/Bootloader","setResourceMap",[{"editor.css"', $output);
-        $this->assertLessThan(strpos($output, 'onPageletArrive'), $enable);
+        $this->assertLessThan(strpos($output, '["arrive",'), $enable);
         $this->assertLessThan(strpos($output, '["Editor","open"]'), $enable);
     }
 

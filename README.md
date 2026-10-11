@@ -59,7 +59,7 @@ setModuleLoader(modulePath => modules[`./${modulePath}.js`]?.default);
 ```html
 <?= \dobron\BigPipe\BigPipe::render() ?>
 ```
-It prints the script that sends the pagelets and the modules of the page to the browser, so load the entrypoint with a classic `<script src>` before it. See the [documentation](https://bigpipe.etexweb.sk/docs/getting_started) for module scripts and a Content Security Policy.
+It prints the script that sends the pagelets and the modules of the page to the browser. It queues them until the entrypoint has run, so the entrypoint can be a classic, `async`, `defer` or module script, before or after it. See the [documentation](https://bigpipe.etexweb.sk/docs/getting_started) for a Content Security Policy.
 
 ## 🚀 Quick start
 

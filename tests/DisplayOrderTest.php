@@ -22,7 +22,7 @@ class DisplayOrderTest extends TestCase
 {
     private static function pageletIds(string $output): array
     {
-        preg_match_all('/onPageletArrive\(\{"id":"([^"]+)"/', $output, $matches);
+        preg_match_all('/\["arrive",\{"id":"([^"]+)"/', $output, $matches);
 
         return $matches[1];
     }

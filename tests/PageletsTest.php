@@ -45,7 +45,7 @@ class PageletsTest extends TestCase
 
         $output = BigPipe::render();
 
-        preg_match_all('/onPageletArrive\(\{"id":"([^"]+)"/', $output, $matches);
+        preg_match_all('/\["arrive",\{"id":"([^"]+)"/', $output, $matches);
         $this->assertSame(['content', 'sidebar'], $matches[1]);
         $this->assertMatchesRegularExpression('/"id":"sidebar".*"is_last":true/', $output);
     }

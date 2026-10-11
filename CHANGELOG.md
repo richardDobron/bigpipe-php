@@ -8,6 +8,9 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 
 ### Added
 
+- The inline scripts of `BigPipe::render()` and `stream()` queue their calls in `window.__bigpipe` until the
+  entrypoint has run, so it can be a classic, `async`, `defer` or module script, loaded before or after them. Needs
+  `bigpipe-util` with `BigPipeQueue`.
 - Laravel integration, discovered by Laravel 9 or later: `dobron\BigPipe\Laravel\BigPipeServiceProvider` binds the
   context to the request (Octane), sends the CSRF token with the `SetUpBigPipe` middleware, registers the route for a
   new token and answers an expired token so the browser sends the request again, and adds the `@bigpipe`, `@jsmod`,
@@ -37,6 +40,7 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 
 ### Changed
 
+- `BigPipe::setScriptType()` is deprecated: the inline scripts work with any entrypoint.
 - A dialog gives the focus back to the element that sent its request by default, see `setCausalElement()`.
 - `transition()` without `$bodyClass` keeps the class of `<body>` instead of emptying it.
 - A pagelet created while another one is rendered is displayed after it.

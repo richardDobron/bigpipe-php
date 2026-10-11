@@ -46,7 +46,7 @@ class ParallelTest extends TestCase
     private function sent(?string $script = null): array
     {
         preg_match_all(
-            '/onPageletArrive\((\{.*?\})\);(?:<\/script>|\r?\n|\(new )/',
+            '/\["arrive",(\{.*?\})\]\);(?:<\/script>|\r?\n|\(window)/',
             $script ?? implode('', $this->chunks),
             $matches
         );

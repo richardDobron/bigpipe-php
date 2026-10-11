@@ -66,12 +66,12 @@ class DefineTest extends TestCase
         $lines = explode("\n", trim(strip_tags(BigPipe::render())));
 
         $this->assertSame(
-            '(new (require("bigpipe-util/dist/ServerJS"))).handle({"define":[["SiteData",{"locale":"sk_SK"}]]});',
+            '(window.__bigpipe=window.__bigpipe||[]).push(["handle",{"define":[["SiteData",{"locale":"sk_SK"}]]}]);',
             trim($lines[0])
         );
-        $this->assertStringContainsString('onPageletArrive({"id":"feed"', $lines[1]);
+        $this->assertStringContainsString('["arrive",{"id":"feed"', $lines[1]);
         $this->assertSame(
-            '(new (require("bigpipe-util/dist/ServerJS"))).handle({"require":[["Page","init"]]});',
+            '(window.__bigpipe=window.__bigpipe||[]).push(["handle",{"require":[["Page","init"]]}]);',
             trim($lines[2])
         );
     }

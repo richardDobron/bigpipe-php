@@ -44,9 +44,8 @@ The pages extend one layout. The content is a section, so a page transition can 
     @endunless
 ```
 
-`@vite` loads the entrypoint as a deferred module, so BigPipe renders its inline script as a module script too, see
-`setScriptType()` in the middleware below. With Laravel Mix or webpack the entrypoint is a classic script and nothing
-needs to be set.
+`@vite` loads the entrypoint as a deferred module. The inline script of BigPipe queues its calls until the entrypoint
+has run, so it works with Vite, Laravel Mix or webpack alike, and nothing needs to be set.
 
 A page transition replaces the class of `<body>` with the one of its response (`transition($content, $title, $bodyClass)`),
 and keeps it when the response has none. To change it per page, share the class of your layout, e.g.
@@ -99,7 +98,6 @@ class SetUpBigPipe
         // Expired tokens: the browser gets a new one from this URL and sends the request again.
         BigPipe::setCSRFToken(csrf_token(), refreshUri: route('csrf-token', absolute: false));
 
-        BigPipe::setScriptType('module');                 // Vite, see the layout
         BigPipe::setNonce($request->attributes->get('csp_nonce')); // from your CSP middleware, or null
         BigPipe::setTtiPhase(0);                          // the first phase is what the user waits for
         BigPipe::setPipelining(! $this->isCrawler($request));
