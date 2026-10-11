@@ -16,6 +16,11 @@ setModuleLoader(name => (modules[`./${name}.js`] ?? modules[`./${name}.jsx`])?.d
 // The scripts the Bootloader loads are not in the bundle: they register their modules with this.
 window.registerModules = registerModules;
 
+// A response of a newer deploy: the next page is loaded in full, with the new scripts.
+new Arbiter().subscribe('BigPipe/newRevision', () => {
+    new Toastr().info('The next page you open loads it.', 'A new version of the demo is out');
+});
+
 // The errors of links and forms (rel="async"): show the message the server gave.
 AsyncRequest.setDefaultErrorHandler((xhr, error) => {
     new Toastr().error(error.description || error.summary, error.description ? error.summary : undefined);

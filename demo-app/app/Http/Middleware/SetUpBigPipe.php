@@ -20,11 +20,12 @@ class SetUpBigPipe
         BigPipe::setTtiPhase(0);
         BigPipe::setPipelining(! $this->isCrawler($request));
 
-        // Every page of the site renders into the same layout, so every page is a page transition.
-        Quickling::configure(
-            version: config('app.version'),
-            badRequestKeys: ['print']
-        );
+        // A new deploy: the browser offers to reload, and loads the next page in full with the new scripts.
+        BigPipe::setRevision(config('app.version'));
+
+        // Every page of the site renders into the same layout, so every page is a page transition. Its
+        // version is the revision of the deploy.
+        Quickling::configure(badRequestKeys: ['print']);
 
         return $next($request);
     }
