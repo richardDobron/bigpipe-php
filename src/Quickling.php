@@ -73,7 +73,7 @@ class Quickling
                 'inactivePageRegex' => static::$inactivePageRegex,
                 'badRequestKeys' => static::$badRequestKeys,
                 'sessionLength' => static::$sessionLength,
-            ]),
+            ], static fn (mixed $value): bool => $value !== null && $value !== '' && $value !== [] && $value !== 0),
         ]);
     }
 

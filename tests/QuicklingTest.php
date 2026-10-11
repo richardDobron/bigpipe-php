@@ -25,6 +25,18 @@ class QuicklingTest extends TestCase
         );
     }
 
+    public function testSendsTheVersionZero(): void
+    {
+        Quickling::configure('0');
+
+        Quickling::init('content');
+
+        $this->assertStringContainsString(
+            '["bigpipe-util\/dist\/Quickling","init",[{"__e":"content"},{"version":"0"}]]',
+            BigPipe::render()
+        );
+    }
+
     public function testIsNotTurnedOnAgainByAPageTransition(): void
     {
         $_GET['quickling'] = ['version' => '1'];
