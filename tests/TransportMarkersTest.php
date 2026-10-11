@@ -54,4 +54,9 @@ class TransportMarkersTest extends TestCase
             '__ar' => 1,
         ]);
     }
+
+    public function testRelative(): void
+    {
+        $this->assertSame(['__rel' => 1], TransportMarker::relative());
+    }
 }

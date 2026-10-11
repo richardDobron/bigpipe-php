@@ -14,6 +14,7 @@ class TransportMarker
     public const TRANSPORT_ELEMENT = "__e";
     public const TRANSPORT_MAP = "__map";
     public const TRANSPORT_SET = "__set";
+    public const TRANSPORT_RELATIVE = "__rel";
 
     /**
      * HTML content of a DOM operation.
@@ -43,6 +44,16 @@ class TransportMarker
     public static function module(string $module): array
     {
         return [self::TRANSPORT_MODULE => $module];
+    }
+
+    /**
+     * The element that sent the request, e.g. the link or form of the Primer, or null for a page.
+     *
+     * @return array<string, mixed>
+     */
+    public static function relative(): array
+    {
+        return [self::TRANSPORT_RELATIVE => 1];
     }
 
     /**

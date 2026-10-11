@@ -241,6 +241,7 @@ class AsyncResponseTest extends TestCase
                                 'keyboard' => false,
                                 'content' => 'test',
                                 'controller' => null,
+                                'causalElement' => ['__rel' => 1],
                             ],
                             []
                         ]

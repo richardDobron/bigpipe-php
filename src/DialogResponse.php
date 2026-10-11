@@ -95,7 +95,8 @@ class DialogResponse extends AsyncResponse
 
     /**
      * The element that opened the dialog, by its id: the focus returns to it when the dialog is
-     * closed, see setRefocus().
+     * closed, see setRefocus(). It is the element that sent the request by default, e.g. the link
+     * of the Primer.
      */
     public function setCausalElement(string $elementId): static
     {
@@ -229,7 +230,7 @@ class DialogResponse extends AsyncResponse
      */
     public function dialog(array $options = []): static
     {
-        $options = array_merge($this->options, $options);
+        $options = array_merge($this->options, $options) + ['causalElement' => TransportMarker::relative()];
 
         if ($this->content) {
             $this->call(

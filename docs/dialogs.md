@@ -88,7 +88,7 @@ $response->setTitle('Delete the post?')
 | `setAutoFocus(bool)`                     | `true`  | Move the focus into the dialog when it is shown.                                   |
 | `setTrapFocus(bool)`                     | `true`  | Keep <kbd>Tab</kbd> inside of the dialog.                                          |
 | `setRefocus(bool)`                       | `true`  | Give the focus back to the element that opened the dialog when it closes.          |
-| `setCausalElement(string $elementId)`    |         | The element to give the focus back to, by its id. The focused element by default.   |
+| `setCausalElement(string $elementId)`    |         | The element to give the focus back to, by its id. By default the element that sent the request, e.g. the link, or the focused element inside of it, e.g. the button of a form. |
 | `setHideOnTransition(bool)`              | `true`  | Close the dialog before a [page transition](page_transitions.md).                  |
 | `setHideOnSuccess(bool|string $selector)` | `false` | Close the dialog when a request sent from inside of it succeeds, from any element or only those that match the selector. |
 | `setPosition(?int $top, bool $centered, bool $ignoreTopInShortViewport)` | | Set the top margin: `$top` pixels, or else a third of the free height of the window (half when centered). Without arguments, the default margin. |

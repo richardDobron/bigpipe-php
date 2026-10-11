@@ -33,7 +33,8 @@ class DialogResponseTest extends TestCase
                                 'title' => 'Dialog title',
                                 'body' => 'html <strong>content</strong>',
                                 'footer' => '<button>close</button>',
-                                'controller' => 'ModalMonitor'
+                                'controller' => 'ModalMonitor',
+                                'causalElement' => ['__rel' => 1],
                             ],
                             [],
                         ]

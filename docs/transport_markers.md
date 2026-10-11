@@ -58,6 +58,14 @@ and `transportSet()`, and `$response->transport()` still work, but are deprecate
     ]);
     ```
 
+### **relative**
+- The `__rel` marker stands for the element that sent the request, e.g. the link or the form of the Primer, or `null`
+  for the modules of a page.
+
+    ```php
+    $response->call('Tooltip', 'show', [TransportMarker::relative(), 'Copied']);
+    ```
+
 ## Live Example
 You can observe this API in action in the [demo page](http://bigpipe.etexweb.sk/tutorial/transport-markers) provided.
 
