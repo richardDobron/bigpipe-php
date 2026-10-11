@@ -102,6 +102,24 @@ class StreamTest extends TestCase
         $this->assertStringNotContainsString('"define"', end($this->chunks));
     }
 
+    public function testSendsWhatThePageDefinesWhileRenderingBeforeThePagelet(): void
+    {
+        (new Pagelet('feed'))->defer(function () {
+            (new BigPipe())->define('FeedConfig', ['limit' => 10]);
+
+            return 'posts';
+        });
+
+        $this->stream();
+
+        $this->assertStringStartsWith(
+            '<script>(new (require("bigpipe-util/dist/ServerJS"))).handle({"define":[["FeedConfig",{"limit":10}]]});'
+            . '(new (require("bigpipe-util/dist/BigPipe"))).onPageletArrive({"id":"feed",',
+            $this->chunks[1]
+        );
+        $this->assertStringNotContainsString('"define"', end($this->chunks));
+    }
+
     public function testResetsThePageAfterwards(): void
     {
         (new BigPipe())->require(['Page', 'init']);

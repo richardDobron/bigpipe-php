@@ -330,16 +330,23 @@ class BigPipe
             $defines = $this->takeDefines();
             $write(empty($defines) ? '' : $tag(static::handleScript(['define' => $defines])));
 
+            // A pagelet may require what the page defined while it was rendered: it is sent first.
+            $arrive = function (array $data) use ($write, $tag): void {
+                $defines = $this->takeDefines(false);
+                $script = empty($defines) ? '' : static::handleScript(['define' => $defines]);
+                $write($tag($script . static::arriveScript($data)));
+            };
+
             if ($this->context->parallel && Parallel::isAvailable()) {
                 Parallel::run(
                     fn (): ?Pagelet => $this->takeNextPagelet(),
-                    static function (Pagelet $pagelet, array $data) use ($write, $tag): void {
-                        $write($tag(static::arriveScript($data)));
+                    static function (Pagelet $pagelet, array $data) use ($arrive): void {
+                        $arrive($data);
                     }
                 );
             } else {
                 while (($pagelet = $this->takeNextPagelet()) !== null) {
-                    $write($tag(static::arriveScript($pagelet->renderData())));
+                    $arrive($pagelet->renderData());
                 }
             }
 
@@ -418,12 +425,12 @@ class BigPipe
      * Takes the defines of the page out of its jsmods, with the nonce first: the pagelets can
      * require them, so they are sent before the pagelets.
      */
-    protected function takeDefines(): array
+    protected function takeDefines(bool $withNonce = true): array
     {
         $defines = $this->context->jsmods['define'] ?? [];
         unset($this->context->jsmods['define']);
 
-        if ($this->context->nonce !== null) {
+        if ($withNonce && $this->context->nonce !== null) {
             array_unshift($defines, [static::CSP_NONCE_MODULE, $this->context->nonce]);
         }
 
