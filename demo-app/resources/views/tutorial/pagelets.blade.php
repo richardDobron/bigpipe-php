@@ -46,7 +46,7 @@ CODE
 @php(\dobron\BigPipe\BigPipe::page()->call('tutorial/Arrival', 'done'))
 
 @section('examples')
-    <x-example class="wide" title="Five pagelets, one response" caption="The layout was flushed first, then every pagelet as soon as it was rendered; the bars end where each one was. Suggestions is in phase 1: rendered early, it is sent after the others. Shown at is when the browser displayed it (with the Vite dev server, once the page is parsed). Switch to one after another and compare.">
+    <x-example class="wide" title="Five pagelets, one response" caption="The layout was flushed first, then every pagelet as soon as it was rendered; the bars end where each one was. Suggestions is in phase 1: rendered early, it is sent after the others. Shown at is when the browser displayed it (with the Vite dev server, once the page is parsed); a phase is shown once its last pagelet is, without waiting for the next phase. Switch to one after another and compare.">
         <div class="pl-toolbar">
             <div class="segmented">
                 <a href="?parallel=1" class="{{ $parallel ? 'on' : '' }}">Parallel</a>
@@ -55,6 +55,8 @@ CODE
             <dl class="pl-summary">
                 <div><dt>layout flushed at</dt><dd>{{ \App\Pagelets\Tutorial\SlowPagelet::elapsed() }} ms</dd></div>
                 <div><dt>last pagelet rendered at</dt><dd id="last-flushed">…</dd></div>
+                <div><dt>phase 0 shown at</dt><dd id="phase-0-shown">…</dd></div>
+                <div><dt>phase 1 shown at</dt><dd id="phase-1-shown">…</dd></div>
             </dl>
         </div>
         <div class="pl-grid">

@@ -10,6 +10,16 @@ new Arbiter().subscribe('ajaxpipe/send', () => {
 
 const since = () => `${Math.round(performance.now() - start)} ms`;
 
+// A phase is shown once the pagelet the server sent as the last of it (last_in_phase) and the ones
+// before are shown, without waiting for the next phase.
+new Arbiter().subscribe('BigPipe/phaseDisplayed', ({ phase }) => {
+    const time = document.getElementById(`phase-${phase}-shown`);
+
+    if (time) {
+        time.textContent = since();
+    }
+});
+
 export default class Arrival {
     mark(id) {
         const card = document.querySelector(`#pagelet_${id} .pl-card`);
