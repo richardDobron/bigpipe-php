@@ -701,6 +701,8 @@ class AsyncResponse
 
             if (!empty($context->jsmods['define'])) {
                 $first['jsmods'] = ['define' => $context->jsmods['define']];
+                // The resources of the modules the server chose, see JsMods::defineCond().
+                $first += Bootloader::dataFor([], $first['jsmods']);
                 unset($context->jsmods['define']);
             }
             $part($first, false);

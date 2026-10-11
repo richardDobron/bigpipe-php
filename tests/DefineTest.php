@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use dobron\BigPipe\AsyncResponse;
 use dobron\BigPipe\BigPipe;
+use dobron\BigPipe\Bootloader;
 use dobron\BigPipe\Exceptions\BigPipeInvalidArgumentException;
 use dobron\BigPipe\Pagelet;
 use dobron\BigPipe\TransportMarker;
@@ -105,5 +106,69 @@ class DefineTest extends TestCase
         $this->expectException(BigPipeInvalidArgumentException::class);
 
         (new BigPipe())->defineElement('ChartBox', '');
+    }
+
+    public function testDefinesTheModuleTheServerChose(): void
+    {
+        $response = new AsyncResponse();
+
+        $response->bigPipe()
+            ->defineCond('Editor', 'EditorNext')
+            ->defineCond('Chat', null);
+
+        $this->assertSame([
+            ['Editor', ['__rc' => 'EditorNext']],
+            ['Chat', ['__rc' => null]],
+        ], $response->getResponse()['jsmods']['define']);
+    }
+
+    public function testSendsTheResourcesOfTheModuleTheServerChose(): void
+    {
+        Bootloader::setResourceMap(['editor-next.js' => ['type' => 'js', 'src' => '/static/editor-next.js']]);
+        Bootloader::enableBootload(['EditorNext' => ['editor-next.js']]);
+        $response = new AsyncResponse();
+        $response->bigPipe()->defineCond('Editor', 'EditorNext');
+
+        $data = $response->getResponse();
+
+        $this->assertSame(['EditorNext' => ['editor-next.js']], $data['bootloadable']);
+        $this->assertSame(['editor-next.js'], array_keys($data['resource_map']));
+    }
+
+    public function testSendsTheResourcesOfTheModuleTheServerChoseBeforeThePagelets(): void
+    {
+        Bootloader::enableBootload(['EditorNext' => ['/static/editor-next.js']]);
+        BigPipe::page()->defineCond('Editor', 'EditorNext');
+        (new Pagelet('composer'))->call('Editor', 'open');
+
+        $output = BigPipe::render();
+
+        $bootload = strpos($output, '"enableBootload",[{"EditorNext":["\/static\/editor-next.js"]}]');
+        $this->assertNotFalse($bootload);
+        $this->assertLessThan(strpos($output, '["Editor",{"__rc":"EditorNext"}]'), $bootload);
+        $this->assertLessThan(strpos($output, '["arrive",'), strpos($output, '["Editor",{"__rc":"EditorNext"}]'));
+    }
+
+    public function testSendsTheResourcesOfTheModuleTheServerChoseWithTheFirstPartOfAStream(): void
+    {
+        Bootloader::enableBootload(['EditorNext' => ['/static/editor-next.js']]);
+        $response = new AsyncResponse();
+        $response->bigPipe()->defineCond('Editor', 'EditorNext');
+
+        $chunks = '';
+        $response->stream(function (string $part) use (&$chunks): void {
+            $chunks .= $part;
+        });
+        $first = json_decode(explode(AsyncResponse::STREAM_DELIMITER, $chunks)[0], true)['content'];
+
+        $this->assertSame(['EditorNext' => ['/static/editor-next.js']], $first['bootloadable']);
+        $this->assertSame([['Editor', ['__rc' => 'EditorNext']]], $first['jsmods']['define']);
+    }
+
+    public function testRejectsAnInvalidChoice(): void
+    {
+        $this->expectException(BigPipeInvalidArgumentException::class);
+
+        (new BigPipe())->defineCond('Editor', 'Editor');
     }
 }

@@ -331,12 +331,12 @@ class BigPipe
 
         try {
             $defines = $this->takeDefines();
-            $write(empty($defines) ? '' : $tag(static::handleScript(['define' => $defines])));
+            $write(empty($defines) ? '' : $tag(static::definesScript($defines)));
 
             // A pagelet may require what the page defined while it was rendered: it is sent first.
             $arrive = function (array $data) use ($write, $tag): void {
                 $defines = $this->takeDefines(false);
-                $script = empty($defines) ? '' : static::handleScript(['define' => $defines]);
+                $script = empty($defines) ? '' : static::definesScript($defines);
                 $write($tag($script . static::arriveScript($data)));
             };
 
@@ -458,9 +458,9 @@ class BigPipe
      * Sends the resource map and the bootloadable modules the modules of the page call, before
      * the pagelets and the modules of the page.
      */
-    protected static function bootloadScript(array $jsmods): string
+    protected static function bootloadScript(array $jsmods, bool $preload = true): string
     {
-        $data = Bootloader::dataFor([], $jsmods, true);
+        $data = Bootloader::dataFor([], $jsmods, $preload);
         $require = [];
 
         if (isset($data['resource_map'])) {
@@ -472,6 +472,15 @@ class BigPipe
         }
 
         return empty($require) ? '' : static::handleScript(['require' => $require]) . "\n";
+    }
+
+    /**
+     * The defines of the page, after the resources of the modules the server chose, see
+     * JsMods::defineCond(): the pagelets may call them before the modules of the page are sent.
+     */
+    protected static function definesScript(array $defines): string
+    {
+        return static::bootloadScript(['define' => $defines], false) . static::handleScript(['define' => $defines]);
     }
 
     protected static function handleScript(array $jsmods): string
@@ -525,7 +534,7 @@ class BigPipe
             }
 
             $defines = $this->takeDefines();
-            $script = empty($defines) ? '' : static::handleScript(['define' => $defines]) . "\n";
+            $script = empty($defines) ? '' : static::definesScript($defines) . "\n";
             $jsmods = $this->context->jsmods();
             $script .= static::bootloadScript($jsmods) . $pageletsScript . static::handleScript($jsmods);
         } finally {

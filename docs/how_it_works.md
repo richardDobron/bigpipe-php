@@ -102,6 +102,29 @@ Defining the name again replaces it, e.g. after the element was rendered anew. P
 with `$pagelet->defineElement()`. To give a module an element for one call only, pass `TransportMarker::element()` as an
 argument.
 
+## Modules the server chooses
+A module can stand for another one the server chooses, e.g. the variant of a feature flag or an A/B test for the user,
+or `null` to turn a feature off. The JavaScript requires and calls `Editor` and gets the module the server chose:
+
+```php
+<?php
+$asyncResponse->bigPipe()->defineCond('Editor', $user->isBeta() ? 'EditorNext' : 'EditorClassic');
+$asyncResponse->bigPipe()->defineCond('Chat', $chatEnabled ? 'ChatDock' : null);
+
+$asyncResponse->call('Editor', 'open', [\dobron\BigPipe\TransportMarker::element('post')]);
+```
+
+```javascript
+import { ifRequired, requireLazy } from 'bigpipe-util/dist/ModuleRegistry';
+
+requireLazy(['Editor'], Editor => Editor.open(textarea)); // EditorNext or EditorClassic
+ifRequired('Chat', Chat => Chat.mount());                   // nothing when the chat is turned off
+```
+
+When the chosen module is [bootloadable](bootloader.md), only its resources are sent and loaded, so the browser never
+downloads the variants the user does not get. A module turned off is `null`: its calls do nothing. Pages and pagelets
+choose modules the same way, with `BigPipe::page()->defineCond()` and `$pagelet->defineCond()`.
+
 ## Errors
 Mark a response as failed with `setError()`. The browser calls the error handler of the request instead of its
 handler, with the summary, description and flags. The DOM operations and modules of the response are still applied,

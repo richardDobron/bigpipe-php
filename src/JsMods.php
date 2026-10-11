@@ -165,6 +165,25 @@ trait JsMods
     }
 
     /**
+     * Makes a module stand for the one the server chose, e.g. the variant of a feature flag or an A/B
+     * test for the user: the browser requires $target whenever $module is required or called, and
+     * loads only the resources of $target when it is bootloadable. A null $target turns the module
+     * off: its calls do nothing and ifRequired() treats it as missing.
+     *
+     *     $response->bigPipe()->defineCond('Editor', $user->isBeta() ? 'EditorNext' : 'EditorClassic');
+     *
+     * @throws BigPipeInvalidArgumentException
+     */
+    public function defineCond(string $module, ?string $target): static
+    {
+        if ($module === '' || $target === '' || $target === $module) {
+            throw new BigPipeInvalidArgumentException("Invalid module or target.");
+        }
+
+        return $this->define($module, [TransportMarker::TRANSPORT_CONDITION => $target]);
+    }
+
+    /**
      * Defines a module that is an element of the page: the browser finds the element with the id
      * when the module is first required, so any module can require it by name. The same as
      * define($module, TransportMarker::element($elementId)).

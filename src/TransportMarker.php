@@ -15,6 +15,8 @@ class TransportMarker
     public const TRANSPORT_MAP = "__map";
     public const TRANSPORT_SET = "__set";
     public const TRANSPORT_RELATIVE = "__rel";
+    /** The module the server chose for another one, see JsMods::defineCond(). */
+    public const TRANSPORT_CONDITION = "__rc";
 
     /**
      * HTML content of a DOM operation.

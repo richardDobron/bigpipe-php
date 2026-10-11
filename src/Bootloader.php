@@ -103,6 +103,15 @@ class Bootloader
             static::collectModules($require[2] ?? [], $modules);
         }
 
+        // The module the server chose for another one, see JsMods::defineCond().
+        foreach ($jsmods['define'] ?? [] as $define) {
+            $target = $define[1][TransportMarker::TRANSPORT_CONDITION] ?? null;
+
+            if (is_array($define[1] ?? null) && is_string($target)) {
+                $modules[] = $target;
+            }
+        }
+
         // The browser creates an instance with its class, and loads it first when it is bootloadable.
         foreach ($jsmods['instances'] ?? [] as $instance) {
             if (is_string($instance[1] ?? null)) {
