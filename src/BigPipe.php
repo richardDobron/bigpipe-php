@@ -210,6 +210,48 @@ class BigPipe
     }
 
     /**
+     * Prints the HTML of every pagelet of the page in a hidden container before its script, a
+     * <code> element with the HTML in a comment, instead of in the JSON of the script: the HTML is
+     * not escaped in JSON, and the browser does not parse it until the pagelet is displayed. For
+     * render() and stream(); an AsyncResponse sends JSON.
+     */
+    public static function setHtmlContainers(bool $enabled): void
+    {
+        static::context()->htmlContainers = $enabled;
+    }
+
+    /**
+     * Moves the HTML of the DOM operations of a pagelet to hidden containers, when they are on, see
+     * setHtmlContainers(): `\` and `-` are escaped with a backslash, so the comment never ends early.
+     *
+     * @return array{0: string, 1: array} the containers to print before the script, and the data
+     */
+    protected function moveHtmlToContainers(array $data): array
+    {
+        if (!$this->context->htmlContainers) {
+            return ['', $data];
+        }
+
+        $containers = '';
+
+        foreach ($data['domops'] ?? [] as $index => $operation) {
+            $content = $operation[3] ?? null;
+
+            if (!is_array($content) || array_keys($content) !== [TransportMarker::TRANSPORT_HTML]
+                || !is_string($content[TransportMarker::TRANSPORT_HTML]) || $content[TransportMarker::TRANSPORT_HTML] === '') {
+                continue;
+            }
+
+            $id = $this->context->nextNodeId();
+            $html = strtr($content[TransportMarker::TRANSPORT_HTML], ['\\' => '\\\\', '-' => '\\-']);
+            $containers .= "<code hidden id=\"$id\"><!-- $html --></code>\n";
+            $data['domops'][$index][3] = [TransportMarker::TRANSPORT_CONTAINER => $id];
+        }
+
+        return [$containers, $data];
+    }
+
+    /**
      * Whether the pagelets are sent after the page, see setPipelining().
      */
     public static function isPipelining(): bool
@@ -337,7 +379,8 @@ class BigPipe
             $arrive = function (array $data) use ($write, $tag): void {
                 $defines = $this->takeDefines(false);
                 $script = empty($defines) ? '' : static::definesScript($defines);
-                $write($tag($script . static::arriveScript($data)));
+                [$containers, $data] = $this->moveHtmlToContainers($data);
+                $write($containers . $tag($script . static::arriveScript($data)));
             };
 
             if ($this->context->parallel && Parallel::isAvailable()) {
@@ -529,7 +572,10 @@ class BigPipe
                 $rendered[array_key_last($rendered)]['is_last'] = true;
             }
 
+            $containers = '';
             foreach ($rendered as $data) {
+                [$html, $data] = $this->moveHtmlToContainers($data);
+                $containers .= $html;
                 $pageletsScript .= static::arriveScript($data) . "\n";
             }
 
@@ -544,7 +590,7 @@ class BigPipe
         $nonce = static::formatScriptAttributes($this->context);
 
         return <<<HTML
-<script$nonce>
+$containers<script$nonce>
 $script
 </script>
 HTML;

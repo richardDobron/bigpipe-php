@@ -168,6 +168,28 @@ return response()->stream(function () {
 The browser part shows each pagelet as soon as it arrives, as long as `require` exists by then: load the entrypoint
 with a classic `<script src>` in the `<head>`. A `<script type="module">` runs only after the whole page is parsed.
 
+## HTML containers
+
+The HTML of a pagelet is sent in the JSON of its script by default. With `BigPipe::setHtmlContainers(true)`,
+`render()` and `stream()` print it before the script in a hidden container instead, as Facebook does, and the script
+only names the container:
+
+```html
+<code hidden id="u_0_5"><!-- <ul class="posts">…</ul> --></code>
+<script>(window.__bigpipe=window.__bigpipe||[]).push(["arrive",{"id":"feed","domops":[["setContent","#pagelet_feed",false,{"__container":"u_0_5"}]],…}]);</script>
+```
+
+The HTML is not escaped in JSON, so the page is smaller, and the browser does not parse it until the pagelet is
+displayed. In the comment, `` and `-` are escaped with a backslash, so the HTML can contain anything. A pagelet of
+an `AsyncResponse` is JSON, and keeps its HTML in it.
+
+```php
+<?php
+use dobronBigPipeBigPipe;
+
+BigPipe::setHtmlContainers(true);
+```
+
 ## Parallel rendering
 
 Pagelets are rendered one after the other, so five pagelets that wait 200 ms for an API take a second. With

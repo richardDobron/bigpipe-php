@@ -10,6 +10,7 @@ namespace dobron\BigPipe;
 class TransportMarker
 {
     public const TRANSPORT_HTML = "__html";
+    public const TRANSPORT_CONTAINER = "__container";
     public const TRANSPORT_MODULE = "__m";
     public const TRANSPORT_ELEMENT = "__e";
     public const TRANSPORT_MAP = "__map";

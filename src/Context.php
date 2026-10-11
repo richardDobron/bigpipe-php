@@ -38,6 +38,12 @@ class Context
     public bool $parallel = false;
 
     /**
+     * Whether the HTML of the pagelets of a page is printed in hidden containers instead of the JSON
+     * of their scripts, see BigPipe::setHtmlContainers(). Like the nonce, reset() keeps it.
+     */
+    public bool $htmlContainers = false;
+
+    /**
      * The type of the inline scripts BigPipe renders, "module" or null for classic scripts, see
      * BigPipe::setScriptType(). Like the nonce, reset() keeps it.
      */
