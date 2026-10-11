@@ -8,6 +8,7 @@ use dobron\BigPipe\Symfony\AsyncResponse;
 use dobron\BigPipe\Symfony\BigPipeBundle;
 use dobron\BigPipe\Symfony\ContextHolder;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Bundle\TwigBundle\TwigBundle;
@@ -15,6 +16,7 @@ use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigura
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
@@ -34,7 +36,18 @@ class BigPipeSymfonyTestKernel extends Kernel
 
     public function getCacheDir(): string
     {
-        return sys_get_temp_dir() . '/bigpipe-symfony-test/' . md5(serialize($this->bigPipeConfig)) . '/cache';
+        return sys_get_temp_dir() . '/bigpipe-symfony-test/' . self::sourceHash() . '/' . md5(serialize($this->bigPipeConfig)) . '/cache';
+    }
+
+    /**
+     * A container compiled for other sources of the bundle or of this kernel is never used.
+     */
+    private static function sourceHash(): string
+    {
+        $dir = dirname(__DIR__) . '/src/Symfony';
+        $files = [...glob("$dir/*.php"), ...glob("$dir/*/*.php"), __FILE__];
+
+        return md5(implode('', array_map('md5_file', $files)));
     }
 
     public function getLogDir(): string
@@ -51,6 +64,8 @@ class BigPipeSymfonyTestKernel extends Kernel
             'session' => ['storage_factory_id' => 'session.storage.factory.mock_file'],
         ]);
         $container->extension('bigpipe', $this->bigPipeConfig);
+        // The rejected requests of the tests are not logged to stderr.
+        $container->services()->set('logger', NullLogger::class);
     }
 
     protected function configureRoutes(RoutingConfigurator $routes): void
@@ -58,6 +73,7 @@ class BigPipeSymfonyTestKernel extends Kernel
         $routes->add('async', '/async')->controller('kernel::asyncAction');
         $routes->add('core', '/core')->controller('kernel::coreAction');
         $routes->add('page', '/page')->controller('kernel::pageAction');
+        $routes->add('save', '/save')->controller('kernel::saveAction')->methods(['POST']);
     }
 
     public function asyncAction(): AsyncResponse
@@ -73,6 +89,11 @@ class BigPipeSymfonyTestKernel extends Kernel
     public function pageAction(): Response
     {
         return new Response($this->twig()->createTemplate('{{ bigpipe() }}')->render());
+    }
+
+    public function saveAction(): Response
+    {
+        throw new HttpException(419, 'CSRF token expired.');
     }
 
     public function twig(): \Twig\Environment
@@ -171,8 +192,53 @@ TWIG)->render(['id' => 1]);
         $content = $this->kernel(['csrf' => ['token_id' => 'bigpipe']])->handle(Request::create('/page'))->getContent();
 
         $this->assertMatchesRegularExpression(
-            '~\["CSRFToken",\{"token":"[^"]+","header":"X-CSRF-TOKEN","param":null\}\]~',
+            '~\["CSRFToken",\{"token":"[^"]+","header":"X-CSRF-TOKEN","param":null,"refresh":"\\\\/bigpipe\\\\/csrf-token"\}\]~',
             $content
         );
+    }
+
+    public function testRefreshUrlSendsANewToken(): void
+    {
+        $response = $this->kernel(['csrf' => ['token_id' => 'bigpipe']])->handle(Request::create('/bigpipe/csrf-token'));
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertMatchesRegularExpression('~"define":\[\["CSRFToken",\{"token":"[^"]+"~', $response->getContent());
+    }
+
+    public function testRefreshUrlCanBeTurnedOff(): void
+    {
+        $kernel = $this->kernel(['csrf' => ['token_id' => 'bigpipe', 'refresh_uri' => null]]);
+
+        $this->assertSame(404, $kernel->handle(Request::create('/bigpipe/csrf-token'))->getStatusCode());
+        $this->assertStringNotContainsString('"refresh"', $kernel->handle(Request::create('/page'))->getContent());
+    }
+
+    public function testExpiredTokenOfAnAjaxRequestIsRetried(): void
+    {
+        $request = Request::create('/save', 'POST');
+        $request->headers->set('X-Requested-With', 'XMLHttpRequest');
+
+        $response = $this->kernel(['csrf' => ['token_id' => 'bigpipe']])->handle($request);
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertStringContainsString('"csrf_refresh":1', $response->getContent());
+        $this->assertMatchesRegularExpression('~"define":\[\["CSRFToken",\{"token":"[^"]+"~', $response->getContent());
+    }
+
+    public function testExpiredTokenOfAPageIsNotHandled(): void
+    {
+        $response = $this->kernel(['csrf' => ['token_id' => 'bigpipe']])->handle(Request::create('/save', 'POST'));
+
+        $this->assertSame(419, $response->getStatusCode());
+    }
+
+    public function testRetryCanBeTurnedOff(): void
+    {
+        $request = Request::create('/save', 'POST');
+        $request->headers->set('X-Requested-With', 'XMLHttpRequest');
+
+        $response = $this->kernel(['csrf' => ['token_id' => 'bigpipe', 'retry' => false]])->handle($request);
+
+        $this->assertSame(419, $response->getStatusCode());
     }
 }

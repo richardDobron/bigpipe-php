@@ -72,6 +72,75 @@ class PsrTest extends TestCase
         );
     }
 
+    private function recovering(bool $retry = true): BigPipeMiddleware
+    {
+        return new BigPipeMiddleware(
+            fn (ServerRequestInterface $request) => $request->getAttribute('csrf'),
+            csrfRefreshUri: '/bigpipe/csrf-token',
+            responses: $this->responses(),
+            csrfRetry: $retry
+        );
+    }
+
+    private function rejectingHandler(): RequestHandlerInterface
+    {
+        return $this->handler(fn () => (new Psr17Factory())->createResponse(419));
+    }
+
+    private function ajaxRequest(string $method, string $uri): ServerRequestInterface
+    {
+        return (new Psr17Factory())->createServerRequest($method, $uri)
+            ->withAttribute('csrf', 'n3w')
+            ->withHeader('X-Requested-With', 'XMLHttpRequest');
+    }
+
+    public function testMiddlewareNamesTheRefreshUrl(): void
+    {
+        $response = $this->recovering()->process(
+            (new Psr17Factory())->createServerRequest('GET', '/')->withAttribute('csrf', 'secret'),
+            $this->handler(fn ($request) => $this->responses()->create(new AsyncResponse(), $request))
+        );
+
+        $this->assertStringContainsString(
+            '"define":[["CSRFToken",{"token":"secret","header":"X-CSRF-TOKEN","param":null,"refresh":"\/bigpipe\/csrf-token"}]]',
+            (string) $response->getBody()
+        );
+    }
+
+    public function testMiddlewareAnswersTheRefreshUrl(): void
+    {
+        $response = $this->recovering()->process(
+            $this->ajaxRequest('GET', '/bigpipe/csrf-token'),
+            $this->handler(fn () => $this->fail('The refresh URL is answered by the middleware.'))
+        );
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertStringContainsString('"define":[["CSRFToken",{"token":"n3w"', (string) $response->getBody());
+    }
+
+    public function testRejectedTokenOfAnAjaxRequestIsRetried(): void
+    {
+        $response = $this->recovering()->process($this->ajaxRequest('POST', '/save'), $this->rejectingHandler());
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertStringContainsString('"csrf_refresh":1', (string) $response->getBody());
+        $this->assertStringContainsString('"define":[["CSRFToken",{"token":"n3w"', (string) $response->getBody());
+    }
+
+    public function testRejectedTokenOfAPageIsNotHandled(): void
+    {
+        $request = (new Psr17Factory())->createServerRequest('POST', '/save')->withAttribute('csrf', 'n3w');
+
+        $this->assertSame(419, $this->recovering()->process($request, $this->rejectingHandler())->getStatusCode());
+    }
+
+    public function testRetryCanBeTurnedOff(): void
+    {
+        $response = $this->recovering(retry: false)->process($this->ajaxRequest('POST', '/save'), $this->rejectingHandler());
+
+        $this->assertSame(419, $response->getStatusCode());
+    }
+
     public function testResponse(): void
     {
         $response = $this->responses()->create(

@@ -26,6 +26,32 @@ named by `csrfParam`; check it where the application checks its tokens. Use a to
 a page sends the token it got when it was loaded. Without a callable, no token is sent, and the middleware has to run
 after the one that provides the token.
 
+### Expired tokens
+
+A page that stays open after the session expired sends a token the application rejects. The browser can get a new token
+and send the request again, once, so the user does not lose what they typed. Give the middleware a `ResponseFactory` (see
+[Responses](#responses)) and the URL of the token:
+
+```php
+$app->add(new BigPipeMiddleware(
+    fn ($request) => $request->getAttribute('csrf_token'),
+    csrfRefreshUri: '/bigpipe/csrf-token',
+    responses: new ResponseFactory($factory, $factory),
+));
+```
+
+- The middleware answers a `GET` of `csrfRefreshUri` itself with the token of the request. When the application answers
+  a rejected token with `419`, the browser requests this URL and repeats the request.
+- A request of BigPipe (`X-Requested-With: XMLHttpRequest`) the application answers with `419` is answered with the new
+  token instead (`csrfRetry`, on by default): the browser applies it and sends the request again, and the handlers of
+  the request see the response of the second try.
+
+The middleware cannot tell a rejected token from other errors, so answer a rejected token with `419`, e.g. from the
+failure handler of `slim/csrf`. A `419` of a middleware that runs before this one reaches the browser, which then gets the
+token from the refresh URL; a `419` of the handler or of a later middleware is answered with the new token right away. The
+URL is compared with the path of the request, so with a base path, include it. If the token is rejected again, the second
+response is handled like any other, so a request never loops.
+
 ## Responses
 
 `ResponseFactory` turns an `AsyncResponse` or a `DialogResponse` into a PSR-7 response:

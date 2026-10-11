@@ -16,8 +16,8 @@ use Twig\Environment;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
 /**
- * Integrates BigPipe into Symfony: a context per request (also in worker mode), the CSRF token,
- * responses a controller returns and the Twig functions.
+ * Integrates BigPipe into Symfony: a context per request (also in worker mode), the CSRF token, the
+ * recovery of an expired token, responses a controller returns and the Twig functions.
  */
 class BigPipeBundle extends AbstractBundle
 {
@@ -38,6 +38,14 @@ class BigPipeBundle extends AbstractBundle
                         ->end()
                         ->scalarNode('header')->defaultValue('X-CSRF-TOKEN')->end()
                         ->scalarNode('param')->defaultNull()->end()
+                        ->scalarNode('refresh_uri')
+                            ->info('The path the browser gets a new token from when it expired (419). Null answers none.')
+                            ->defaultValue('/bigpipe/csrf-token')
+                        ->end()
+                        ->booleanNode('retry')
+                            ->info('Answers a request of BigPipe rejected with a 419 HttpException with the new token.')
+                            ->defaultTrue()
+                        ->end()
                     ->end()
                 ->end()
             ->end();
