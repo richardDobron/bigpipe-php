@@ -20,9 +20,9 @@ export default defineConfig({
         // The CSS as a stylesheet of its own, not injected by the script.
         cssCodeSplit: false,
         rollupOptions: {
-            // A classic script, not a module: loaded in the <head>, it defines `require` before the
-            // inline scripts of BigPipe run, so every pagelet is shown as soon as it arrives. The dev
-            // server only serves modules; there, the scripts of BigPipe are module scripts too.
+            // A classic script, not a module: loaded in the <head>, it runs before the inline scripts of
+            // BigPipe, so every pagelet is shown as soon as it arrives. The dev server only serves
+            // modules, which run once the page is parsed: the inline scripts queue their calls until then.
             output: {
                 format: 'iife',
                 inlineDynamicImports: true,

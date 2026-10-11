@@ -6,7 +6,6 @@ use Closure;
 use dobron\BigPipe\BigPipe;
 use dobron\BigPipe\Quickling;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Vite;
 use Symfony\Component\HttpFoundation\Response;
 
 class SetUpBigPipe
@@ -16,10 +15,8 @@ class SetUpBigPipe
         // Expired tokens: the browser gets a new one from this URL and sends the request again.
         BigPipe::setCSRFToken(csrf_token(), refreshUri: route('csrf-token', absolute: false));
 
-        // The build is a classic script in the <head>, so the inline scripts of BigPipe are classic too and
-        // every pagelet is shown as soon as it arrives. The dev server serves the entrypoint as a deferred
-        // module: then they are modules as well, which run after it, once the page is parsed.
-        BigPipe::setScriptType(Vite::isRunningHot() ? 'module' : null);
+        // The inline scripts of BigPipe queue their calls until the entrypoint has run, so they work with the
+        // classic script of the build and with the module of the dev server alike.
         BigPipe::setTtiPhase(0);
         BigPipe::setPipelining(! $this->isCrawler($request));
 
