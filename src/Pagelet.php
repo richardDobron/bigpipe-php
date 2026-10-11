@@ -75,6 +75,13 @@ class Pagelet
         $this->element = static::rootId($this->id);
         $this->deferred[] = fn () => $this->content();
 
+        // A pagelet created while another one is rendered is in its content: the browser has to
+        // display that one first, or the element of this one is not on the page yet.
+        $parent = static::current();
+        if ($parent !== null) {
+            $this->displayAfter($parent);
+        }
+
         BigPipe::context()->addPagelet($this->id, $this);
     }
 

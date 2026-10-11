@@ -38,6 +38,24 @@ class DisplayOrderTest extends TestCase
         $this->assertSame(['feed', 'sidebar'], $chat->renderData()['display_dependency']);
     }
 
+    public function testDisplaysAPageletCreatedWhileRenderingAnotherAfterIt(): void
+    {
+        (new Pagelet('content'))->defer(function () {
+            $sidebar = (new Pagelet('sidebar'))->appendContent('friends');
+
+            return "<aside>$sidebar</aside>";
+        });
+
+        $output = BigPipe::render();
+
+        $this->assertMatchesRegularExpression('/"id":"sidebar".*"display_dependency":\["content"\]/', $output);
+    }
+
+    public function testAPageletCreatedOutsideOfAnotherHasNoDependency(): void
+    {
+        $this->assertArrayNotHasKey('display_dependency', (new Pagelet('feed'))->renderData());
+    }
+
     public function testAPageletClassCanDeclareItsPhase(): void
     {
         $this->assertSame(1, (new AdsPagelet())->getPhase());
