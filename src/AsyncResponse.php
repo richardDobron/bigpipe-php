@@ -520,11 +520,11 @@ class AsyncResponse
     /**
      * Answers a page transition, see Quickling: the content fills the canvas, and the pagelets
      * printed in it are sent in the order of their phases. The payload has the version of the
-     * pages, the title and the class of `<body>`.
+     * pages, the title and the class of `<body>`; the browser keeps the title or the class without one.
      *
      * @throws \Throwable
      */
-    public function transition(string $content, ?string $title = null, string $bodyClass = ''): static
+    public function transition(string $content, ?string $title = null, ?string $bodyClass = null): static
     {
         $this->setContent('', $content);
         $this->setTransitionPayload([

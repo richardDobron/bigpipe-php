@@ -81,6 +81,16 @@ class QuicklingTest extends TestCase
         $this->assertArrayNotHasKey('is_last', $response['pagelets'][0]);
     }
 
+    public function testKeepsTheTitleAndTheBodyClassWithoutThem(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/feed';
+
+        $payload = (new AsyncResponse())->transition('<main></main>')->getResponse()['payload'];
+
+        $this->assertNull($payload['title']);
+        $this->assertNull($payload['body_class']);
+    }
+
     public function testRedirectsAPageTransition(): void
     {
         $this->assertSame(['redirect' => '/new'], (new AsyncResponse())->transitionRedirect('/new')->getResponse()['payload']);

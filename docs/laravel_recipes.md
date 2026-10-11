@@ -48,9 +48,9 @@ The pages extend one layout. The content is a section, so a page transition can 
 `setScriptType()` in the middleware below. With Laravel Mix or webpack the entrypoint is a classic script and nothing
 needs to be set.
 
-A page transition replaces the class of `<body>` with the one of its response (`transition($content, $title, $bodyClass)`).
-Share the class of your layout, e.g. `View::share('bodyClass', 'bg-gray-50')` in a service provider, print it in the
-layout and give it to `transition()`, or the page loses its classes after the first transition.
+A page transition replaces the class of `<body>` with the one of its response (`transition($content, $title, $bodyClass)`),
+and keeps it when the response has none. To change it per page, share the class of your layout, e.g.
+`View::share('bodyClass', 'bg-gray-50')` in a service provider, print it in the layout and give it to `transition()`.
 
 `$partial` is for a view that is rendered for its content only: a page transition, or a streamed page. The layout then
 leaves out the script of BigPipe and the closing tags. This matters: rendering a view runs its layout too, and
