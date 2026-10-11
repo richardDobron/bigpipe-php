@@ -425,17 +425,27 @@ class AsyncResponse
     }
 
     /**
-     * Redirect to the given url.
+     * Loads the URL in the browser, in full by default. A redirect with a delay does not happen
+     * once the page is left with a page transition.
      *
-     * @param string $url
-     * @param int $delay
+     * @param int $delay milliseconds to wait
+     * @param bool $replace replaces the current history entry, e.g. of a form that should not be
+     *                      sent again with the back button
+     * @param bool $transition loads the URL with a page transition when the page has them on, see
+     *                         Quickling; keep it off when the layout changes, e.g. after a login
      *
      * @return static
-     * @throws Exceptions\BigPipeInvalidArgumentException
+     * @throws \Throwable
      */
-    public function redirect(string $url, int $delay = 0): static
+    public function redirect(string $url, int $delay = 0, bool $replace = false, bool $transition = false): static
     {
-        $this->call('bigpipe-util/dist/core/ServerRedirect', 'redirectPageTo', [$url, $delay]);
+        $args = [$url, $delay];
+
+        if ($replace || $transition) {
+            array_push($args, $replace, $transition);
+        }
+
+        $this->call('bigpipe-util/dist/core/ServerRedirect', 'redirectPageTo', $args);
 
         return $this;
     }

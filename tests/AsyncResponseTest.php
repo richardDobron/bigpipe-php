@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace AsyncResponseTest;
 
 use dobron\BigPipe\AsyncResponse;
+use dobron\BigPipe\BigPipe;
 use dobron\BigPipe\DialogResponse;
 use dobron\BigPipe\Exceptions\BigPipeInvalidArgumentException;
 use PHPUnit\Framework\TestCase;
@@ -398,6 +399,21 @@ class AsyncResponseTest extends TestCase
             ['morphContent', '#list', false, ['__html' => '<li id="one">One</li>']],
             ['morphContent', '', true, ['__html' => '<p>Saved</p>']],
         ], $response->getResponse()['domops']);
+    }
+
+    public function testRedirects(): void
+    {
+        BigPipe::reset();
+        $this->assertSame(
+            [['bigpipe-util/dist/core/ServerRedirect', 'redirectPageTo', ['/login', 500]]],
+            (new AsyncResponse())->redirect('/login', 500)->getResponse()['jsmods']['require']
+        );
+
+        BigPipe::reset();
+        $this->assertSame(
+            [['bigpipe-util/dist/core/ServerRedirect', 'redirectPageTo', ['/posts/1', 0, true, true]]],
+            (new AsyncResponse())->redirect('/posts/1', replace: true, transition: true)->getResponse()['jsmods']['require']
+        );
     }
 
     public function testException(): void
