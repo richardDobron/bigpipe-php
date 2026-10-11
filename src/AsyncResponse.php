@@ -670,7 +670,17 @@ class AsyncResponse
         };
 
         try {
-            $first = ['payload' => $this->payload, 'domops' => $this->domops] + ($this->error ?? []);
+            $first = [
+                'payload' => $this->payload,
+                'domops' => $this->domops,
+            ];
+
+            if ($this->csrfRefresh) {
+                $first['csrf_refresh'] = 1;
+            }
+
+            $first += $this->error ?? [];
+
             if (!empty($context->jsmods['define'])) {
                 $first['jsmods'] = ['define' => $context->jsmods['define']];
                 unset($context->jsmods['define']);

@@ -73,6 +73,22 @@ class StreamedResponseTest extends TestCase
         $this->assertTrue($this->parts[1]['finished']);
     }
 
+    public function testAsksForTheRequestToBeSentAgainInTheFirstPart(): void
+    {
+        $this->stream((new AsyncResponse())->retryWithCSRFToken('n3w'));
+
+        $this->assertSame(1, $this->parts[0]['content']['csrf_refresh']);
+        $this->assertSame('CSRFToken', $this->parts[0]['content']['jsmods']['define'][0][0]);
+        $this->assertArrayNotHasKey('csrf_refresh', $this->parts[1]['content']);
+    }
+
+    public function testOtherStreamedResponsesDoNotAskForIt(): void
+    {
+        $this->stream(new AsyncResponse());
+
+        $this->assertArrayNotHasKey('csrf_refresh', $this->parts[0]['content']);
+    }
+
     public function testSendsThePageletsOfAPageTransitionWhenNotStreamed(): void
     {
         $feed = new Pagelet('feed');
