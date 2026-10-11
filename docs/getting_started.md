@@ -91,6 +91,10 @@ which the browser part adds it to the stylesheets and scripts of the pagelets:
 Only the page script defines the nonce, `AsyncResponse` never does: the page keeps the nonce of its own policy, also
 when later requests have nonces of their own.
 
+A policy that requires [Trusted Types](https://developer.mozilla.org/docs/Web/API/Trusted_Types_API) has to allow
+the policy of `bigpipe-util`, which inserts the HTML and the scripts of the server:
+`require-trusted-types-for 'script'; trusted-types bigpipe`.
+
 ## 4. Call your first module
 
 A module is a default export: a function, a class or an object.
