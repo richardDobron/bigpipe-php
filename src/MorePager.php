@@ -50,7 +50,7 @@ class MorePager
 
             (Pagelet::current() ?? new BigPipe())->require(
                 [static::MODULE],
-                [TransportMarker::transportElement($this->id), $this->offset]
+                [TransportMarker::element($this->id), $this->offset]
             );
         }
 

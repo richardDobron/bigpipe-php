@@ -35,6 +35,6 @@ class Instance implements \JsonSerializable
 
     public function jsonSerialize(): array
     {
-        return TransportMarker::transportModule($this->id);
+        return TransportMarker::module($this->id);
     }
 }

@@ -12,7 +12,9 @@ The methods are static. The older names, `transportHtml()`, `transportModule()`,
 and `transportSet()`, and `$response->transport()` still work, but are deprecated.
 
 ### **html**
-- This method allows you to send HTML (or text) content using the `__html` marker.
+- This method allows you to send HTML (or text) content using the `__html` marker. DOM operations insert it as HTML.
+  A module gets it as it is, an object `{__html: '...'}`, so it decides how to insert it, e.g.
+  `element.innerHTML = message.__html`.
 
     ```php
     $content = dobron\BigPipe\TransportMarker::html('new content');
