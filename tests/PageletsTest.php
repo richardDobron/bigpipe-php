@@ -93,9 +93,9 @@ class PageletsTest extends TestCase
         $pagelet->call('Charlie', 'init', [], 1);
 
         $this->assertSame([
+            ['Charlie', 'init'],
             ['Alfa', 'init'],
             ['Bravo', 'init'],
-            ['Charlie', 'init'],
         ], $pagelet->jsmods()['require']);
     }
 }
