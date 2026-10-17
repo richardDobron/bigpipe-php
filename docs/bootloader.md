@@ -28,6 +28,15 @@ $feed = (new Pagelet('feed'))
 
 A pagelet or a response sends only the part of the map it uses.
 
+A script that is an ES module, e.g. a chunk of Vite, has `'module' => true`. The browser loads it as
+`<script type="module">`, and preloads it with `<link rel="modulepreload">`:
+
+```php
+Bootloader::setResourceMap([
+    'editor.js' => ['type' => 'js', 'src' => '/build/assets/editor-4d5e6f.js', 'module' => true],
+]);
+```
+
 ## Bootloadable modules
 
 A module that the page rarely needs, like an editor, does not have to be in the bundle of the page. List the resources
@@ -52,7 +61,8 @@ Bootloader::enableBootload(['Editor' => ['editor.css', 'editor.js']]);
 
 The page, a pagelet or a response that calls the module sends its resources with it, and the browser loads them
 before it calls the module. The script has to make the module available when it runs, e.g. a chunk of the bundle that
-calls `registerModules()` from `bigpipe-util/dist/ModuleRegistry`.
+calls `registerModules()` from `bigpipe-util/dist/ModuleRegistry`. With Vite, that's a small entry for each module,
+whose chunk is in the resource map as a module script (see the `bigpipe-util` docs of the Bootloader).
 
 ## Display resources
 

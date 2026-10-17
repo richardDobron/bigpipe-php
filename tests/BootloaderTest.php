@@ -46,6 +46,21 @@ class BootloaderTest extends TestCase
         $this->assertArrayNotHasKey('allResources', $data);
     }
 
+    public function testAModuleScriptKeepsItsModuleFlag(): void
+    {
+        Bootloader::setResourceMap([
+            'chat.js' => ['type' => 'js', 'src' => '/build/chat-1a2b.js', 'module' => true],
+            'chat.css' => ['type' => 'css', 'src' => '/build/chat.css', 'module' => true],
+        ]);
+        Bootloader::enableBootload(['Chat' => ['chat.css', 'chat.js']]);
+
+        $data = Bootloader::dataFor([], ['require' => [['Chat', 'init']]]);
+
+        $this->assertSame(['type' => 'js', 'src' => '/build/chat-1a2b.js', 'module' => true], $data['resource_map']['chat.js']);
+        // Only a script is a module.
+        $this->assertSame(['type' => 'css', 'src' => '/build/chat.css'], $data['resource_map']['chat.css']);
+    }
+
     public function testRejectsAResourceWithoutATypeOrSrc(): void
     {
         $this->expectException(BigPipeInvalidArgumentException::class);

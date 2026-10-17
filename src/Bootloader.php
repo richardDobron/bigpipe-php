@@ -11,16 +11,17 @@ class Bootloader
 {
     public const MODULE = 'bigpipe-util/dist/Bootloader';
 
-    /** @var array<string, array{type: string, src: string}> */
+    /** @var array<string, array{type: string, src: string, module?: true}> */
     protected static array $resourceMap = [];
 
     /** @var array<string, array{resources: list<string>, priority: int}> */
     protected static array $bootloadable = [];
 
     /**
-     * Adds resources by name, e.g. `['feed.css' => ['type' => 'css', 'src' => '/static/feed.1a2b.css']]`.
+     * Adds resources by name, e.g. `['feed.css' => ['type' => 'css', 'src' => '/static/feed.1a2b.css']]`, with
+     * `'module' => true` for a script that is an ES module.
      *
-     * @param array<string, array{type: string, src: string}> $resourceMap
+     * @param array<string, array{type: string, src: string, module?: bool}> $resourceMap
      * @throws Exceptions\BigPipeInvalidArgumentException
      */
     public static function setResourceMap(array $resourceMap): void
@@ -32,7 +33,9 @@ class Bootloader
                 );
             }
 
-            static::$resourceMap[$name] = ['type' => $resource['type'], 'src' => $resource['src']];
+            // A script that is an ES module, e.g. a chunk of Vite, is loaded as <script type="module">.
+            static::$resourceMap[$name] = ['type' => $resource['type'], 'src' => $resource['src']]
+                + ($resource['type'] === 'js' && ($resource['module'] ?? false) === true ? ['module' => true] : []);
         }
     }
 
