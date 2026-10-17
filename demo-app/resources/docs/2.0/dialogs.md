@@ -4,7 +4,7 @@ title: 🖥 Dialogs API
 sidebar_label: Dialogs
 ---
 
-The Dialogs API utilizes the _Modal Vanilla dependency_ to facilitate the display of dialogs. This dependency is functionally and visually compatible with the Bootstrap framework. This library has been modified to allow multiple dialogs to be displayed simultaneously.
+The Dialogs API shows dialogs with the built-in `Modal` of `bigpipe-util`, which has no dependencies. Its markup is that of Bootstrap modals by default, and several dialogs can be displayed at once: each new one is shown above the previous one.
 
 ## Methods
 
@@ -95,7 +95,10 @@ $response->setTitle('Delete the post?')
 
 `setOption($name, $value)`, `setOptions($array)` and the array given to `dialog($options)` set any option of the
 browser part by its name, e.g. `setOption('transition', 300)`; `dialog($options)` wins over the setters. The styling
-is up to your CSS: the markup is that of Bootstrap modals, and the options above add no classes.
+is up to your CSS: the markup is that of Bootstrap modals, and the options above add no classes. To style dialogs with
+Bootstrap, Tailwind or your own CSS, replace the markup, the class names and the selectors with `Modal.templates`,
+`Modal.options` and `Modal.selectors`, see
+[Styling](https://github.com/richardDobron/bigpipe-util/blob/main/docs/dialog.md#styling).
 
 The dialog is also a layer in the browser, whose `beforehide` event a controller can use to keep it open, see
 [Layer](https://github.com/richardDobron/bigpipe-util/blob/main/docs/dialog.md#layer-behaviors).

@@ -52,9 +52,6 @@ const modules = import.meta.glob(['./**/*.js', '!./app.js'], { eager: true });
 setModuleLoader(modulePath => modules[`./${modulePath}.js`]?.default);
 ```
 
-> Vite needs an alias for the `events` module used by dialogs, see the
-> [documentation](https://bigpipe.etexweb.sk/docs/getting_started).
-
 ### 4. Add this line to the page footer:
 ```html
 <?= \dobron\BigPipe\BigPipe::render() ?>

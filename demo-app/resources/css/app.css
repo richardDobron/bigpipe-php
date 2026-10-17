@@ -892,7 +892,7 @@ body.theme :not(pre) > code:not([class]) {
     border-radius: 6px;
 }
 
-/* Dialogs (modal-vanilla) */
+/* Dialogs (the Bootstrap markup of bigpipe-util's Modal) */
 body.theme .modal-content {
     overflow: hidden;
     color: var(--text);

@@ -57,8 +57,8 @@ setModuleLoader(modulePath => modules[`./${modulePath}.js`]?.default);
 Names are loaded relative to the entrypoint, so `MyModule` is `resources/js/MyModule.js` and `Admin/Panel` is
 `resources/js/Admin/Panel.js`. The modules of `bigpipe-util` that the server refers to are resolved automatically.
 
-Vite needs an alias for the `events` module that dialogs use, and a defined `__DEV__` shows debug messages. Both are
-described in the [`bigpipe-util` guide](https://github.com/richardDobron/bigpipe-util/blob/main/docs/getting_started.md).
+A defined `__DEV__` shows debug messages, see the
+[`bigpipe-util` guide](https://github.com/richardDobron/bigpipe-util/blob/main/docs/getting_started.md#optional-debug-messages).
 
 ## 3. Print the BigPipe script
 

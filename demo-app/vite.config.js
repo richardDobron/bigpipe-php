@@ -1,4 +1,3 @@
-import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import tailwindcss from '@tailwindcss/vite';
@@ -12,10 +11,6 @@ export default defineConfig({
         }),
         tailwindcss(),
     ],
-    resolve: {
-        // modal-vanilla, which dialogs use, imports the Node.js module `events`.
-        alias: { events: fileURLToPath(new URL('./node_modules/events/events.js', import.meta.url)) },
-    },
     build: {
         // The CSS as a stylesheet of its own, not injected by the script.
         cssCodeSplit: false,
