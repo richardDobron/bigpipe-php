@@ -175,4 +175,79 @@ class BootloaderTest extends TestCase
         $this->assertSame(['Editor' => ['editor.css', 'editor.js']], $data['bootloadable']);
         $this->assertSame(['editor.css', 'editor.js'], array_keys($data['resource_map']));
     }
+
+    public function testAResourceBringsTheResourcesItRequiresFirst(): void
+    {
+        Bootloader::setResourceMap([
+            'vendor.js' => ['type' => 'js', 'src' => '/static/vendor.js'],
+            'shared.js' => ['type' => 'js', 'src' => '/static/shared.js', 'requires' => ['vendor.js']],
+            'composer.css' => ['type' => 'css', 'src' => '/static/composer.css'],
+            'composer.js' => [
+                'type' => 'js',
+                'src' => '/static/composer.js',
+                'requires' => ['shared.js', 'vendor.js', 'composer.css'],
+            ],
+        ]);
+
+        $data = (new Pagelet('feed'))->addJs('composer.js')->renderData();
+
+        $this->assertSame(['vendor.js', 'shared.js', 'composer.css', 'composer.js'], $data['js']);
+        $this->assertSame(['vendor.js', 'shared.js', 'composer.css', 'composer.js'], array_keys($data['resource_map']));
+        $this->assertArrayNotHasKey('requires', $data['resource_map']['composer.js']);
+    }
+
+    public function testABootloadableModuleLoadsTheResourcesItsResourcesRequire(): void
+    {
+        Bootloader::setResourceMap([
+            'vendor.js' => ['type' => 'js', 'src' => '/static/vendor.js'],
+            'editor.js' => ['type' => 'js', 'src' => '/static/editor.js', 'requires' => ['vendor.js']],
+        ]);
+
+        $data = Bootloader::dataFor([], ['require' => [['Editor', 'open']]]);
+
+        $this->assertSame(['Editor' => ['editor.css', 'vendor.js', 'editor.js']], $data['bootloadable']);
+        $this->assertEqualsCanonicalizing(['editor.css', 'vendor.js', 'editor.js'], array_keys($data['resource_map']));
+    }
+
+    public function testRequiresInACycleAreResolvedOnce(): void
+    {
+        Bootloader::setResourceMap([
+            'a.js' => ['type' => 'js', 'src' => '/a.js', 'requires' => ['b.js']],
+            'b.js' => ['type' => 'js', 'src' => '/b.js', 'requires' => ['a.js']],
+        ]);
+
+        $this->assertSame(['b.js', 'a.js'], Bootloader::resolve(['a.js', 'b.js']));
+    }
+
+    public function testResolvesOnlyTheResourcesOfAType(): void
+    {
+        Bootloader::setResourceMap([
+            'feed.js' => ['type' => 'js', 'src' => '/feed.js', 'requires' => ['feed.css', '/fonts.css']],
+        ]);
+
+        $this->assertSame(['feed.css', '/fonts.css'], Bootloader::resolve(['feed.js'], 'css'));
+    }
+
+    public function testAnInlinePageletLinksTheStylesheetsItsStylesheetsRequire(): void
+    {
+        Bootloader::setResourceMap([
+            'base.css' => ['type' => 'css', 'src' => '/static/base.css'],
+            'feed.css' => ['type' => 'css', 'src' => '/static/feed.1a2b.css', 'requires' => ['base.css']],
+        ]);
+        BigPipe::setPipelining(false);
+
+        $html = (string) (new Pagelet('feed'))->addCss('feed.css');
+
+        $this->assertStringStartsWith(
+            '<link rel="stylesheet" href="/static/base.css"><link rel="stylesheet" href="/static/feed.1a2b.css">',
+            $html
+        );
+    }
+
+    public function testRejectsRequiresThatAreNotNames(): void
+    {
+        $this->expectException(BigPipeInvalidArgumentException::class);
+
+        Bootloader::setResourceMap(['feed.js' => ['type' => 'js', 'src' => '/feed.js', 'requires' => [1]]]);
+    }
 }

@@ -555,8 +555,8 @@ class Pagelet
 
         $data = [
             'id' => $this->id,
-            'js' => $this->js,
-            'css' => $this->inline ? [] : $this->css,
+            'js' => Bootloader::resolve($this->js),
+            'css' => $this->inline ? [] : Bootloader::resolve($this->css),
             "domops" => $domops,
             'jsmods' => $this->jsmods(),
         ];
@@ -586,15 +586,15 @@ class Pagelet
         }
 
         if (!empty($this->displayResources)) {
-            $data['displayResources'] = $this->displayResources;
+            $data['displayResources'] = Bootloader::resolve($this->displayResources);
         }
 
         if (!empty($this->allResources)) {
-            $data['allResources'] = $this->allResources;
+            $data['allResources'] = Bootloader::resolve($this->allResources);
         }
 
         if (!empty($this->prefetchRsrcs)) {
-            $data['prefetchRsrcs'] = $this->prefetchRsrcs;
+            $data['prefetchRsrcs'] = Bootloader::resolve($this->prefetchRsrcs);
         }
 
         if (!empty($this->prefetchJsmods['require'])) {
@@ -648,7 +648,7 @@ class Pagelet
         $content = $this->renderContent();
 
         $stylesheets = '';
-        foreach ($this->css as $file) {
+        foreach (Bootloader::resolve($this->css, 'css') as $file) {
             $stylesheets .= '<link rel="stylesheet" href="' . htmlspecialchars(Bootloader::src($file), ENT_QUOTES) . '">';
         }
 

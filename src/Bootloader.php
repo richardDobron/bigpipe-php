@@ -14,14 +14,17 @@ class Bootloader
     /** @var array<string, array{type: string, src: string, module?: true}> */
     protected static array $resourceMap = [];
 
+    /** @var array<string, list<string>> */
+    protected static array $requires = [];
+
     /** @var array<string, array{resources: list<string>, priority: int}> */
     protected static array $bootloadable = [];
 
     /**
      * Adds resources by name, e.g. `['feed.css' => ['type' => 'css', 'src' => '/static/feed.1a2b.css']]`, with
-     * `'module' => true` for a script that is an ES module.
+     * `'module' => true` for a script that is an ES module and `'requires' => [...]` for the resources it needs.
      *
-     * @param array<string, array{type: string, src: string, module?: bool}> $resourceMap
+     * @param array<string, array{type: string, src: string, module?: bool, requires?: list<string>}> $resourceMap
      * @throws Exceptions\BigPipeInvalidArgumentException
      */
     public static function setResourceMap(array $resourceMap): void
@@ -31,6 +34,20 @@ class Bootloader
                 throw new Exceptions\BigPipeInvalidArgumentException(
                     "The resource \"$name\" needs a type (css or js) and a src."
                 );
+            }
+
+            $requires = $resource['requires'] ?? [];
+
+            if (!is_array($requires) || array_filter($requires, fn ($name) => !is_string($name))) {
+                throw new Exceptions\BigPipeInvalidArgumentException(
+                    "The requires of the resource \"$name\" must be a list of names."
+                );
+            }
+
+            if (!empty($requires)) {
+                static::$requires[$name] = array_values($requires);
+            } else {
+                unset(static::$requires[$name]);
             }
 
             // A script that is an ES module, e.g. a chunk of Vite, is loaded as <script type="module">.
@@ -73,9 +90,45 @@ class Bootloader
         return static::$resourceMap[$name]['src'] ?? $name;
     }
 
+    /**
+     * The resources with the resources they require, each before the resources that require it and
+     * once. With a type, only the resources of that type, and the URLs.
+     *
+     * @param list<string> $names
+     * @return list<string>
+     */
+    public static function resolve(array $names, ?string $type = null): array
+    {
+        $resolved = [];
+        $visit = function (string $name) use (&$visit, &$resolved): void {
+            if (isset($resolved[$name])) {
+                return;
+            }
+
+            $resolved[$name] = false;
+
+            foreach (static::$requires[$name] ?? [] as $required) {
+                $visit($required);
+            }
+
+            unset($resolved[$name]);
+            $resolved[$name] = true;
+        };
+
+        foreach ($names as $name) {
+            $visit($name);
+        }
+
+        return array_values(array_filter(
+            array_map('strval', array_keys($resolved)),
+            fn ($name) => $type === null || (static::$resourceMap[$name]['type'] ?? $type) === $type
+        ));
+    }
+
     public static function reset(): void
     {
         static::$resourceMap = [];
+        static::$requires = [];
         static::$bootloadable = [];
     }
 
@@ -140,11 +193,12 @@ class Bootloader
             }
 
             $entry = static::$bootloadable[$module];
+            $entry['resources'] = static::resolve($entry['resources']);
             $bootloadable[$module] = $entry['priority'] > 0 ? $entry : $entry['resources'];
             array_push($resources, ...$entry['resources']);
         }
 
-        $resourceMap = array_intersect_key(static::$resourceMap, array_flip(array_unique($resources)));
+        $resourceMap = array_intersect_key(static::$resourceMap, array_flip(static::resolve($resources)));
         $data = [];
 
         if (!empty($resourceMap)) {

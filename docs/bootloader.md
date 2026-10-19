@@ -37,6 +37,21 @@ Bootloader::setResourceMap([
 ]);
 ```
 
+A resource that needs other resources lists them in `requires`. A pagelet, a response or a bootloadable module that
+uses it sends them too, each before the resources that require it, so a script runs after the scripts it needs:
+
+```php
+Bootloader::setResourceMap([
+    'vendor.js' => ['type' => 'js', 'src' => '/static/vendor.7a8b.js'],
+    'feed.css' => ['type' => 'css', 'src' => '/static/feed.1a2b.css'],
+    'feed.js' => ['type' => 'js', 'src' => '/static/feed.4d5e6f.js', 'requires' => ['vendor.js', 'feed.css']],
+]);
+
+(new Pagelet('feed'))->addJs('feed.js'); // vendor.js, feed.css, feed.js
+```
+
+`Bootloader::resolve(['feed.js'])` returns the names with the resources they require.
+
 ## Bootloadable modules
 
 A module that the page rarely needs, like an editor, does not have to be in the bundle of the page. List the resources
