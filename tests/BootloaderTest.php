@@ -302,4 +302,37 @@ class BootloaderTest extends TestCase
 
         Bootloader::fromViteManifest(__DIR__ . '/missing-manifest.json');
     }
+
+    public function testUsesTheViteDevServerWhileItRuns(): void
+    {
+        Bootloader::reset();
+        $hot = tempnam(sys_get_temp_dir(), 'hot');
+        file_put_contents($hot, "http://[::1]:5173\n");
+
+        Bootloader::fromViteManifest(__DIR__ . '/missing-manifest.json', '/build/', $hot);
+        unlink($hot);
+        Bootloader::enableBootload(['Editor' => ['resources/js/Editor.ts', 'resources/css/editor.scss', '/js/legacy.js']]);
+
+        $data = Bootloader::dataFor([], ['require' => [['Editor', 'open']]]);
+
+        $this->assertSame([
+            'resources/js/Editor.ts' => ['type' => 'js', 'src' => 'http://[::1]:5173/resources/js/Editor.ts', 'module' => true],
+            'resources/css/editor.scss' => ['type' => 'css', 'src' => 'http://[::1]:5173/resources/css/editor.scss'],
+        ], $data['resource_map']);
+        $this->assertSame('http://[::1]:5173/resources/js/app.js', Bootloader::src('resources/js/app.js'));
+        $this->assertSame('/js/legacy.js', Bootloader::src('/js/legacy.js'));
+    }
+
+    public function testReadsTheManifestWithoutTheHotFile(): void
+    {
+        Bootloader::reset();
+        $path = tempnam(sys_get_temp_dir(), 'manifest');
+        file_put_contents($path, json_encode(['resources/js/app.js' => ['file' => 'assets/app-1a2b.js']]));
+
+        Bootloader::fromViteManifest($path, '/build/', __DIR__ . '/missing-hot');
+        unlink($path);
+
+        $this->assertSame('/build/assets/app-1a2b.js', Bootloader::src('resources/js/app.js'));
+        $this->assertSame('resources/js/other.js', Bootloader::src('resources/js/other.js'));
+    }
 }

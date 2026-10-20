@@ -20,6 +20,8 @@ class Bootloader
     /** @var array<string, array{resources: list<string>, priority: int}> */
     protected static array $bootloadable = [];
 
+    protected static ?string $viteDevServer = null;
+
     /**
      * Adds resources by name, e.g. `['feed.css' => ['type' => 'css', 'src' => '/static/feed.1a2b.css']]`, with
      * `'module' => true` for a script that is an ES module and `'requires' => [...]` for the resources it needs.
@@ -61,10 +63,21 @@ class Bootloader
      * key in the manifest, e.g. `resources/js/Editor.js`, and a stylesheet of a chunk by its file.
      * A script requires its imports and stylesheets. The files are served from `$baseUrl`.
      *
+     * While the dev server runs, i.e. `$hotFile` exists, e.g. `public/hot` of Laravel, the
+     * manifest is not read: a source path, e.g. `resources/js/Editor.js`, is served by the dev
+     * server, a script as an ES module.
+     *
      * @throws Exceptions\BigPipeInvalidArgumentException
      */
-    public static function fromViteManifest(string $path, string $baseUrl = '/build/'): void
+    public static function fromViteManifest(string $path, string $baseUrl = '/build/', ?string $hotFile = null): void
     {
+        if ($hotFile !== null && is_file($hotFile)) {
+            static::$viteDevServer = rtrim(trim((string) file_get_contents($hotFile)), '/') . '/';
+
+            return;
+        }
+
+        static::$viteDevServer = null;
         $manifest = is_file($path) ? json_decode((string) file_get_contents($path), true) : null;
 
         if (!is_array($manifest)) {
@@ -118,6 +131,33 @@ class Bootloader
         };
     }
 
+    private static function viteSourceType(string $name): ?string
+    {
+        if ($name === '' || $name[0] === '/' || str_contains($name, '://')) {
+            return null;
+        }
+
+        return match (strtolower(pathinfo($name, PATHINFO_EXTENSION))) {
+            'js', 'mjs', 'ts', 'mts', 'jsx', 'tsx', 'vue', 'svelte' => 'js',
+            'css', 'scss', 'sass', 'less', 'styl', 'stylus', 'pcss', 'postcss' => 'css',
+            default => null,
+        };
+    }
+
+    private static function lookup(string $name): void
+    {
+        if (static::$viteDevServer === null || isset(static::$resourceMap[$name])) {
+            return;
+        }
+
+        $type = static::viteSourceType($name);
+
+        if ($type !== null) {
+            static::$resourceMap[$name] = ['type' => $type, 'src' => static::$viteDevServer . $name]
+                + ($type === 'js' ? ['module' => true] : []);
+        }
+    }
+
     /**
      * Adds JavaScript modules that the browser loads with their resources (names from the resource
      * map or URLs) when the server calls them, e.g. `['Editor' => ['editor.css', 'editor.js']]`.
@@ -149,6 +189,8 @@ class Bootloader
      */
     public static function src(string $name): string
     {
+        static::lookup($name);
+
         return static::$resourceMap[$name]['src'] ?? $name;
     }
 
@@ -168,6 +210,7 @@ class Bootloader
             }
 
             $resolved[$name] = false;
+            static::lookup($name);
 
             foreach (static::$requires[$name] ?? [] as $required) {
                 $visit($required);
@@ -192,6 +235,7 @@ class Bootloader
         static::$resourceMap = [];
         static::$requires = [];
         static::$bootloadable = [];
+        static::$viteDevServer = null;
     }
 
     /**
