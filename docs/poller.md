@@ -42,5 +42,22 @@ if (Poller::requestedId() !== null && isQuietHour()) {
 $response->send();
 ```
 
+## One tab for all of them
+
+With the page open in many tabs, each tab polls. `setShareAcrossTabs()` makes the tabs that poll the same URL elect a
+leader: only the leader sends the requests, and the other tabs apply its responses, so each of them shows the new
+notifications. A hidden tab gives up the lead, and when the leader is closed the next tab takes over. A string, e.g.
+`setShareAcrossTabs('notifications')`, shares by that name instead of the URL.
+
+```php
+<?php
+(new Poller('/notifications/poll', 30000))
+    ->setShareAcrossTabs()
+    ->start();
+```
+
+A call of the response to `Poller::requestedId()` reaches the poller of each tab. Browsers without the Web Locks API
+poll in every tab.
+
 ## Live Example
 A deploy that reports its progress until the server stops the poller, in the [demo page](http://bigpipe.etexweb.sk/tutorial/poller).

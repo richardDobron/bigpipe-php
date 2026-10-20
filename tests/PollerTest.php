@@ -28,6 +28,17 @@ class PollerTest extends TestCase
         );
     }
 
+    public function testSharesThePollerAcrossTabs(): void
+    {
+        (new Poller('/notifications/poll', 30000))->setShareAcrossTabs()->start();
+        (new Poller('/messages/poll', 30000))->setShareAcrossTabs('messages')->start();
+
+        $html = BigPipe::render();
+
+        $this->assertStringContainsString('"clearOnQuicklingEvents":true,"shareAcrossTabs":true}', $html);
+        $this->assertStringContainsString('"shareAcrossTabs":"messages"}', $html);
+    }
+
     public function testStartsThePollerWithThePageletBeingRendered(): void
     {
         $pagelet = (new Pagelet('notifications'))->defer(function (): void {

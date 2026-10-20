@@ -25,6 +25,7 @@ class Poller
     protected bool $muteWhenHidden = true;
     protected int $muteWhenIdle = 0;
     protected bool $clearOnQuicklingEvents = true;
+    protected bool|string $shareAcrossTabs = false;
 
     /**
      * @param int $interval milliseconds between the end of a request and the next one, at least 2000
@@ -101,6 +102,17 @@ class Poller
     }
 
     /**
+     * Sends the requests from one tab only, which shares the responses with the other tabs that
+     * poll the same URL, or with a poller of the same name.
+     */
+    public function setShareAcrossTabs(bool|string $shareAcrossTabs = true): static
+    {
+        $this->shareAcrossTabs = $shareAcrossTabs;
+
+        return $this;
+    }
+
+    /**
      * Starts the poller with the page, or with the pagelet whose content is being rendered.
      *
      * @throws \Throwable
@@ -144,6 +156,10 @@ class Poller
 
         if ($this->muteWhenIdle > 0) {
             $options['muteWhenIdle'] = $this->muteWhenIdle;
+        }
+
+        if ($this->shareAcrossTabs !== false && $this->shareAcrossTabs !== '') {
+            $options['shareAcrossTabs'] = $this->shareAcrossTabs;
         }
 
         return $options;
