@@ -57,6 +57,68 @@ class Bootloader
     }
 
     /**
+     * Adds the scripts and stylesheets of the manifest of Vite (`build.manifest`), named by their
+     * key in the manifest, e.g. `resources/js/Editor.js`, and a stylesheet of a chunk by its file.
+     * A script requires its imports and stylesheets. The files are served from `$baseUrl`.
+     *
+     * @throws Exceptions\BigPipeInvalidArgumentException
+     */
+    public static function fromViteManifest(string $path, string $baseUrl = '/build/'): void
+    {
+        $manifest = is_file($path) ? json_decode((string) file_get_contents($path), true) : null;
+
+        if (!is_array($manifest)) {
+            throw new Exceptions\BigPipeInvalidArgumentException("The Vite manifest \"$path\" is not readable JSON.");
+        }
+
+        $baseUrl = rtrim($baseUrl, '/') . '/';
+        $resourceMap = [];
+
+        foreach ($manifest as $name => $chunk) {
+            $type = static::viteType($chunk['file'] ?? null);
+
+            if ($type === null) {
+                continue;
+            }
+
+            $resource = ['type' => $type, 'src' => $baseUrl . $chunk['file']];
+
+            if ($type === 'js') {
+                $resource['module'] = true;
+                $requires = [];
+
+                foreach ($chunk['imports'] ?? [] as $import) {
+                    if (static::viteType($manifest[$import]['file'] ?? null) !== null) {
+                        $requires[] = $import;
+                    }
+                }
+
+                foreach ($chunk['css'] ?? [] as $file) {
+                    $resourceMap[$file] ??= ['type' => 'css', 'src' => $baseUrl . $file];
+                    $requires[] = $file;
+                }
+
+                if (!empty($requires)) {
+                    $resource['requires'] = $requires;
+                }
+            }
+
+            $resourceMap[$name] = $resource;
+        }
+
+        static::setResourceMap($resourceMap);
+    }
+
+    private static function viteType(mixed $file): ?string
+    {
+        return match (is_string($file) ? strtolower(pathinfo($file, PATHINFO_EXTENSION)) : null) {
+            'js', 'mjs' => 'js',
+            'css' => 'css',
+            default => null,
+        };
+    }
+
+    /**
      * Adds JavaScript modules that the browser loads with their resources (names from the resource
      * map or URLs) when the server calls them, e.g. `['Editor' => ['editor.css', 'editor.js']]`.
      * With a priority above 0, every page preloads their resources while the network is idle,

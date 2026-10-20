@@ -250,4 +250,56 @@ class BootloaderTest extends TestCase
 
         Bootloader::setResourceMap(['feed.js' => ['type' => 'js', 'src' => '/feed.js', 'requires' => [1]]]);
     }
+
+    public function testReadsTheViteManifest(): void
+    {
+        Bootloader::reset();
+        $path = tempnam(sys_get_temp_dir(), 'manifest');
+        file_put_contents($path, json_encode([
+            'resources/js/app.js' => [
+                'file' => 'assets/app-1a2b.js',
+                'src' => 'resources/js/app.js',
+                'isEntry' => true,
+                'imports' => ['_shared-3c4d.js'],
+                'css' => ['assets/app-5e6f.css'],
+            ],
+            '_shared-3c4d.js' => ['file' => 'assets/shared-3c4d.js', 'css' => ['assets/shared-7a8b.css']],
+            'resources/js/Editor.js' => [
+                'file' => 'assets/Editor-9c0d.js',
+                'isDynamicEntry' => true,
+                'imports' => ['_shared-3c4d.js', 'resources/images/logo.png'],
+            ],
+            'resources/css/app.css' => ['file' => 'assets/app-e1f2.css', 'isEntry' => true],
+            'resources/images/logo.png' => ['file' => 'assets/logo-3a4b.png'],
+        ]));
+
+        Bootloader::fromViteManifest($path, '/build');
+        unlink($path);
+        Bootloader::enableBootload(['Editor' => ['resources/js/Editor.js']]);
+
+        $data = Bootloader::dataFor([], ['require' => [['Editor', 'open']]]);
+
+        $this->assertSame(
+            ['Editor' => ['assets/shared-7a8b.css', '_shared-3c4d.js', 'resources/js/Editor.js']],
+            $data['bootloadable']
+        );
+        $this->assertSame(
+            ['type' => 'js', 'src' => '/build/assets/Editor-9c0d.js', 'module' => true],
+            $data['resource_map']['resources/js/Editor.js']
+        );
+        $this->assertSame(['type' => 'css', 'src' => '/build/assets/shared-7a8b.css'], $data['resource_map']['assets/shared-7a8b.css']);
+        $this->assertSame('/build/assets/app-e1f2.css', Bootloader::src('resources/css/app.css'));
+        $this->assertSame('resources/images/logo.png', Bootloader::src('resources/images/logo.png'));
+        $this->assertSame(
+            ['assets/shared-7a8b.css', '_shared-3c4d.js', 'assets/app-5e6f.css', 'resources/js/app.js'],
+            Bootloader::resolve(['resources/js/app.js'])
+        );
+    }
+
+    public function testRejectsAMissingViteManifest(): void
+    {
+        $this->expectException(BigPipeInvalidArgumentException::class);
+
+        Bootloader::fromViteManifest(__DIR__ . '/missing-manifest.json');
+    }
 }

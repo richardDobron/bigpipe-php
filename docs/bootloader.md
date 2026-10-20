@@ -52,6 +52,20 @@ Bootloader::setResourceMap([
 
 `Bootloader::resolve(['feed.js'])` returns the names with the resources they require.
 
+### From the Vite manifest
+
+With `build.manifest` enabled, Vite writes the map for you. Read it once at boot:
+
+```php
+Bootloader::fromViteManifest(public_path('build/.vite/manifest.json'), '/build/');
+
+(new Pagelet('feed'))->addJs('resources/js/feed.js');
+```
+
+Every script and stylesheet of the manifest is named by its key, the path of its source, e.g. `resources/js/feed.js`.
+A script is an ES module and requires the chunks it imports and its stylesheets, which are named by their file, e.g.
+`assets/feed-1a2b.css`. The files are served from the second argument, `/build/` by default.
+
 ## Bootloadable modules
 
 A module that the page rarely needs, like an editor, does not have to be in the bundle of the page. List the resources
@@ -77,7 +91,9 @@ Bootloader::enableBootload(['Editor' => ['editor.css', 'editor.js']]);
 The page, a pagelet or a response that calls the module sends its resources with it, and the browser loads them
 before it calls the module. The script has to make the module available when it runs, e.g. a chunk of the bundle that
 calls `registerModules()` from `bigpipe-util/dist/ModuleRegistry`. With Vite, that's a small entry for each module,
-whose chunk is in the resource map as a module script (see the `bigpipe-util` docs of the Bootloader).
+whose chunk is in the resource map as a module script (see the `bigpipe-util` docs of the Bootloader). With
+`fromViteManifest()`, the entry alone is enough, e.g. `['Editor' => ['resources/js/Editor.js']]`: its imports and
+stylesheets come with it.
 
 ## Display resources
 
