@@ -54,10 +54,11 @@ Bootloader::setResourceMap([
 
 ### From the Vite manifest
 
-With `build.manifest` enabled, Vite writes the map for you. Read it once at boot:
+With `build.manifest` enabled, Vite writes the map for you, e.g. to `public/build/manifest.json` with `laravel-vite-plugin`
+or `.vite/manifest.json` of the build directory without it. Read it once at boot:
 
 ```php
-Bootloader::fromViteManifest(public_path('build/.vite/manifest.json'), '/build/');
+Bootloader::fromViteManifest(public_path('build/manifest.json'), '/build/');
 
 (new Pagelet('feed'))->addJs('resources/js/feed.js');
 ```
@@ -65,6 +66,17 @@ Bootloader::fromViteManifest(public_path('build/.vite/manifest.json'), '/build/'
 Every script and stylesheet of the manifest is named by its key, the path of its source, e.g. `resources/js/feed.js`.
 A script is an ES module and requires the chunks it imports and its stylesheets, which are named by their file, e.g.
 `assets/feed-1a2b.css`. The files are served from the second argument, `/build/` by default.
+
+With the path of the hot file of the dev server, e.g. `public/hot` of Laravel, the same names work during
+`npm run dev`:
+
+```php
+Bootloader::fromViteManifest(public_path('build/manifest.json'), '/build/', public_path('hot'));
+```
+
+While the hot file exists, the manifest is not read: a source path, e.g. `resources/js/feed.js` or
+`resources/css/feed.scss`, is loaded from the dev server, a script as an ES module. The dev server loads the imports and
+the stylesheets they import itself. The page needs the client of Vite, e.g. from the `@vite` directive of Laravel.
 
 ## Bootloadable modules
 
