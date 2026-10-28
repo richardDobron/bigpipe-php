@@ -4,7 +4,7 @@ All notable changes to `richarddobron/bigpipe` will be documented in this file.
 
 Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) principles.
 
-## Unreleased
+## v2.2.0 - 2026-10-28
 
 ### Added
 
